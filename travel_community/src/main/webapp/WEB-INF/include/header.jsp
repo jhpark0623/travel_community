@@ -67,36 +67,24 @@ button:hover, input[type="submit"]:hover {
 	<div class="header-container">
 
 		<div class="header-left">
-			<c:choose>
-				<c:when test="${sessionScope.loginMember.store_code == 0}">
-					<a href="<%=request.getContextPath()%>/admin_main.go">Admin
-						Home</a>
-				</c:when>
-				<c:when test="${sessionScope.loginMember.store_code > 0}">
-					<a href="<%=request.getContextPath()%>/store_page.go">Store
-						Home</a>
-				</c:when>
-				<c:otherwise>
-					<a href="<%=request.getContextPath()%>/">Home</a>
-				</c:otherwise>
-			</c:choose>
+			<a href="<%=request.getContextPath()%>/">Home</a>
 		</div>
 
 		<div class="header-right">
 			<button class="btn btn-primary"
-				onclick="location.href='<%=request.getContextPath()%>/parking_in.go?floor=1'">입차</button>
+				onclick="location.href='<%=request.getContextPath()%>/'">버튼1</button>
 
 			<button class="btn btn-primary"
-				onclick="location.href='<%=request.getContextPath()%>/parking_out.go'">출차</button>
+				onclick="location.href='<%=request.getContextPath()%>/'">버튼2</button>
 
 			<c:choose>
-				<c:when test="${empty sessionScope.loginMember}">
+				<c:when test="${empty sessionScope.loginUser}">
 					<button class="btn btn-outline-secondary"
-						onclick="location.href='<%=request.getContextPath()%>/admin_login.go'">로그인</button>
+						onclick="location.href='<%=request.getContextPath()%>/user_login.go'">로그인</button>
 				</c:when>
 				<c:otherwise>
 					<button class="btn btn-outline-secondary"
-						onclick="location.href='<%=request.getContextPath()%>/admin_logout.go'">로그아웃</button>
+						onclick="location.href='<%=request.getContextPath()%>/user_logout.go'">로그아웃</button>
 				</c:otherwise>
 			</c:choose>
 		</div>
