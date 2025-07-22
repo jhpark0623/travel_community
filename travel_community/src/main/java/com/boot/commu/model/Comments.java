@@ -3,16 +3,12 @@ package com.boot.commu.model;
 import lombok.Data;
 
 @Data
-public class Posts {
+public class Comments {
 	private int id;
+	private int post_id;
 	private int user_id;
-	private int category_id;
-	private int city_id;
-	private String title;
 	private String content;
 	private String created_at;
-	private String updated_at;	
-	private int view_count;
-	private int like_count;
 	private String state;
+	private int parent_id;
 }
