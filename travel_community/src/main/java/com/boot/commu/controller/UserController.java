@@ -1,27 +1,127 @@
 package com.boot.commu.controller;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.boot.commu.mapper.UserMapper;
 import com.boot.commu.model.Users;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class UserController {
 	
+	@Autowired
+	private UserMapper mapper;
+	
+	
 	@GetMapping("user_login.go")
-	public String login() {
+	public String login(HttpServletRequest request) {
+		
+		// 로그인 페이지 이전의 페이지를 저장시키는 과정.
+		String prevPage = request.getHeader("Referer");
+		
+		if(prevPage != null && !prevPage.contains("/user_login")) { // 이전 페이지가 로그인 페이지가 아니고 이전 페이지 정보가 null이 아닌 경우
+            request.getSession().setAttribute("prevPage", prevPage); // 이전 페이지 정보 세션에 저장 
+        }
 		
 		return "user/user_login";
 	}
 	
 	@PostMapping("user_login_ok.go")
-	public void login_ok(Users users ,Model model, HttpServletResponse response) {
-		// 미완성
+	public void login_ok(@RequestParam("email") String email, @RequestParam("password") String password
+			,HttpSession session, HttpServletResponse response, HttpServletRequest request) throws IOException {
+		
+		// 이전 페이지 가져오기
+	    String prevPage = (String) session.getAttribute("prevPage");
+	    // System.out.println(prevPage);
+		
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
+			
+		Users login = this.mapper.login(email, password);
+		
+		if(login != null) {
+			session.setAttribute("loginUser", login);
+			 
+			
+			out.println("<script>");
+			out.println("alert('로그인 성공')");
+			out.println("location.href='"+prevPage+"'");		// 기존에 보고있던 페이지로 이동
+			out.println("</script>");
+		}else {
+			int chkId = this.mapper.chkId(email);
+			
+			if(chkId > 0) {
+				// 아이디는 DB에 있는 경우 -> 비밀번호가 일치하지 않는 경우
+				out.println("<script>");
+				out.println("alert('비밀번호가 일치하지 않습니다. 다시 확인해주세요.')");
+				out.println("history.back()");
+				out.println("</script>");
+			}else {
+				// 아이디가 DB에 없는 경우
+				out.println("<script>");
+				out.println("alert('가입되지 않은 아이디입니다.')");
+				out.println("history.back()");
+				out.println("</script>");
+			}
+		}
+	}
+	
+	@GetMapping("user_logout.go")
+	public void logout(HttpServletResponse response, HttpServletRequest request, HttpSession session) throws IOException {
+		
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/html; charset=UTF-8");
+		
+		// 이전 페이지 가져오기
+	    String prevPage = (String) session.getAttribute("prevPage");
+	    System.out.println(prevPage);
+	    
+	    // 로그아웃 실행
+	    session.invalidate();
+		
+		out.println("<script>");
+		out.println("location.href='"+prevPage+"'");		// 기존에 보고있던 페이지로 이동
+		out.println("</script>");
+	}
+	
+	@GetMapping("user_signin.go")
+	public String signin() {
+		
+		return "user/user_signin";
+	}
+	
+	@PostMapping("user_signin_ok.go")
+	public void signin_ok(Users dto, HttpServletResponse response) throws IOException {
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
+		
+		System.out.println(dto.getName());
+		
+		int chk = this.mapper.addUser(dto);
+		
+		if(chk > 0) {
+			out.println("<script>");
+			out.println("alert('회원가입 성공')");
+			out.println("location.href='/'");
+			out.println("</script>");
+		}else {
+			out.println("<script>");
+			out.println("alert('회원가입 실패...')");
+			out.println("history.back()");
+			out.println("</script>");
+		}
+		
 	}
 	
 }

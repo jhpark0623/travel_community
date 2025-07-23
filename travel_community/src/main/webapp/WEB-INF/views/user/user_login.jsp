@@ -1,39 +1,37 @@
 <%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="EUC-KR">
-<title>·Î±×ÀÎ ÆäÀÌÁö</title>
+<meta charset="UTF-8">
+<title>ë¡œê·¸ì¸</title>
 </head>
 <body>
 
 	<jsp:include page="../../include/header.jsp" />
 	
-	<h1>·Î±×ÀÎ ÆäÀÌÁö</h1>
-	
 	<div class="container mt-5 w-25">	
 		<form method="post" action="<%=request.getContextPath()%>/user_login_ok.go">
 			<div class="mt-3">
-				<label for="EmailInput" class="form-label">¾ÆÀÌµð</label>
-				<input name="email" type="email" class="form-control" id="EmailInput" placeholder="¿¹) travler@naver.com" required>
+				<label for="EmailInput" class="form-label">ì•„ì´ë””</label>
+				<input name="email" type="email" class="form-control" id="EmailInput" placeholder="ì˜ˆ) travler@naver.com" required>
 			</div>
 			
 			<div class="mt-3 ">
-				<label for="PwdInput" class="form-label">ºñ¹Ð¹øÈ£</label>
-				<input name="password" type="password" class="form-control" id="PwdInput" placeholder="ºñ¹Ð¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä." required>
+				<label for="PwdInput" class="form-label">ë¹„ë°€ë²ˆí˜¸</label>
+				<input name="password" type="password" class="form-control" id="PwdInput" placeholder="ë¹„ë°€ë²ˆí˜¸ë¥¼ ìž…ë ¥í•˜ì„¸ìš”." required>
 			</div>
 			
 			<div class="d-grid mt-3 mb-3">
-				<button type="submit" class="btn btn-primary">·Î±×ÀÎ</button>
+				<button type="submit" class="btn btn-primary">ë¡œê·¸ì¸</button>
 			</div>
 			
 			<div class="d-flex justify-content-center">
 				<div class="p-2">
-					<a href="#">È¸¿ø °¡ÀÔ</a>
+					<a href="<%=request.getContextPath()%>/user_signin.go">íšŒì› ê°€ìž…</a>
 				</div>
 				<div class="p-2">
-					<a href="#">°èÁ¤ Ã£±â</a>
+					<a href="#">ê³„ì • ì°¾ê¸°</a>
 				<div class="p-1">
 			</div>
 		</form>
