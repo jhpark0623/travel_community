@@ -83,8 +83,9 @@ button:hover, input[type="submit"]:hover {
 						onclick="location.href='<%=request.getContextPath()%>/user_login.go'">로그인</button>
 				</c:when>
 				<c:otherwise>
-					<button class="btn btn-outline-secondary"
-						onclick="location.href='<%=request.getContextPath()%>/user_logout.go'">로그아웃</button>
+					<button class="btn btn-outline-secondary" onclick="if(confirm('정말로 로그아웃하시겠습니까?')) {
+						location.href='<%=request.getContextPath()%>/user_logout.go'
+					}">로그아웃</button>
 				</c:otherwise>
 			</c:choose>
 		</div>
