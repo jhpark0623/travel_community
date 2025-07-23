@@ -14,6 +14,14 @@
 		select count(*) from a_users where email = #{email} and state = 'Y'
 	</select>
 	
+	<select id="chkPhone" parameterType="String" resultType="int">
+		select count(*) from a_users where phone = #{phone} and state = 'Y'
+	</select>
+	
+	<select id="chkNickname" parameterType="String" resultType="int">
+		select count(*) from a_users where nickname = #{nickname} and state = 'Y'
+	</select>
+	
 	<insert id="addUser" parameterType="users">
 		<selectKey resultType="int" keyProperty="id" order="BEFORE">
 			select max(id) from a_users

@@ -30,9 +30,12 @@ public class UserController {
 		// 로그인 페이지 이전의 페이지를 저장시키는 과정.
 		String prevPage = request.getHeader("Referer");
 		
-		if(prevPage != null && !prevPage.contains("/user_login")) { // 이전 페이지가 로그인 페이지가 아니고 이전 페이지 정보가 null이 아닌 경우
+		// 폼 페이지가 포함된 경우에 오류가 생기기때문에 방지하는 과정. => 이를 이용한 페이지 이동시 메인페이지로 이동.
+		if(prevPage != null && !prevPage.contains("/user_login") && !prevPage.contains("/user_signin")) { // 이전 페이지가 로그인 페이지가 아니고 이전 페이지 정보가 null이 아닌 경우
             request.getSession().setAttribute("prevPage", prevPage); // 이전 페이지 정보 세션에 저장 
         }
+		
+		
 		
 		return "user/user_login";
 	}
@@ -43,7 +46,6 @@ public class UserController {
 		
 		// 이전 페이지 가져오기
 	    String prevPage = (String) session.getAttribute("prevPage");
-	    // System.out.println(prevPage);
 		
 		response.setContentType("text/html; charset=UTF-8");
 		PrintWriter out = response.getWriter();
@@ -83,9 +85,8 @@ public class UserController {
 		PrintWriter out = response.getWriter();
 		response.setContentType("text/html; charset=UTF-8");
 		
-		// 이전 페이지 가져오기
-	    String prevPage = (String) session.getAttribute("prevPage");
-	    System.out.println(prevPage);
+		// 로그인 아웃 이전의 페이지를 저장시키는 과정.
+		String prevPage = request.getHeader("Referer");
 	    
 	    // 로그아웃 실행
 	    session.invalidate();
@@ -106,22 +107,54 @@ public class UserController {
 		response.setContentType("text/html; charset=UTF-8");
 		PrintWriter out = response.getWriter();
 		
-		System.out.println(dto.getName());
+		int chkId = this.mapper.chkId(dto.getEmail());
+		int chkPhone = this.mapper.chkPhone(dto.getPhone());
+		int chkNickname = this.mapper.chkNickname(dto.getNickname());
 		
-		int chk = this.mapper.addUser(dto);
-		
-		if(chk > 0) {
-			out.println("<script>");
-			out.println("alert('회원가입 성공')");
-			out.println("location.href='/'");
-			out.println("</script>");
+		if(chkId == 0) {
+			if(chkNickname == 0) {
+				if(chkPhone == 0) {
+					int chk = this.mapper.addUser(dto);
+
+					if(chk > 0) {
+						out.println("<script>");
+						out.println("alert('회원가입 완료되었습니다.')");
+						out.println("location.href='user_login.go'");
+						out.println("</script>");
+					}else {
+						out.println("<script>");
+						out.println("alert('회원가입 실패...')");
+						out.println("history.back()");
+						out.println("</script>");
+					}
+				}else {
+					// 닉네임 중복시
+					out.println("<script>");
+					out.println("alert('해당 전화번호는 중복된 전화번호입니다.')");
+					out.println("history.back()");
+					out.println("</script>");
+				}
+			}else {
+				// 전화번호 중복시
+				out.println("<script>");
+				out.println("alert('해당 닉네임은 중복된 닉네임입니다.')");
+				out.println("history.back()");
+				out.println("</script>");
+			}
 		}else {
+			// 아이디 중복시
 			out.println("<script>");
-			out.println("alert('회원가입 실패...')");
+			out.println("alert('해당 이메일은 중복된 아이디입니다.')");
 			out.println("history.back()");
 			out.println("</script>");
 		}
 		
+	}
+	
+	@GetMapping("user_findaccount.go")
+	public String findAccount() {
+		// 추가중..
+		return "user/user_findAccount"; 
 	}
 	
 }

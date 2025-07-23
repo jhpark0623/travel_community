@@ -31,7 +31,7 @@
 					<a href="<%=request.getContextPath()%>/user_signin.go">회원 가입</a>
 				</div>
 				<div class="p-2">
-					<a href="#">계정 찾기</a>
+					<a href="<%=request.getContextPath()%>/user_findaccount.go">계정 찾기</a>
 				<div class="p-1">
 			</div>
 		</form>
