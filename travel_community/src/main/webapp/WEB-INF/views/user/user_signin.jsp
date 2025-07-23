@@ -19,7 +19,6 @@
 	    // password 값 데이터 정규화 공식
         const regul1 = /^[a-zA-Z0-9]{4,12}$/;
         // email 정규화 공식
-	    // const regul2 = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/;
 	    const regul2 = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
         // name,nickname 정규화 공식
         const regul3 = /^[가-힝a-zA-Z]{2,}$/;
@@ -132,6 +131,10 @@
           </div>
          
 		</form>
+	  </div>
+	</div>
+	</div>
+		
 
 </body>
 </html>

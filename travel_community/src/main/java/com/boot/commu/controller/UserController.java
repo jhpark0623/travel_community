@@ -151,10 +151,16 @@ public class UserController {
 		
 	}
 	
-	@GetMapping("user_findaccount.go")
-	public String findAccount() {
+	@GetMapping("user_findid.go")
+	public String findId() {
 		// 추가중..
-		return "user/user_findAccount"; 
+		return "user/user_findId"; 
+	}
+	
+	@GetMapping("user_findpwd.go")
+	public String findPwd() {
+		// 추가중..
+		return "user/user_findPwd"; 
 	}
 	
 }

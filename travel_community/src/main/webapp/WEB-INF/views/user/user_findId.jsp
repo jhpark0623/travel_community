@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>계정 찾기</title>
+<title>아이디 찾기</title>
 </head>
 <body>
 	<jsp:include page="../../include/header.jsp" />
