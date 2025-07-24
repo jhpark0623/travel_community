@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -68,11 +69,22 @@ public class PostsController {
         List<CommentDTO> comments = commentsMapper.getCommentsByPostId(id);
         Users loginUser = (Users) session.getAttribute("loginUser");
 
+        // 좋아요 여부 확인
+        boolean liked = false;
+        if (loginUser != null) {
+            liked = (pmapper.isPostLiked(id, loginUser.getId()) > 0);
+        }
+
+        // ★ 좋아요 수 조회 추가
+        int likeCount = pmapper.getLikeCount(id);
+        
         // 모델에 데이터 추가
         model.addAttribute("post", post);
         model.addAttribute("hashtags", hashtags);
         model.addAttribute("comments", comments);
         model.addAttribute("loginUser", loginUser);
+        model.addAttribute("postLiked", liked);
+        model.addAttribute("likeCount", likeCount); 
 
         return "posts/post_detail";
     }
@@ -105,23 +117,47 @@ public class PostsController {
 
     // 댓글 작성 처리
     @RequestMapping("/comment_write.go")
-    public String writeComment(@RequestParam("post_id") int postId,
-                               @RequestParam("content") String content,
-                               HttpSession session) {
-        // 로그인 여부 확인
-        Users loginUser = (Users) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/login";
+    public void writeComment(@RequestParam("post_id") int postId,
+                             @RequestParam("content") String content,
+                             HttpSession session,
+                             HttpServletResponse response) throws IOException {
 
-        // 댓글 객체 생성 후 DB 저장
+        Users loginUser = (Users) session.getAttribute("loginUser");
+
+        response.setContentType("text/html; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
+        // 로그인 체크
+        if (loginUser == null) {
+            out.println("<script>");
+            out.println("alert('로그인이 필요합니다.');");
+            out.println("location.href='/user_login.go';");
+            out.println("</script>");
+            return;
+        }
+
+        // 댓글 내용 비어있을 경우
+        if (content == null || content.trim().isEmpty()) {
+            out.println("<script>");
+            out.println("alert('댓글을 작성해주세요.');");
+            out.println("location.href='/post_detail.go?id=" + postId + "&commentOpen=true';");
+            out.println("</script>");
+            return;
+        }
+
+        // 댓글 저장
         Comments comment = new Comments();
         comment.setPost_id(postId);
         comment.setUser_id(loginUser.getId());
         comment.setContent(content);
         commentsMapper.insertComment(comment);
 
-        // 다시 상세 페이지로 이동 + 댓글창 열림
-        return "redirect:/post_detail.go?id=" + postId + "&commentOpen=true";
+        // 성공 후 이동
+        out.println("<script>");
+        out.println("location.href='/post_detail.go?id=" + postId + "&commentOpen=true';");
+        out.println("</script>");
     }
+
 
     // 댓글 삭제 처리 
     @RequestMapping("/comment_delete.go")
@@ -173,4 +209,38 @@ public class PostsController {
 
         return result;
     }
+    
+    @PostMapping("/like_toggle.go")
+    @ResponseBody
+    public Map<String, Object> toggleLike(@RequestParam("postId") int postId, HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        Users loginUser = (Users) session.getAttribute("loginUser");
+
+        // 로그인하지 않은 경우
+        if (loginUser == null) {
+            result.put("status", "not_logged_in");
+            return result;
+        }
+
+        int userId = loginUser.getId();
+        boolean alreadyLiked = (pmapper.isPostLiked(postId, userId)>0);
+
+        if (alreadyLiked) {
+            // 좋아요 취소
+            pmapper.deleteLike(postId, userId);
+        } else {
+            // 좋아요 등록
+            pmapper.insertLike(postId, userId);
+        }
+        
+        int newLikeCount = pmapper.getLikeCount(postId); 
+
+        // 클라이언트에게 현재 상태를 알려줌
+        result.put("status", "success");
+        result.put("liked", !alreadyLiked);  // 누른 후 상태 전달
+        result.put("likeCount", newLikeCount);
+
+        return result;
+    }
+
 }
