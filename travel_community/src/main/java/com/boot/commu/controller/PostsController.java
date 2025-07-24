@@ -11,5 +11,5 @@ public class PostsController {
 	public String main () {
 		return "main";
 	}
-	
+    
 }

@@ -7,12 +7,15 @@
 <title>travel_community</title>
 <meta charset="UTF-8">
 
+
 </head>
 <body>
 
 	<jsp:include page="../include/header.jsp" />
 
+
 	<div>MAIN PAGE</div>
+
 
 </body>
 </html>
