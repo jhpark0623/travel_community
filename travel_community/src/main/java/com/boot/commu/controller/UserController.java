@@ -2,7 +2,9 @@ package com.boot.commu.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -205,5 +207,24 @@ public class UserController {
 		
 		return "user/user_myprofile";
 	}
+	
+	// 내 게시물 내의 검색
+	@GetMapping("myposts_search.go")
+	public String myposts_search(@RequestParam("myposts_search") String search, Model model, HttpSession session) {
+	
+		int users = ((Users) session.getAttribute("loginUser")).getId();
+		
+		Map<String, Object> map = new HashMap<>(); 
+		
+		map.put("search", search);
+		map.put("id", users);
+		
+		
+		List<Posts> myPosts = this.mapper.search(map);
+		
+		model.addAttribute("myPosts", myPosts);
+		
+		return "user/user_myposts";
+		}
 	
 }

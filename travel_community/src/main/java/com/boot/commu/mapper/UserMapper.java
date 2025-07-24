@@ -1,6 +1,7 @@
 package com.boot.commu.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -29,4 +30,7 @@ public interface UserMapper {
 	
 	// 내 댓글목록 받아오는 메서드
 	List<Comments> myComments(int id);
+	
+	// 내 게시물 검색
+	List<Posts> search(Map<String, Object> map);
 }

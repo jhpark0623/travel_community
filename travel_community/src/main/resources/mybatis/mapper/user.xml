@@ -31,7 +31,7 @@
 	</insert>
 	
 	<select id="myPosts" resultType="posts" parameterType="int">
-	select * from a_posts where id = #{id} and state ='Y'
+	select * from a_posts where user_id = #{id} and state ='Y'
 </select>
 
 <select id="myComments" resultType="comments" parameterType="int">
@@ -41,8 +41,15 @@
 		p.title as post_title, p.content as post_content
 		from a_comments c
 		join a_posts p On c.post_id = p.id
-		where c.id = 1 and c.state = 'Y' and p.state = 'Y'
+		where c.user_id = #{id} and c.state = 'Y' and p.state = 'Y'
 
+
+</select>
+
+<select id="search" parameterType="map" resultType="posts">
+	select * from a_posts where 
+	user_id = #{id} and state = 'Y' and
+	(title  like '%' || #{search} || '%' or content like '%' || #{search} || '%')
 
 </select>
 	
