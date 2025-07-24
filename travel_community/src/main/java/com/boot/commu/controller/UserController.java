@@ -201,7 +201,7 @@ public class UserController {
 		}
 		
 		return "user/user_findPwd_res";
-
+	}
 	
 	// 내 게시물 출력
 	@GetMapping("myposts.go")
