@@ -12,7 +12,7 @@
 		var objPwd = document.getElementById("PwdInput");
 		
 		// password 값 데이터 정규화 공식
-        const regul1 = /^[a-zA-Z0-9]{4,12}$/;
+        const regul1 = /^[a-zA-Z0-9]{3,12}$/;
 		// email 정규화 공식
 	    const regul2 = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
 		
@@ -34,9 +34,9 @@
             objEmail.focus();
             return false;
         }
-	    // 비밀번호 형식 체크
+	    // 비밀번호 형식 체크s
         if (!regul1.test(objPwd.value)) {
-            alert("비밀번호는 4~12자의 영문/숫자만 가능합니다.");
+            alert("비밀번호는 3~12자의 영문/숫자만 가능합니다.");
             objPwd.focus();
             return false;
         }
