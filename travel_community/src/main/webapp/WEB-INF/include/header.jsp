@@ -8,6 +8,7 @@
 <meta charset="UTF-8">
 <title>Header</title>
 
+<!-- bootstrap -->
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
 	rel="stylesheet"
@@ -17,6 +18,8 @@
 	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
 	integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
 	crossorigin="anonymous"></script>
+	
+
 
 <style>
 body {
@@ -88,8 +91,23 @@ button:hover, input[type="submit"]:hover {
 					}">로그아웃</button>
 				</c:otherwise>
 			</c:choose>
+			
+			<c:if test="${!empty sessionScope.loginUser }">
+				<div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+					<div class="btn-group" role="group">
+					  <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+					    마이페이지
+					  </button>
+					  <ul class="dropdown-menu">
+					    <li><a class="dropdown-item" href="myprofile.go">내 정보</a></li>
+					    <li><a class="dropdown-item" href="myposts.go">내 게시물</a></li>
+					    <li><a class="dropdown-item" href="mycomments.go">내 답글</a></li>
+					  </ul>
+					</div>
+				</div>
+			</c:if>
 		</div>
-
+	
 	</div>
 
 </body>

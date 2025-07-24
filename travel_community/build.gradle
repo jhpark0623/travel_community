@@ -46,7 +46,6 @@ dependencies {
 	
 	implementation 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
 	
-	
 	providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
 	
 	implementation fileTree(dir: 'libs', include: ['*.jar'])

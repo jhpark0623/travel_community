@@ -30,6 +30,7 @@
 		#{name}, #{nickname}, default, default, sysdate, '')
 	</insert>
 	
+
 	<select id="findId" resultType="String" parameterType="users">
 		select email from a_users where name = #{name} and phone = #{phone}
 	</select>
@@ -41,5 +42,22 @@
 	<select id="findPwd" resultType="String" parameterType="users">
 		select password from a_users where email = #{email} and name = #{name} and phone = #{phone}
 	</select>
+
+	<select id="myPosts" resultType="posts" parameterType="int">
+	select * from a_posts where id = #{id} and state ='Y'
+</select>
+
+<select id="myComments" resultType="comments" parameterType="int">
+	
+	select
+		c.id, c.post_id, c.user_id, c.content, c.created_at, c.state, c.parent_id,
+		p.title as post_title, p.content as post_content
+		from a_comments c
+		join a_posts p On c.post_id = p.id
+		where c.id = 1 and c.state = 'Y' and p.state = 'Y'
+
+
+</select>
+
 	
 </mapper>
