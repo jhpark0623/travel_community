@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.boot.commu.mapper.PostsMapper">
+
+  <!-- 게시글 ID로 상세 조회 (게시글 + 사용자 닉네임 + 카테고리명 + 지역명 조인 포함) -->
+  <select id="getPostDetailById" parameterType="int" resultType="com.boot.commu.model.PostsDetailDTO">
+    select 
+      p.id,
+      p.user_id,
+      p.category_id,
+      p.city_id,
+      p.title,
+      p.content,
+      to_char(p.created_at, 'YYYY-MM-DD') as created_at,
+      to_char(p.updated_at, 'YYYY-MM-DD') as updated_at,
+      p.view_count,
+      p.like_count,
+      p.state,
+
+      u.nickname as nickname,           -- 작성자 닉네임
+      c.category as category_name,     -- 카테고리명
+      rc.name as city_name,            -- 도시명
+      rp.name as province_name         -- 도/광역시명
+
+    from a_posts p 
+    join a_users u on p.user_id = u.id
+    join a_category c on p.category_id = c.id
+    join a_region_city rc on p.city_id = rc.id
+    join a_region_province rp on rc.province_id = rp.id
+
+    where p.id = #{id}
+  </select>
+
+  <!-- 게시글 조회수 1 증가 -->
+  <update id="view_countup" parameterType="int">
+    update a_posts
+    set view_count = view_count + 1
+    where id = #{id}
+  </update>
+  
+  <update id="softDeletePost" parameterType="int">
+	   update a_posts
+	   set state = 'N'
+	   where id = #{id}
+  </update>
+  
+
+</mapper>
