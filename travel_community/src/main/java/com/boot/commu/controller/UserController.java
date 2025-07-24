@@ -198,4 +198,12 @@ public class UserController {
 		return "user/user_mycomments";
 	}
 	
+	// 내 정보 출력
+	@GetMapping("myprofile.go")
+	public String myprofile() {
+		
+		
+		return "user/user_myprofile";
+	}
+	
 }
