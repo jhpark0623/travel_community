@@ -80,7 +80,7 @@
 
 	<jsp:include page="../../include/header.jsp" />
 	
-	<div class="container">
+	<div class="container mt-5">
     <div class="input-form-backgroud row">
       <div class="input-form col-md-6 mx-auto">
         <h4 class="mb-3">회원가입</h4>
@@ -89,7 +89,7 @@
           <div class="row">
             <div class="col-md-12 mb-3">
             	<label for="email">이메일</label>
-            	<input type="email" class="form-control" id="email" placeholder="예) travler@naver.com" name="email" >
+            	<input type="email" class="form-control" id="email" placeholder="예) travler@example.com" name="email" >
             </div>
             
             <div class="col-md-12 mb-3">
