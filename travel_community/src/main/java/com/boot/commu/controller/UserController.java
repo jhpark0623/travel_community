@@ -2,6 +2,7 @@ package com.boot.commu.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.boot.commu.mapper.UserMapper;
+import com.boot.commu.model.Comments;
+import com.boot.commu.model.Posts;
 import com.boot.commu.model.Users;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -161,6 +164,46 @@ public class UserController {
 	public String findPwd() {
 		// 추가중..
 		return "user/user_findPwd"; 
+	}
+	
+	
+	// 내 게시물 출력
+	@GetMapping("myposts.go")
+	public String myposts(HttpSession session, Model model) {
+		
+		int users = ((Users) session.getAttribute("loginUser")).getId();
+		
+		List<Posts> myPosts = this.mapper.myPosts(users);
+		
+		model.addAttribute("myPosts", myPosts);
+		
+		
+		return "user/user_myposts";
+		
+		
+	}
+	
+	// 내 댓글 출력
+	@GetMapping("mycomments.go")
+	public String mycomments(HttpSession session, Model model) {
+		
+	   int users = ((Users) session.getAttribute("loginUser")).getId();
+		
+		List<Comments> myComments = this.mapper.myComments(users);
+		
+		System.out.println(myComments);
+		
+		model.addAttribute("myComments", myComments);
+		
+		return "user/user_mycomments";
+	}
+	
+	// 내 정보 출력
+	@GetMapping("myprofile.go")
+	public String myprofile() {
+		
+		
+		return "user/user_myprofile";
 	}
 	
 }
