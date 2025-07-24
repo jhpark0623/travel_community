@@ -91,14 +91,14 @@ public class UserController {
 		PrintWriter out = response.getWriter();
 		response.setContentType("text/html; charset=UTF-8");
 		
-		// 로그인 아웃 이전의 페이지를 저장시키는 과정.
+		// 로그인 아웃 이전의 페이지를 저장시키는 과정. 
 		String prevPage = request.getHeader("Referer");
 	    
 	    // 로그아웃 실행
 	    session.invalidate();
 		
 		out.println("<script>");
-		out.println("location.href='"+prevPage+"'");		// 기존에 보고있던 페이지로 이동
+		out.println("location.href='/'");		// 기존에 보고있던 페이지로 이동 <= 에러 방지용으로 일단 메인페이지로 이동
 		out.println("</script>");
 	}
 	

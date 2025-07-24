@@ -15,7 +15,7 @@
 	<c:set var="dto" value="${res }" />
 	
 	<c:if test="${empty dto.password}">
-		<b>일치하는 결과 없음.</b>
+		<b>입력하신 정보와 일치하는 아이디가 없습니다.</b>
 		
 		<button class="btn btn-outline-secondary" onclick="history.back()">뒤로가기</button>
 	</c:if>
