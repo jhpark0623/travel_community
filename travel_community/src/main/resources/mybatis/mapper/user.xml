@@ -7,7 +7,7 @@
 <mapper namespace="com.boot.commu.mapper.UserMapper">
 
 	<select id="login" parameterType="map" resultType="users">
-		select * from a_users where email = #{email} and password = #{password} and state = 'Y'
+		select id, nickname, role from a_users where email = #{email} and password = #{password} and state = 'Y'
 	</select>
 	
 	<select id="chkId" parameterType="String" resultType="int">
@@ -30,6 +30,19 @@
 		#{name}, #{nickname}, default, default, sysdate, '')
 	</insert>
 	
+
+	<select id="findId" resultType="String" parameterType="users">
+		select email from a_users where name = #{name} and phone = #{phone}
+	</select>
+	
+	<select id="findCreated" resultType="String" parameterType="String">
+		select created_at from a_users where email = #{email}
+	</select>
+	
+	<select id="findPwd" resultType="String" parameterType="users">
+		select password from a_users where email = #{email} and name = #{name} and phone = #{phone}
+	</select>
+
 	<select id="myPosts" resultType="posts" parameterType="int">
 	select * from a_posts where id = #{id} and state ='Y'
 </select>
@@ -45,5 +58,6 @@
 
 
 </select>
+
 	
 </mapper>

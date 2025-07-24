@@ -51,13 +51,15 @@
 	<jsp:include page="../../include/header.jsp" />
 	
 	<div class="container mt-5 w-25">	
+	<div class="input-form-backgroud">
+      <div class="input-form">
 		<form method="post" onsubmit="return validate()" action="<%=request.getContextPath()%>/user_login_ok.go">
 			<div class="mt-3">
 				<label for="EmailInput" class="form-label">아이디</label>
-				<input name="email" type="email" class="form-control" id="EmailInput" placeholder="예) travler@naver.com">
+				<input name="email" type="email" class="form-control" id="EmailInput" placeholder="예) travler@example.com">
 			</div>
 			
-			<div class="mt-3 ">
+			<div class="mt-3">
 				<label for="PwdInput" class="form-label">비밀번호</label>
 				<input name="password" type="password" class="form-control" id="PwdInput" placeholder="비밀번호를 입력하세요.">
 			</div>
@@ -78,6 +80,8 @@
 				</div>
 			</div>
 		</form>
+		</div>
+		</div>
 	</div>
 	
 </body>
