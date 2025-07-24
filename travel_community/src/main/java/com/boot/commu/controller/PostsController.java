@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -111,7 +112,6 @@ public class PostsController {
 		Users loginUser = (Users) session.getAttribute("loginUser");
 		if (loginUser == null)
 			return "redirect:/login";
-
 		// 댓글 객체 생성 후 DB 저장
 		Comments comment = new Comments();
 		comment.setPost_id(postId);

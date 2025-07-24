@@ -47,5 +47,34 @@
 	   where id = #{id}
   </update>
   
+    <!-- 좋아요 여부 조회 -->
+  <select id="isPostLiked" resultType="int">
+    select count(*)
+    from a_post_likes
+    where post_id = #{postId}
+      and user_id = #{userId}
+  </select>
 
+  <!-- 좋아요 등록 (MAX + 1 방식) -->
+  <insert id="insertLike">
+    insert into a_post_likes (id, post_id, user_id)
+    values (
+      (select nvl(max(id), 0) + 1 from a_post_likes),
+      #{postId},
+      #{userId}
+    )
+  </insert>
+
+  <!-- 좋아요 취소 -->
+  <delete id="deleteLike">
+    delete from a_post_likes
+    where post_id = #{postId}
+      and user_id = #{userId}
+  </delete>
+  
+  <select id="getLikeCount" resultType="int">
+	 select count(*) from a_post_likes where post_id = #{postId}
+  </select>
+  
+  
 </mapper>

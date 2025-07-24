@@ -1,6 +1,8 @@
 package com.boot.commu.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import com.boot.commu.model.PostsDetailDTO;
 
 @Mapper
@@ -11,9 +13,17 @@ public interface PostsMapper {
 
     // 게시글 조회수 1 증가
     void view_countup(int id);
-    
+
     // 게시글 삭제
     void softDeletePost(int id);
 
+    //  좋아요 기능 추가
+    int getLikeCount(int postId);
+    
+    int isPostLiked(@Param("postId") int postId, @Param("userId") int userId);
 
+    void insertLike(@Param("postId") int postId, @Param("userId") int userId);
+
+    void deleteLike(@Param("postId") int postId, @Param("userId") int userId);
+    
 }
