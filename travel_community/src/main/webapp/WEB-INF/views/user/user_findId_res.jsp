@@ -30,7 +30,7 @@
 						onclick="location.href='<%=request.getContextPath()%>/user_login.go'">로그인</button>
 						
 		<button class="btn btn-outline-secondary"
-						onclick="location.href='<%=request.getContextPath()%>/user_findpwd.go'">비밀번호 찾기</button>
+						onclick="location.href='<%=request.getContextPath()%>/user_findpwd.go?email=${dto.email }'">비밀번호 찾기</button>
 	</c:if>
 	
 	

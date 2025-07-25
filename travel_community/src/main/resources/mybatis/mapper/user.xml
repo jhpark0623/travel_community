@@ -49,14 +49,12 @@
 	</select>
 
 	<select id="myComments" resultType="comments" parameterType="int">
-		
 		select
 			c.*,
 			p.title as post_title, p.content as post_content
 			from a_comments c
 			join a_posts p On c.post_id = p.id
 			where c.user_id = #{id} and c.state = 'Y' and p.state = 'Y'
-	
 	</select>
 
 

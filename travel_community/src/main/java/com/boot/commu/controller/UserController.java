@@ -174,7 +174,6 @@ public class UserController {
 	public String findIdOk(Users dto, Model model) throws IOException {
 
 		String email = this.mapper.findId(dto);
-		System.out.println(email);
 
 		if (email != null) {
 			String created_at = this.mapper.findCreated(email);

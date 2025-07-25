@@ -1,28 +1,29 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>비밀번호 찾기</title>
 <style type="text/css">
-	.auth-box {
+	/* .auth-box {
       display: none;
       margin-top: 20px;
-    }
+    } */
 	
 </style>
 <script type="text/javascript">
 
-	function showBox(method) {
+	/* function showBox(method) {
 	  document.getElementById("phoneBox").style.display = "none";
-	  /* document.getElementById("emailBox").style.display = "none"; */
+	  document.getElementById("emailBox").style.display = "none";
 	  if (method === "phone") {
 	    document.getElementById("phoneBox").style.display = "block";
-	  } /* else if (method === "email") {
+	  } else if (method === "email") {
 	    document.getElementById("emailBox").style.display = "block";
-	  } */
-	}
+	  } 
+	} */
 
 	function validateByPhone() {
 		
@@ -91,19 +92,20 @@
 <body>
 	<jsp:include page="../../include/header.jsp" />
 	
-	<div class="container mt-5 w-50">
+	<div class="container mt-5 w-25">
 		
-		<div class="mb-3">
+		<!-- 인증방식 선택 -->
+		<!-- <div class="mb-3">
 		    <label class="form-label">인증 방법을 선택하세요:</label>
 		    <div class="form-check">
 		      <input class="form-check-input" type="radio" name="authMethod" id="radioPhone" onclick="showBox('phone')">
 		      <label class="form-check-label" for="radioPhone">휴대전화로 찾기</label>
 		    </div>
-		    <!-- <div class="form-check">
+		    <div class="form-check">
 		      <input class="form-check-input" type="radio" name="authMethod" id="radioEmail" onclick="showBox('email')">
 		      <label class="form-check-label" for="radioEmail">이메일로 찾기</label>
-    		</div> -->
-	  	</div>
+    		</div> 
+	  	</div> -->
 		
 		<!-- 휴대전화로 찾기 -->
 		<div id="phoneBox" class="auth-box border p-3 rounded">
@@ -113,7 +115,7 @@
 		   		<div class="input-form-background">
 		   		<div class="mb-2">
 			      <label for="namePhone" class="form-label">아이디</label>
-			      <input type="text" class="form-control" id="email" name="email" placeholder="예) travler@example.com">
+			      <input type="text" class="form-control" id="email" name="email" value="${email }"  placeholder="예) travler@example.com">
 			    </div>
 			    <div class="mb-2">
 			      <label for="namePhone" class="form-label">이름</label>

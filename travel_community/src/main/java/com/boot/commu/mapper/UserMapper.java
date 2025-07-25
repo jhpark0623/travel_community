@@ -31,7 +31,7 @@ public interface UserMapper {
 	// email에 해당하는 회원의 가입일(created_at)을 반환해주는 메서드.
 	String findCreated(String email);
 	
-	// email ,phone, name으로 Users 테이블에서 검색해 email을 반환시켜주는 메서드.
+	// email ,phone, name으로 Users 테이블에서 검색해 password을 반환시켜주는 메서드.
 	String findPwd(Users dto);
 	
 
