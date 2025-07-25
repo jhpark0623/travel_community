@@ -187,7 +187,7 @@ function toggleLike(postId) {
 
         <!-- 댓글 작성 -->
         <c:if test="${empty loginUser}">
-            <p style="color: gray;">댓글을 작성하려면 <a href="/login">로그인</a> 해주세요.</p>
+            <p style="color: gray;">댓글을 작성하려면 <a href="/user_login.go">로그인</a> 해주세요.</p>
         </c:if>
         <c:if test="${not empty loginUser}">
             <form action="/comment_write.go" method="post">
@@ -232,6 +232,24 @@ function toggleLike(postId) {
     </div>
 
     <br>
+    <div>
+	    <!-- 이전글 -->
+	    <c:if test="${empty prevId}">
+	        <button onclick="alert('첫 페이지입니다.')">← 이전글</button>
+	    </c:if>
+	    <c:if test="${not empty prevId}">
+	        <button onclick="location.href='/post_detail.go?id=${prevId}'">← 이전글</button>
+	    </c:if>	
+	    &nbsp;&nbsp;	
+	    <!-- 다음글 -->
+	    <c:if test="${empty nextId}">
+	        <button onclick="alert('마지막 페이지입니다.')">다음글 →</button>
+	    </c:if>
+	    <c:if test="${not empty nextId}">
+	        <button onclick="location.href='/post_detail.go?id=${nextId}'">다음글 →</button>
+	    </c:if>
+	</div>
+	<br>
     <button onclick="history.back()">← 목록으로</button>
 
 </div>
