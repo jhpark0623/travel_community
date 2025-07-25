@@ -280,10 +280,6 @@ function toggleLike(postId) {
             </div>
         </c:forEach>
     </div>
-
-    <br>
-    <!-- 목록으로 가는게 아니라 이전 페이지로 이동중 <= 수정 필요. -->
-    <button onclick="history.back()">← 목록으로</button>
     
 </div>
 

@@ -72,11 +72,7 @@ public class PostsController {
 
 	    // 페이징 객체 생성
 	    Page pdto = new Page(page, rowsize, totalRecord, pCategory);
-	    
-	    System.out.println(pdto);
 
-
-	    // 쿼리문에 페이징 필터링 안된듯? 수정필요.
 	    List<Posts> postList = this.pmapper.list(pdto);
 	    		
 	    // ✅ displayDate 세팅
@@ -85,13 +81,7 @@ public class PostsController {
 	    }
 	    
 	    List<Notices> popNoticesList = noticesMapper.popNoticeList();
-
-		/*
-		 * System.out.println(popNoticesList); System.out.println(postList);
-		 * System.out.println(pdto); System.out.println(pCategory);
-		 */
-	    
-	    
+	        
 	    model.addAttribute("List", postList)
 	         .addAttribute("Paging", pdto)
 	         .addAttribute("CategoryId", pCategory)
