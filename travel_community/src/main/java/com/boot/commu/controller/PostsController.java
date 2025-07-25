@@ -1,11 +1,16 @@
 package com.boot.commu.controller;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,10 +25,12 @@ import com.boot.commu.model.Notices;
 import com.boot.commu.model.Page;
 import com.boot.commu.model.Posts;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.boot.commu.mapper.CommentsMapper;
 import com.boot.commu.mapper.HashtagsMapper;
@@ -31,422 +38,502 @@ import com.boot.commu.model.CommentDTO;
 import com.boot.commu.model.Comments;
 import com.boot.commu.model.Hashtags;
 import com.boot.commu.model.PostsDetailDTO;
+import com.boot.commu.model.Region_city;
+import com.boot.commu.model.Region_province;
 import com.boot.commu.model.Users;
+import com.boot.commu.util.Util;
+import com.google.gson.JsonObject;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class PostsController {
-	
+
+	private String realPath = "D:\\KDT_JAVA\\workspace(parking)\\travel_community\\src\\main";
+
 	@Autowired
-    private PostsMapper pmapper;
+	private PostsMapper pmapper;
 
-    @Autowired
-    private HashtagsMapper hmapper;
+	@Autowired
+	private HashtagsMapper hmapper;
 
-    @Autowired
-    private CommentsMapper commentsMapper;
-	
+	@Autowired
+	private CommentsMapper commentsMapper;
+
 	@Autowired
 	private NoticesMapper noticesMapper;
-	
-	// 한 페이지당 보여질 게시물의 수. 
+
+	// 한 페이지당 보여질 게시물의 수.
 	private final int rowsize = 5;
-	
-	// DB 상의 전체 게시물의 수. 
+
+	// DB 상의 전체 게시물의 수.
 	private int totalRecord = 0;
 
 	@GetMapping("/")
 	public String main() {
 		return "main";
 	}
-	
- 
-	
+
 	@GetMapping("/posts_list.go/{i}")
-	public String list(@PathVariable("i") String i, @RequestParam(value = "page", defaultValue = "1") 
-			int page, Model model) {
-		
-	    // DB 상의 전체 게시물 수
-	    int totalRecord = this.pmapper.countByCategory(i);
+	public String list(@PathVariable("i") String i, @RequestParam(value = "page", defaultValue = "1") int page,
+			Model model) {
 
-	    // 페이징 객체 생성
-	    Page pdto = new Page(page, rowsize, totalRecord);
+		// DB 상의 전체 게시물 수
+		int totalRecord = this.pmapper.countByCategory(i);
 
-	    
-	    List<Posts> list = this.pmapper.list(i);
-	    		
-	    // ✅ displayDate 세팅
-	    for (Posts post : list) {
-	        post.setDisplayDateFromCreatedAt();
-	    }
-	    
-	    List<Notices> popNoticesList = noticesMapper.popNoticeList();
+		// 페이징 객체 생성
+		Page pdto = new Page(page, rowsize, totalRecord);
 
-	    //System.out.println(popNoticesList);
-	    
-	    model.addAttribute("List", list)
-	         .addAttribute("Paging", pdto)
-	         .addAttribute("CategoryId", i)
-	    	 .addAttribute("popNotice", popNoticesList);
+		List<Posts> list = this.pmapper.list(i);
 
-	    return "posts/posts_list";
+		// ✅ displayDate 세팅
+		for (Posts post : list) {
+			post.setDisplayDateFromCreatedAt();
+		}
+
+		List<Notices> popNoticesList = noticesMapper.popNoticeList();
+
+		// System.out.println(popNoticesList);
+
+		model.addAttribute("List", list).addAttribute("Paging", pdto).addAttribute("CategoryId", i)
+				.addAttribute("popNotice", popNoticesList);
+
+		return "posts/posts_list";
 	}
-	
-	
+
 	@GetMapping("/notices_list.go")
 	public String noticeList(@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
 
-	    int rowsize = 5;  // 한 페이지당 게시물 수
-	    int totalRecord = noticesMapper.countNotices();  // 전체 게시물 수 가져오기
+		int rowsize = 5; // 한 페이지당 게시물 수
+		int totalRecord = noticesMapper.countNotices(); // 전체 게시물 수 가져오기
 
-	    Page pdto = new Page(page, rowsize, totalRecord);
+		Page pdto = new Page(page, rowsize, totalRecord);
 
-	    List<Notices> pagedNotices = noticesMapper.pagedNoticeList(pdto);
+		List<Notices> pagedNotices = noticesMapper.pagedNoticeList(pdto);
 
-	    model.addAttribute("Notices", pagedNotices);
-	    model.addAttribute("Paging", pdto);
+		model.addAttribute("Notices", pagedNotices);
+		model.addAttribute("Paging", pdto);
 
-	    return "notices/notices_list";
+		return "notices/notices_list";
 	}
-	
-	
+
 	@GetMapping("/notices_write.go")
 	public String write() {
-		
+
 		return "notices/notices_write";
 	}
-	
-	
+
 	@PostMapping("notices_write_ok.go")
 	public void write_ok(Notices dto, HttpServletResponse response) throws IOException {
-		
+
 		int res = this.noticesMapper.add(dto);
-		
+
 		response.setContentType("text/html; charset=UTF-8");
-		
+
 		PrintWriter out = response.getWriter();
-		
-		if(res > 0) {
+
+		if (res > 0) {
 			out.println("<script>");
 			out.println("alert('게시글 등록 성공')");
 			out.println("location.href='notices_list.go'");
 			out.println("</script>");
-		}else {
+		} else {
 			out.println("<script>");
 			out.println("alert('게시글 등록 실패')");
 			out.println("history.back()");
 			out.println("</script>");
 		}
 	}
-	
-	
+
 	@GetMapping("/notices_content.go")
 	public String cont(@RequestParam("no") int no, @RequestParam("page") int nowPage, Model model) {
-		
-		// 게시물 번호에 해당하는 상세 내역을 조회하는 메서드 호출. 
+
+		// 게시물 번호에 해당하는 상세 내역을 조회하는 메서드 호출.
 		Notices cont = this.noticesMapper.cont(no);
-		
-		model.addAttribute("Content", cont)
-		     .addAttribute("Page", nowPage);
-		
+
+		model.addAttribute("Content", cont).addAttribute("Page", nowPage);
+
 		return "notices/notices_content";
 	}
-	
-	
+
 	@GetMapping("/notices_modify.go")
 	public String modify(@RequestParam("no") int no, @RequestParam("page") int nowPage, Model model) {
-		
+
 		Notices cont = this.noticesMapper.cont(no);
-		
-		model.addAttribute("Modify", cont)
-		     .addAttribute("Page", nowPage);
-		
+
+		model.addAttribute("Modify", cont).addAttribute("Page", nowPage);
+
 		return "notices/notices_modify";
 	}
-	
-	
+
 	@PostMapping("notices_modify_ok.go")
-	public void modifyOk(Notices dto, @RequestParam("page") int nowPage, HttpServletResponse response) throws IOException {
-		
+	public void modifyOk(Notices dto, @RequestParam("page") int nowPage, HttpServletResponse response)
+			throws IOException {
+
 		response.setContentType("text/html; charset=UTF-8");
-		
+
 		PrintWriter out = response.getWriter();
-		
+
 		int res = this.noticesMapper.edit(dto);
-		
-		if(res > 0) {
+
+		if (res > 0) {
 			out.println("<script>");
 			out.println("alert('게시글 수정 성공!!!')");
-			out.println("location.href='notices_content.go?no="+dto.getId()+"&page="+nowPage+"'");
+			out.println("location.href='notices_content.go?no=" + dto.getId() + "&page=" + nowPage + "'");
 			out.println("</script>");
-		}else {
+		} else {
 			out.println("<script>");
 			out.println("alert('게시글 수정 실패!!!')");
 			out.println("history.back()");
 			out.println("</script>");
 		}
-		
+
 	}
-	
-	
+
 	@GetMapping("/notices_delete.go")
-	public void delete(@RequestParam("no") int no, @RequestParam("page") int nowPage, 
-				HttpServletResponse response) throws IOException {
-		
+	public void delete(@RequestParam("no") int no, @RequestParam("page") int nowPage, HttpServletResponse response)
+			throws IOException {
+
 		int check = this.noticesMapper.del(no);
-		
+
 		response.setContentType("text/html; charset=UTF-8");
-		
+
 		PrintWriter out = response.getWriter();
-		
-		if(check > 0) {
-			// 삭제된 공지사항 번호보다 큰 번호에 대해서 다시 번호를 재작업 하는 메서드 
+
+		if (check > 0) {
+			// 삭제된 공지사항 번호보다 큰 번호에 대해서 다시 번호를 재작업 하는 메서드
 			this.noticesMapper.seq(no);
-			
+
 			out.println("<script>");
 			out.println("alert('게시글 삭제 성공!!!')");
 			out.println("location.href='notices_list.go'");
 			out.println("</script>");
-		}else {
+		} else {
 			out.println("<script>");
 			out.println("alert('게시글 삭제 실패!!!')");
 			out.println("history.back()");
 			out.println("</script>");
 		}
 	}
-	
-	
+
 	@GetMapping("/notices_search.go")
-	public String search(@RequestParam("field") String field, 
-						@RequestParam("keyword") String keyword,
-						@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
-		
-		// 검색 페이징 작업 
-		
-		// 검색분류와 검색어에 해당하는 게시글의 수를 DB에서 확인하는 작업. 
+	public String search(@RequestParam("field") String field, @RequestParam("keyword") String keyword,
+			@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
+
+		// 검색 페이징 작업
+
+		// 검색분류와 검색어에 해당하는 게시글의 수를 DB에서 확인하는 작업.
 		Map<String, String> map = new HashMap<String, String>();
-		
+
 		map.put("Field", field);
 		map.put("Keyword", keyword);
-		
+
 		totalRecord = this.noticesMapper.scount(map);
-		
+
 		Page pdto = new Page(page, rowsize, totalRecord, field, keyword);
-		
+
 		// 검색 시 한 페이지당 보여질 게시물의 수만큼
 		// 검색한 게시물을 List로 가져오는 메서드 호출.
 		List<Notices> searchList = this.noticesMapper.search(pdto);
-		
-		model.addAttribute("searchPageList", searchList)
-		     .addAttribute("Paging", pdto);
-		
+
+		model.addAttribute("searchPageList", searchList).addAttribute("Paging", pdto);
+
 		return "notices/notices_search_list";
-		
+
 	}
 
-    // 게시글 상세 페이지 진입
-    @RequestMapping("/post_detail.go")
-    public String postDetail(@RequestParam("id") int id, Model model, HttpSession session, HttpServletResponse response) throws IOException {
-        // 게시글 상세 정보 먼저 조회
-        PostsDetailDTO post = pmapper.getPostDetailById(id);
+	// 게시글 상세 페이지 진입
+	@RequestMapping("/post_detail.go")
+	public String postDetail(@RequestParam("id") int id, Model model, HttpSession session, HttpServletResponse response)
+			throws IOException {
+		// 게시글 상세 정보 먼저 조회
+		PostsDetailDTO post = pmapper.getPostDetailById(id);
 
-        // 삭제된 게시글이면 차단
-        if (post == null || "N".equals(post.getState())) {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script>");
-            out.println("alert('삭제된 게시글입니다.');");
-            out.println("location.href='/'");
-            out.println("</script>");
-            return null;
-        }
+		// 삭제된 게시글이면 차단
+		if (post == null || "N".equals(post.getState())) {
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+			out.println("<script>");
+			out.println("alert('삭제된 게시글입니다.');");
+			out.println("location.href='/'");
+			out.println("</script>");
+			return null;
+		}
 
-        // 조회수 증가
-        pmapper.view_countup(id);
+		// 조회수 증가
+		pmapper.view_countup(id);
 
-        // 나머지 데이터 조회
-        List<Hashtags> hashtags = hmapper.getHashtagsByPostId(id);
-        List<CommentDTO> comments = commentsMapper.getCommentsByPostId(id);
-        Users loginUser = (Users) session.getAttribute("loginUser");
+		// 나머지 데이터 조회
+		List<Hashtags> hashtags = hmapper.getHashtagsByPostId(id);
+		List<CommentDTO> comments = commentsMapper.getCommentsByPostId(id);
+		Users loginUser = (Users) session.getAttribute("loginUser");
 
-        // 좋아요 여부 확인
-        boolean liked = false;
-        if (loginUser != null) {
-            liked = (pmapper.isPostLiked(id, loginUser.getId()) > 0);
-        }
+		// 좋아요 여부 확인
+		boolean liked = false;
+		if (loginUser != null) {
+			liked = (pmapper.isPostLiked(id, loginUser.getId()) > 0);
+		}
 
-        // 좋아요 수 조회 추가
-        int likeCount = pmapper.getLikeCount(id);
-        
-        // 이전글 / 다음글 ID 조회
-        Integer prevId = pmapper.getPrevPostId(id);
-        Integer nextId = pmapper.getNextPostId(id);
-        
-        // 모델에 데이터 추가
-        model.addAttribute("post", post);
-        model.addAttribute("hashtags", hashtags);
-        model.addAttribute("comments", comments);
-        model.addAttribute("loginUser", loginUser);
-        model.addAttribute("postLiked", liked);
-        model.addAttribute("likeCount", likeCount); 
-        model.addAttribute("prevId", prevId); 
-        model.addAttribute("nextId", nextId);
+		// 좋아요 수 조회 추가
+		int likeCount = pmapper.getLikeCount(id);
 
-        return "posts/post_detail";
-    }
+		// 이전글 / 다음글 ID 조회
+		Integer prevId = pmapper.getPrevPostId(id);
+		Integer nextId = pmapper.getNextPostId(id);
 
-    // 게시글 삭제 처리 
-    @RequestMapping("/post_delete.go")
-    public void deletePost(@RequestParam("id") int id,
-                           HttpSession session,
-                           HttpServletResponse response) throws IOException {
+		// 모델에 데이터 추가
+		model.addAttribute("post", post);
+		model.addAttribute("hashtags", hashtags);
+		model.addAttribute("comments", comments);
+		model.addAttribute("loginUser", loginUser);
+		model.addAttribute("postLiked", liked);
+		model.addAttribute("likeCount", likeCount);
+		model.addAttribute("prevId", prevId);
+		model.addAttribute("nextId", nextId);
 
-        Users loginUser = (Users) session.getAttribute("loginUser");
+		return "posts/post_detail";
+	}
 
-        response.setContentType("text/html; charset=UTF-8");
-        PrintWriter out = response.getWriter();
+	// 게시글 삭제 처리
+	@RequestMapping("/post_delete.go")
+	public void deletePost(@RequestParam("id") int id, HttpSession session, HttpServletResponse response)
+			throws IOException {
 
-        // 로그인 안 한 경우
-        if (loginUser == null) {
-            out.println("<script>alert('로그인이 필요합니다.'); location.href='/user_login.go';</script>");
-            return;
-        }
+		Users loginUser = (Users) session.getAttribute("loginUser");
 
-        // 게시글 작성자 또는 관리자만 삭제 가능
-        PostsDetailDTO post = pmapper.getPostDetailById(id);
-        if (post != null && (post.getUser_id() == loginUser.getId() || "ADMIN".equals(loginUser.getRole()))) {
-            pmapper.softDeletePost(id);
-        }
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
 
-        out.println("<script>alert('게시글이 삭제되었습니다.'); location.href='/'</script>");
-    }
+		// 로그인 안 한 경우
+		if (loginUser == null) {
+			out.println("<script>alert('로그인이 필요합니다.'); location.href='/user_login.go';</script>");
+			return;
+		}
 
-    // 댓글 작성 처리
-    @RequestMapping("/comment_write.go")
-    public void writeComment(@RequestParam("post_id") int postId,
-                             @RequestParam("content") String content,
-                             HttpSession session,
-                             HttpServletResponse response) throws IOException {
+		// 게시글 작성자 또는 관리자만 삭제 가능
+		PostsDetailDTO post = pmapper.getPostDetailById(id);
+		if (post != null && (post.getUser_id() == loginUser.getId() || "ADMIN".equals(loginUser.getRole()))) {
+			pmapper.softDeletePost(id);
+		}
 
-        Users loginUser = (Users) session.getAttribute("loginUser");
+		out.println("<script>alert('게시글이 삭제되었습니다.'); location.href='/'</script>");
+	}
 
-        response.setContentType("text/html; charset=UTF-8");
-        PrintWriter out = response.getWriter();
+	// 댓글 작성 처리
+	@RequestMapping("/comment_write.go")
+	public void writeComment(@RequestParam("post_id") int postId, @RequestParam("content") String content,
+			HttpSession session, HttpServletResponse response) throws IOException {
 
-        // 로그인 체크
-        if (loginUser == null) {
-            out.println("<script>");
-            out.println("alert('로그인이 필요합니다.');");
-            out.println("location.href='/user_login.go';");
-            out.println("</script>");
-            return;
-        }
+		Users loginUser = (Users) session.getAttribute("loginUser");
 
-        // 댓글 내용 비어있을 경우
-        if (content == null || content.trim().isEmpty()) {
-            out.println("<script>");
-            out.println("alert('댓글을 작성해주세요.');");
-            out.println("location.href='/post_detail.go?id=" + postId + "&commentOpen=true';");
-            out.println("</script>");
-            return;
-        }
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
 
-        // 댓글 저장
-        Comments comment = new Comments();
-        comment.setPost_id(postId);
-        comment.setUser_id(loginUser.getId());
-        comment.setContent(content);
-        commentsMapper.insertComment(comment);
+		// 로그인 체크
+		if (loginUser == null) {
+			out.println("<script>");
+			out.println("alert('로그인이 필요합니다.');");
+			out.println("location.href='/user_login.go';");
+			out.println("</script>");
+			return;
+		}
 
-        // 성공 후 이동
-        out.println("<script>");
-        out.println("location.href='/post_detail.go?id=" + postId + "&commentOpen=true';");
-        out.println("</script>");
-    }
+		// 댓글 내용 비어있을 경우
+		if (content == null || content.trim().isEmpty()) {
+			out.println("<script>");
+			out.println("alert('댓글을 작성해주세요.');");
+			out.println("location.href='/post_detail.go?id=" + postId + "&commentOpen=true';");
+			out.println("</script>");
+			return;
+		}
 
+		// 댓글 저장
+		Comments comment = new Comments();
+		comment.setPost_id(postId);
+		comment.setUser_id(loginUser.getId());
+		comment.setContent(content);
+		commentsMapper.insertComment(comment);
 
-    // 댓글 삭제 처리 
-    @RequestMapping("/comment_delete.go")
-    public String deleteComment(@RequestParam("id") int commentId,
-                                @RequestParam("postId") int postId,
-                                HttpSession session) {
+		// 성공 후 이동
+		out.println("<script>");
+		out.println("location.href='/post_detail.go?id=" + postId + "&commentOpen=true';");
+		out.println("</script>");
+	}
 
-        Users loginUser = (Users) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/login";
+	// 댓글 삭제 처리
+	@RequestMapping("/comment_delete.go")
+	public String deleteComment(@RequestParam("id") int commentId, @RequestParam("postId") int postId,
+			HttpSession session) {
 
-        // 작성자 또는 관리자만 삭제 가능
-        CommentDTO targetComment = commentsMapper.getCommentById(commentId);
-        if (targetComment != null &&
-            (targetComment.getUser_id() == loginUser.getId() || "ADMIN".equals(loginUser.getRole()))) {
-            commentsMapper.deleteComment(commentId);
-        }
+		Users loginUser = (Users) session.getAttribute("loginUser");
+		if (loginUser == null)
+			return "redirect:/login";
 
-        // 다시 상세 페이지로 이동 + 댓글창 열림
-        return "redirect:/post_detail.go?id=" + postId + "&commentOpen=true";
-    }
+		// 작성자 또는 관리자만 삭제 가능
+		CommentDTO targetComment = commentsMapper.getCommentById(commentId);
+		if (targetComment != null
+				&& (targetComment.getUser_id() == loginUser.getId() || "ADMIN".equals(loginUser.getRole()))) {
+			commentsMapper.deleteComment(commentId);
+		}
 
-    // 댓글 수정 처리 (AJAX)
-    @RequestMapping("/comment_update.go")
-    @ResponseBody
-    public Map<String, Object> updateComment(@RequestParam("id") int id,
-                                             @RequestParam("content") String content,
-                                             HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-        Users loginUser = (Users) session.getAttribute("loginUser");
+		// 다시 상세 페이지로 이동 + 댓글창 열림
+		return "redirect:/post_detail.go?id=" + postId + "&commentOpen=true";
+	}
 
-        // 로그인 확인
-        if (loginUser == null) {
-            result.put("status", "not_logged_in");
-            return result;
-        }
+	// 댓글 수정 처리 (AJAX)
+	@RequestMapping("/comment_update.go")
+	@ResponseBody
+	public Map<String, Object> updateComment(@RequestParam("id") int id, @RequestParam("content") String content,
+			HttpSession session) {
+		Map<String, Object> result = new HashMap<>();
+		Users loginUser = (Users) session.getAttribute("loginUser");
 
-        // 권한 확인 후 수정
-        CommentDTO targetComment = commentsMapper.getCommentById(id);
-        if (targetComment != null &&
-            (targetComment.getUser_id() == loginUser.getId() || "ADMIN".equals(loginUser.getRole()))) {
-            Comments comment = new Comments();
-            comment.setId(id);
-            comment.setContent(content);
-            commentsMapper.updateComment(comment);
-            result.put("status", "success");
-        } else {
-            result.put("status", "fail");
-        }
+		// 로그인 확인
+		if (loginUser == null) {
+			result.put("status", "not_logged_in");
+			return result;
+		}
 
-        return result;
-    }
-    
-    @PostMapping("/like_toggle.go")
-    @ResponseBody
-    public Map<String, Object> toggleLike(@RequestParam("postId") int postId, HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-        Users loginUser = (Users) session.getAttribute("loginUser");
+		// 권한 확인 후 수정
+		CommentDTO targetComment = commentsMapper.getCommentById(id);
+		if (targetComment != null
+				&& (targetComment.getUser_id() == loginUser.getId() || "ADMIN".equals(loginUser.getRole()))) {
+			Comments comment = new Comments();
+			comment.setId(id);
+			comment.setContent(content);
+			commentsMapper.updateComment(comment);
+			result.put("status", "success");
+		} else {
+			result.put("status", "fail");
+		}
 
-        // 로그인하지 않은 경우
-        if (loginUser == null) {
-            result.put("status", "not_logged_in");
-            return result;
-        }
+		return result;
+	}
 
-        int userId = loginUser.getId();
-        boolean alreadyLiked = (pmapper.isPostLiked(postId, userId)>0);
+	@PostMapping("/like_toggle.go")
+	@ResponseBody
+	public Map<String, Object> toggleLike(@RequestParam("postId") int postId, HttpSession session) {
+		Map<String, Object> result = new HashMap<>();
+		Users loginUser = (Users) session.getAttribute("loginUser");
 
-        if (alreadyLiked) {
-            // 좋아요 취소
-            pmapper.deleteLike(postId, userId);
-        } else {
-            // 좋아요 등록
-            pmapper.insertLike(postId, userId);
-        }
-        
-        int newLikeCount = pmapper.getLikeCount(postId); 
+		// 로그인하지 않은 경우
+		if (loginUser == null) {
+			result.put("status", "not_logged_in");
+			return result;
+		}
 
-        // 클라이언트에게 현재 상태를 알려줌
-        result.put("status", "success");
-        result.put("liked", !alreadyLiked);  // 누른 후 상태 전달
-        result.put("likeCount", newLikeCount);
+		int userId = loginUser.getId();
+		boolean alreadyLiked = (pmapper.isPostLiked(postId, userId) > 0);
 
-        return result;
-    }
+		if (alreadyLiked) {
+			// 좋아요 취소
+			pmapper.deleteLike(postId, userId);
+		} else {
+			// 좋아요 등록
+			pmapper.insertLike(postId, userId);
+		}
+
+		int newLikeCount = pmapper.getLikeCount(postId);
+
+		// 클라이언트에게 현재 상태를 알려줌
+		result.put("status", "success");
+		result.put("liked", !alreadyLiked); // 누른 후 상태 전달
+		result.put("likeCount", newLikeCount);
+
+		return result;
+	}
+
+	@GetMapping("/post_write.go")
+	public String write(HttpSession session, HttpServletResponse response, Model model) throws IOException {
+
+		/*
+		 * if (Util.checkLogin(session)) {
+		 * 
+		 * response.setContentType("text/html; charset=UTF-8"); PrintWriter out =
+		 * response.getWriter();
+		 * 
+		 * out.
+		 * println("<script>alert('로그인이 필요합니다.'); location.href='/user_login.go'</script>"
+		 * );
+		 * 
+		 * return null; }
+		 */
+
+		List<Region_province> provinceList = this.pmapper.getProvinceList();
+
+		model.addAttribute("provinceList", provinceList);
+
+		return "posts/post_write";
+	}
+
+	@PostMapping(value = "/getCityCode", produces = "application/json; charset=utf8")
+	@ResponseBody
+	public String getCityCode(@RequestParam("provinceCode") int provinceCode) {
+		JsonObject jsonObject = new JsonObject();
+		System.out.println(provinceCode);
+
+		List<Region_city> cityList = this.pmapper.getCityList(provinceCode);
+
+		System.out.println(cityList.get(0).getId());
+
+		jsonObject.addProperty("cityList", cityList.toString());
+		jsonObject.addProperty("responseCode", "success");
+
+		return jsonObject.toString();
+	}
+
+	@PostMapping("/post_write_ok.go")
+	public String postWriteOk(@RequestParam("contents") String contents, @RequestParam("title") String title,
+			@RequestParam("hashtags[]") String[] hashtags) {
+
+		System.out.println(contents);
+		System.out.println(title);
+		for (int i = 0; i < hashtags.length; i++)
+			System.out.println(hashtags[i]);
+
+		return "main";
+	}
+
+	// 서머노트 이미지 업로드
+	@PostMapping(value = "/uploadImageFile", produces = "application/json; charset=utf8")
+	@ResponseBody
+	public String uploadSummernoteImageFile(@RequestParam("file") MultipartFile multipartFile,
+			HttpServletRequest request) {
+		// JSON 객체 생성
+		JsonObject jsonObject = new JsonObject();
+
+		// 이미지 파일이 저장될 경로 설정
+		String contextRoot = realPath + "/upload/image/fileupload/";
+		String fileRoot = contextRoot;
+
+		// 업로드된 파일의 원본 파일명과 확장자 추출
+		String originalFileName = multipartFile.getOriginalFilename();
+		String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+
+		// 새로운 파일명 생성 (고유한 식별자 + 확장자)
+		String savedFileName = UUID.randomUUID() + extension;
+
+		// 저장될 파일의 경로와 파일명을 나타내는 File 객체 생성
+		File targetFile = new File(fileRoot + savedFileName);
+
+		try {
+			// 업로드된 파일의 InputStream 얻기
+			java.io.InputStream fileStream = multipartFile.getInputStream();
+
+			// 업로드된 파일을 지정된 경로에 저장
+			FileUtils.copyInputStreamToFile(fileStream, targetFile);
+
+			// JSON 객체에 이미지 URL과 응답 코드 추가
+			jsonObject.addProperty("url", "/upload/image/fileupload/" + savedFileName);
+			jsonObject.addProperty("responseCode", "success");
+		} catch (IOException e) {
+			// 파일 저장 중 오류가 발생한 경우 해당 파일 삭제 및 에러 응답 코드 추가
+			FileUtils.deleteQuietly(targetFile);
+			jsonObject.addProperty("responseCode", "error");
+			e.printStackTrace();
+		}
+
+		// JSON 객체를 문자열로 변환하여 반환
+		return jsonObject.toString();
+	}
 }

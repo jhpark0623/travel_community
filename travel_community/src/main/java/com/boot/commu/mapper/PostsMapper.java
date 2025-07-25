@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Param;
 import com.boot.commu.model.Posts;
 import com.boot.commu.model.Page;
 import com.boot.commu.model.PostsDetailDTO;
+import com.boot.commu.model.Region_city;
+import com.boot.commu.model.Region_province;
 
 @Mapper
 public interface PostsMapper {
@@ -43,4 +45,8 @@ public interface PostsMapper {
 
     // 현재 게시글 ID 기준으로 다음글 ID 가져오기
     Integer getNextPostId(int currentId);
+    
+    List<Region_province> getProvinceList();
+    
+    List<Region_city> getCityList(int provinceCode);
 }

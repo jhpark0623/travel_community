@@ -95,5 +95,13 @@
 	      and state = 'Y'
 	  ]]>
 	</select>
+	
+	<select id="getProvinceList" resultType="province">
+		SELECT * FROM a_region_province
+	</select>
+	
+	<select id="getCityList" parameterType="int" resultType="city">
+		SELECT * FROM a_region_city where province_id = #{provinceCode}
+	</select>
 
 </mapper>
