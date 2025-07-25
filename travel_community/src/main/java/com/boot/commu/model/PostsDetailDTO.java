@@ -23,4 +23,5 @@ public class PostsDetailDTO {
     private String category_name;    // 카테고리명
     private String city_name;        // 시/군/구
     private String province_name;    // 도/광역시
+    
 }
