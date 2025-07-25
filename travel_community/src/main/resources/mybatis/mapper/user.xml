@@ -31,6 +31,11 @@
 	</insert>
 	
 
+	<select id="myPosts" resultType="posts" parameterType="int">
+	select * from a_posts where user_id = #{id} and state ='Y'
+	</select>
+
+
 	<select id="findId" resultType="String" parameterType="users">
 		select email from a_users where name = #{name} and phone = #{phone}
 	</select>
@@ -43,10 +48,6 @@
 		select password from a_users where email = #{email} and name = #{name} and phone = #{phone}
 	</select>
 
-	<select id="myPosts" resultType="posts" parameterType="int">
-		select * from a_posts where user_id = #{id} and state ='Y'
-	</select>
-	
 	<select id="myComments" resultType="comments" parameterType="int">
 		select
 			c.*,
@@ -56,5 +57,12 @@
 			where c.user_id = #{id} and c.state = 'Y' and p.state = 'Y'
 	</select>
 
+
+	<select id="search" parameterType="map" resultType="posts">
+		select * from a_posts where 
+		user_id = #{id} and state = 'Y' and
+		(title  like '%' || #{search} || '%' or content like '%' || #{search} || '%')
 	
+	</select>
+
 </mapper>

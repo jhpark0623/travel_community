@@ -66,6 +66,7 @@ public class PostsController {
 
         // 나머지 데이터 조회
         List<Hashtags> hashtags = hmapper.getHashtagsByPostId(id);
+        System.out.println(hashtags);
         List<CommentDTO> comments = commentsMapper.getCommentsByPostId(id);
         Users loginUser = (Users) session.getAttribute("loginUser");
 

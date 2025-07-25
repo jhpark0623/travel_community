@@ -98,20 +98,21 @@ function toggleLike(postId) {
         <p>작성일: ${post.created_at}</p>
     </c:if>
 
-    <!-- 해시태그 -->
-    <c:if test="${not empty hashtags}">
-        <p>
-            <c:forEach var="tag" items="${hashtags}">
-                <a>#${tag.hashtag}</a>&nbsp;
-            </c:forEach>
-        </p>
-    </c:if>
+    
 
     <hr>
 
     <!-- 본문 내용 -->
     <div>
         <c:out value="${post.content}" escapeXml="false" />
+        <!-- 해시태그 -->
+	    <c:if test="${not empty hashtags}">
+	        <p>
+	            <c:forEach var="tag" items="${hashtags}">
+	                <a href="#">#${tag.hashtag}</a>&nbsp;
+	            </c:forEach>
+	        </p>
+	    </c:if>
     </div>
 
     <hr>
