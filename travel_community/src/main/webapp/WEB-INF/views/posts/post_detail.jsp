@@ -86,7 +86,11 @@ function toggleLike(postId) {
     <!-- 작성자/카테고리/지역 -->
     <ul class="list-unstyled text-muted mb-4 fs-6">
 	    <li>👤 ${post.nickname}</li>
-	    <li>📂${post.category_name}</li>
+	    <li>
+  			📂 <a href="#" class="text-dark text-decoration-none" style="font-size: 1rem;">
+		    ${post.category_name}
+		  </a>
+		</li>
 	    <li>📍 ${post.province_name} ${post.city_name}</li>
 	    <li>
 	        🕒 
@@ -193,7 +197,7 @@ function toggleLike(postId) {
 	  <div>
 	    <c:choose>
 	      <c:when test="${not empty prevId}">
-	        <a href="/post_detail.go?id=${prevId}" class="btn btn-outline-secondary btn-sm">← 이전글</a>
+	        <a href="/post_detail.go?id=${prevId}&page=${page }" class="btn btn-outline-secondary btn-sm">← 이전글</a>
 	      </c:when>
 	      <c:otherwise>
 	        <button class="btn btn-outline-secondary btn-sm invisible">← 이전글</button>
@@ -203,14 +207,15 @@ function toggleLike(postId) {
 	
 	  <!-- 가운데: 목록으로 -->
 	  <div class="position-absolute start-50 translate-middle-x">
-	    <button class="btn btn-outline-dark btn-sm" onclick="history.back()">목록으로</button>
+	    <button class="btn btn-outline-dark btn-sm" onclick="location.href='<%=request.getContextPath() %>/posts_list.go/${post.category_id}?page=${page }'">목록으로</button>
+	    <%-- <a href="<%=request.getContextPath() %>/posts_list.go/${post.category_id}">TEST</a> --%>
 	  </div>
 	
 	  <!-- 오른쪽: 다음글 -->
 	  <div>
 	    <c:choose>
 	      <c:when test="${not empty nextId}">
-	        <a href="/post_detail.go?id=${nextId}" class="btn btn-outline-secondary btn-sm">다음글 →</a>
+	        <a href="/post_detail.go?id=${nextId}&page=${page }" class="btn btn-outline-secondary btn-sm">다음글 →</a>
 	      </c:when>
 	      <c:otherwise>
 	        <button class="btn btn-outline-secondary btn-sm invisible">다음글 →</button>
@@ -276,6 +281,10 @@ function toggleLike(postId) {
         </c:forEach>
     </div>
 
+    <br>
+    <!-- 목록으로 가는게 아니라 이전 페이지로 이동중 <= 수정 필요. -->
+    <button onclick="history.back()">← 목록으로</button>
+    
 </div>
 
 
