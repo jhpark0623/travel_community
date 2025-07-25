@@ -12,7 +12,18 @@
 
 	<jsp:include page="../include/header.jsp" />
 
-	<div>MAIN PAGE</div>
+	<div align="center">
+	   <hr width="30%" color="gray">
+	      <h3>POSTS 테이블 메인 페이지</h3>
+	   <hr width="30%" color="gray">
+	   <br> <br>
+ 
+	   <a href="<%=request.getContextPath() %>/posts_list.go/1">[자유 게시판]</a>
+	   <a href="<%=request.getContextPath() %>/posts_list.go/2">[정보 게시판]</a>
+	   <a href="<%=request.getContextPath() %>/posts_list.go/3">[질문 게시판]</a>
+	   <a href="<%=request.getContextPath() %>/notices_list.go">[공지사항]</a>
+ 
+	</div>
 
 </body>
 </html>

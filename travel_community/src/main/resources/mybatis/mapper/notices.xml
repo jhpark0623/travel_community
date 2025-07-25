@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.boot.commu.mapper.NoticesMapper">
+
+	 <select id="countNotices" resultType="int">
+	    select count(*) from a_notices
+	 </select>
+
+	 <select id="popNoticeList" resultType="Notice">
+	    select * 
+	    from a_notices
+	    where is_pop = 'Y' 
+	    order by id desc
+	</select>
+
+	<select id="noticeList" resultType="Notice">
+	    select *
+	    from a_notices
+	    order by id desc
+	</select>
+
+	<select id="pagedNoticeList" parameterType="Page" resultType="Notice">
+	    <![CDATA[
+	       select * from(
+	       		select a.*, rownum rnum from (
+	       		select *
+	       		from a_notices
+	       		order by id desc
+	       		) a
+	       		where rownum <= #{endNo}
+	       		)
+	       		where rnum >= #{startNo}  
+	    ]]>
+	</select>
+	
+	<insert id="add" parameterType="Notice">
+	   <selectKey resultType="int"
+	      keyProperty="id" order="BEFORE">
+	      select nvl(max(id),0) + 1 from a_notices 
+	   </selectKey>
+	   
+	   insert into a_notices values (#{id}, #{title}, #{content}, default, sysdate, #{is_pop, jdbcType=VARCHAR})
+	</insert>
+	
+	<select id="cont" parameterType="int" resultType="Notice">
+	   select * from a_notices where id = #{id}
+	</select>
+	
+	<update id="edit" parameterType="Notice">
+	   update a_notices
+	   set title = #{title},
+	       content = #{content},
+	       updated_at = sysdate
+	   where id = #{id}
+	</update>
+	
+	<delete id="del" parameterType="int">
+	   delete from a_notices where id = #{id}
+	</delete>
+	
+	<update id="seq" parameterType="int">
+	   update a_notices set id = id - 1 where id > #{id}
+	</update>
+	
+	<select id="scount" parameterType="map" resultType="int">
+	   select count(*) from a_notices
+	   
+	   <choose>
+	      <when test="Field == 'title'">
+	         where title
+	      </when>
+	      
+	      <when test="Field == 'content'">
+	         where content
+	      </when>
+	   </choose>
+	   
+	      like '%' || #{keyword} || '%'
+	</select>
+	
+</mapper>

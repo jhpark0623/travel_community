@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.boot.commu.mapper.PostsMapper">
+
+	<select id="countByCategory" parameterType="String" resultType="int">
+ 	   select count(*) from a_posts where category_id = #{i}
+	</select>
+	
+	<select id="list" parameterType="String" resultType="Posts">
+	   select p.*, u.nickname from a_posts p join a_users u on p.user_id = u.id where p.category_id = #{i}
+	   order by p.id desc
+	</select>
+	 
+
+</mapper>
