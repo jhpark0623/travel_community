@@ -77,53 +77,55 @@ function toggleLike(postId) {
 <body>
 
 <jsp:include page="../../include/header.jsp" />
-
-<div style="width: 800px; margin: 50px auto;">
+<!-- 전체 컨테이너 -->
+<div class="container mt-5 mb-5" style="max-width: 800px;">
 
     <!-- 게시글 제목 -->
-    <h2>${post.title}</h2>
+    <h2 class="mb-3">${post.title}</h2>
 
     <!-- 작성자/카테고리/지역 -->
-    <p>
-        작성자: ${post.nickname}<br>
-        카테고리: ${post.category_name}<br>
-        지역: ${post.province_name} ${post.city_name}
-    </p>
-
-    <!-- 작성일 or 수정일 -->
-    <c:if test="${not empty post.updated_at}">
-        <p>수정일: ${post.updated_at}</p>
-    </c:if>
-    <c:if test="${empty post.updated_at}">
-        <p>작성일: ${post.created_at}</p>
-    </c:if>
-
-    
+    <ul class="list-unstyled text-muted mb-4">
+        <li>👤 ${post.nickname} </li>
+        <li>📂 ${post.category_name}</li>
+        <li>📍 ${post.province_name} ${post.city_name}</li>
+        <li>
+            🕒 
+            <c:choose>
+                <c:when test="${not empty post.updated_at}">수정일: ${post.updated_at}</c:when>
+                <c:otherwise>작성일: ${post.created_at}</c:otherwise>
+            </c:choose>
+        </li>
+    </ul>
 
     <hr>
 
     <!-- 본문 내용 -->
-    <div>
+    <div class="mb-4">
         <c:out value="${post.content}" escapeXml="false" />
-        <!-- 해시태그 -->
-	    <c:if test="${not empty hashtags}">
-	        <p>
-	            <c:forEach var="tag" items="${hashtags}">
-	                <a href="#">#${tag.hashtag}</a>&nbsp;
-	            </c:forEach>
-	        </p>
-	    </c:if>
     </div>
+
+    <!-- 해시태그 -->
+    <c:if test="${not empty hashtags}">
+        <p>
+            <c:forEach var="tag" items="${hashtags}">
+                <a href="#" class="badge bg-secondary text-decoration-none">#${tag.hashtag}</a>
+            </c:forEach>
+        </p>
+    </c:if>
 
     <hr>
 
-    <!-- 조회수 / 좋아요 수 -->
-    <p>조회수: ${post.view_count}</p>
-    <p>좋아요: <span id="likeCount">${likeCount}</span></p>
-    <!-- 좋아요 하트 버튼 (좋아요 수는 출력 안 함) -->
+	<!-- 조회수 / 좋아요 수 -->
+    <div class="d-flex align-items-center mb-3">
+    <span class="me-2">조회수: ${post.view_count}</span>
+    <span class="me-2">좋아요: <span id="likeCount">${likeCount}</span></span>
+    <!-- 좋아요 하트 버튼 -->
 	<c:choose>
 	  <c:when test="${not empty loginUser}">
-	    <button id="likeBtn" onclick="toggleLike(${post.id})" style="background: none; border: none;">
+	    <button id="likeBtn"
+	            onclick="toggleLike(${post.id})"
+	            class="btn p-0 border-0 bg-transparent"
+	            style="cursor: pointer;">
 	      <c:choose>
 	        <c:when test="${postLiked}">
 	          <!-- ❤️ 꽉 찬 하트 -->
@@ -151,8 +153,10 @@ function toggleLike(postId) {
 	  </c:when>
 	
 	  <c:otherwise>
-	    <!-- 비로그인: 하트 클릭 시 alert -->
-	    <button onclick="alert('로그인 후 이용해주세요.')" style="background:none; border:none;">
+	    <!-- 비로그인: 클릭 시 알림 -->
+	    <button class="btn p-0 border-0 bg-transparent"
+	            style="cursor: pointer;"
+	            onclick="alert('로그인 후 이용해주세요.')">
 	      <svg fill="gray" width="24" height="24" viewBox="0 0 24 24">
 	        <path d="M16.5 3c-1.74 0-3.41 0.81-4.5 2.09
 	                 C10.91 3.81 9.24 3 7.5 3
@@ -164,24 +168,59 @@ function toggleLike(postId) {
 	    </button>
 	  </c:otherwise>
 	</c:choose>
+	</div>
 
-    <!-- 게시글 수정/삭제 버튼 -->
+    <!-- 수정/삭제 버튼 -->
     <c:if test="${not empty loginUser && (loginUser.id == post.user_id || loginUser.role eq 'ADMIN')}">
-        <div style="margin-top: 10px;">
-            <button type="button" onclick="location.href='/post_edit.go?id=${post.id}'">✏ 게시글 수정</button>
-            <form action="/post_delete.go" method="post" style="display:inline;">
+        <div class="mb-3">
+            <button class="btn btn-outline-primary btn-sm" onclick="location.href='/post_edit.go?id=${post.id}'">✏ 수정</button>
+            <form action="/post_delete.go" method="post" class="d-inline">
                 <input type="hidden" name="id" value="${post.id}" />
-                <button type="submit" onclick="return confirm('정말 게시글을 삭제하시겠습니까?');">🗑 게시글 삭제</button>
+                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
             </form>
         </div>
     </c:if>
 
-    <hr><br>
+    <hr>
 
-    <!-- 댓글 토글 버튼 -->
-    <button type="button" onclick="toggleComments()">💬 댓글</button><br>
+	<!-- 이전/다음글 + 목록버튼 가운데 정렬 -->
+	<div class="d-flex justify-content-between align-items-center position-relative mt-4">	
+	  <!-- 왼쪽: 이전글 -->
+	  <div>
+	    <c:choose>
+	      <c:when test="${not empty prevId}">
+	        <a href="/post_detail.go?id=${prevId}" class="btn btn-outline-secondary btn-sm">← 이전글</a>
+	      </c:when>
+	      <c:otherwise>
+	        <button class="btn btn-outline-secondary btn-sm invisible">← 이전글</button>
+	      </c:otherwise>
+	    </c:choose>
+	  </div>
+	
+	  <!-- 가운데: 목록으로 -->
+	  <div class="position-absolute start-50 translate-middle-x">
+	    <button class="btn btn-outline-dark btn-sm" onclick="history.back()">목록으로</button>
+	  </div>
+	
+	  <!-- 오른쪽: 다음글 -->
+	  <div>
+	    <c:choose>
+	      <c:when test="${not empty nextId}">
+	        <a href="/post_detail.go?id=${nextId}" class="btn btn-outline-secondary btn-sm">다음글 →</a>
+	      </c:when>
+	      <c:otherwise>
+	        <button class="btn btn-outline-secondary btn-sm invisible">다음글 →</button>
+	      </c:otherwise>
+	    </c:choose>
+	  </div>	
+	</div>
+	  <hr>
+	<!-- 댓글 토글 버튼 -->
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleComments()">💬 댓글</button>
 
+    <!-- 댓글 영역 -->
     <!-- 댓글 전체 영역 -->
+
     <div id="commentArea" style="display: none; margin-top: 20px;">
         <h4>댓글</h4>
 
@@ -237,8 +276,8 @@ function toggleLike(postId) {
     <!-- 목록으로 가는게 아니라 이전 페이지로 이동중 <= 수정 필요. -->
     <button onclick="history.back()">← 목록으로</button>
     
-
 </div>
+
 
 <!-- 댓글 수정용 스크립트 -->
 <script>

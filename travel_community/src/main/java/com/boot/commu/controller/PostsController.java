@@ -275,7 +275,6 @@ public class PostsController {
 
         // 나머지 데이터 조회
         List<Hashtags> hashtags = hmapper.getHashtagsByPostId(id);
-        System.out.println(hashtags);
         List<CommentDTO> comments = commentsMapper.getCommentsByPostId(id);
         Users loginUser = (Users) session.getAttribute("loginUser");
 
@@ -285,8 +284,12 @@ public class PostsController {
             liked = (pmapper.isPostLiked(id, loginUser.getId()) > 0);
         }
 
-        // ★ 좋아요 수 조회 추가
+        // 좋아요 수 조회 추가
         int likeCount = pmapper.getLikeCount(id);
+        
+        // 이전글 / 다음글 ID 조회
+        Integer prevId = pmapper.getPrevPostId(id);
+        Integer nextId = pmapper.getNextPostId(id);
         
         // 모델에 데이터 추가
         model.addAttribute("post", post);
@@ -295,9 +298,12 @@ public class PostsController {
         model.addAttribute("loginUser", loginUser);
         model.addAttribute("postLiked", liked);
         model.addAttribute("likeCount", likeCount); 
-        
-        // 페이지도 일단 추가 -> 필요없으면 삭제.
+        // 페이지도 추가
         model.addAttribute("page", nowPage);
+
+        model.addAttribute("prevId", prevId); 
+        model.addAttribute("nextId", nextId);
+
 
         return "posts/post_detail";
     }

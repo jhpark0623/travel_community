@@ -76,5 +76,24 @@
 	 select count(*) from a_post_likes where post_id = #{postId}
   </select>
   
-  
+  <!-- 현재 게시글 ID보다 작은 글 중 가장 큰 ID (이전글) -->
+	<select id="getPrevPostId" resultType="int">
+	  <![CDATA[
+	    select max(id)
+	    from a_posts
+	    where id < #{currentId}
+	      and state = 'Y'
+	  ]]>
+	</select>
+	
+	<!-- 현재 게시글 ID보다 큰 글 중 가장 작은 ID (다음글) -->
+	<select id="getNextPostId" resultType="int">
+	  <![CDATA[
+	    select min(id)
+	    from a_posts
+	    where id > #{currentId}
+	      and state = 'Y'
+	  ]]>
+	</select>
+
 </mapper>
