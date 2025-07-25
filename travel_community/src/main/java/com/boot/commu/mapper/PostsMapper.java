@@ -1,8 +1,13 @@
 package com.boot.commu.mapper;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.boot.commu.model.Posts;
+import com.boot.commu.model.Page;
 import com.boot.commu.model.PostsDetailDTO;
 
 @Mapper
@@ -11,8 +16,9 @@ public interface PostsMapper {
     // 게시글 ID로 상세 정보 조회 (작성자, 카테고리, 지역 JOIN 포함)
     PostsDetailDTO getPostDetailById(int id);
 
-    // 게시글 조회수 1 증가
-    void view_countup(int id);
+	List<Posts> list(String i);
+
+	int countByCategory(String i);
 
     // 게시글 소프트 삭제 (state = 'N')
     void softDeletePost(int id);
@@ -22,6 +28,9 @@ public interface PostsMapper {
 
     // 해당 사용자가 해당 게시글에 좋아요 눌렀는지 여부
     int isPostLiked(@Param("postId") int postId, @Param("userId") int userId);
+
+	// 게시글 조회수 1 증가
+	void view_countup(int id);
 
     // 게시글 좋아요 등록
     void insertLike(@Param("postId") int postId, @Param("userId") int userId);

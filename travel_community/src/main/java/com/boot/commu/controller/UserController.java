@@ -166,7 +166,8 @@ public class UserController {
 	}
 	
 	@GetMapping("user_findpwd.go")
-	public String findPwd() {
+	public String findPwd(@RequestParam(value = "email", defaultValue = "") String email, Model model) {
+		model.addAttribute("email", email);		// 아이디 찾기에서 비밀번호 찾기로 넘어올때 email get방식으로 받음.
 		
 		return "user/user_findPwd"; 
 	}
@@ -175,7 +176,6 @@ public class UserController {
 	public String findIdOk(Users dto, Model model) throws IOException {
 		
 		String email = this.mapper.findId(dto);
-		System.out.println(email);
 		
 		if(email != null) {
 			String created_at = this.mapper.findCreated(email);
