@@ -78,25 +78,33 @@ function toggleLike(postId) {
 
 <jsp:include page="../../include/header.jsp" />
 <!-- 전체 컨테이너 -->
-<div class="container mt-5 mb-5" style="max-width: 800px;">
+<div class="container mt-5 mb-5" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;">
 
     <!-- 게시글 제목 -->
     <h2 class="mb-3">${post.title}</h2>
 
     <!-- 작성자/카테고리/지역 -->
-    <ul class="list-unstyled text-muted mb-4">
-        <li>👤 ${post.nickname} </li>
-        <li>📂 ${post.category_name}</li>
-        <li>📍 ${post.province_name} ${post.city_name}</li>
-        <li>
-            🕒 
-            <c:choose>
-                <c:when test="${not empty post.updated_at}">수정일: ${post.updated_at}</c:when>
-                <c:otherwise>작성일: ${post.created_at}</c:otherwise>
-            </c:choose>
-        </li>
-    </ul>
-
+    <ul class="list-unstyled text-muted mb-4 fs-6">
+	    <li>👤 ${post.nickname}</li>
+	    <li>
+  			📂 <a href="#" class="text-dark text-decoration-none" style="font-size: 1rem;">
+		    ${post.category_name}
+		  </a>
+		</li>
+	    <li>📍 ${post.province_name} ${post.city_name}</li>
+	    <li>
+	        🕒 
+	        <c:choose>
+	            <c:when test="${not empty post.updated_at}">
+	                수정일: ${post.updated_at}
+	            </c:when>
+	            <c:otherwise>
+	                작성일: ${post.created_at}
+	            </c:otherwise>
+	        </c:choose>
+	    </li>
+	</ul>
+	
     <hr>
 
     <!-- 본문 내용 -->
@@ -199,7 +207,7 @@ function toggleLike(postId) {
 	
 	  <!-- 가운데: 목록으로 -->
 	  <div class="position-absolute start-50 translate-middle-x">
-	    <button class="btn btn-outline-dark btn-sm" onclick="history.back()">목록으로</button>
+	    <button class="btn btn-outline-dark btn-sm" onclick="/posts_list.go/${post.category_id}">목록으로</button>
 	  </div>
 	
 	  <!-- 오른쪽: 다음글 -->
