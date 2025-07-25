@@ -94,7 +94,7 @@
             
             <div class="col-md-12 mb-3">
             	<label for="password1">비밀번호</label>
-            	<input type="password" class="form-control" id="password1" placeholder="비밀번호는 4~12자의 대소문자와 숫자로만 입력 가능" 
+            	<input type="password" class="form-control" id="password1" placeholder="비밀번호는 3~12자의 대소문자와 숫자로만 입력 가능" 
             	name="password" >
             </div>
             
