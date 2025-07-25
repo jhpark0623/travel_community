@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class Posts {
-	
+
 	private int id;
 	private int user_id;
 	private int category_id;
@@ -23,23 +23,21 @@ public class Posts {
 	private String nickname;
 	private String categoryName;
 	private String displayDate;
-	
+
 	public void setDisplayDateFromCreatedAt() {
-		
+
 		try {
 			DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			LocalDateTime createDateTime = LocalDateTime.parse(this.created_at, inputFormat);
 			LocalDate today = LocalDate.now();
-			
-			if(createDateTime.toLocalDate().isEqual(today)) {
+
+			if (createDateTime.toLocalDate().isEqual(today)) {
 				this.displayDate = createDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));
 			} else {
 				this.displayDate = createDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 			}
-		}catch (Exception e) {
+		} catch (Exception e) {
 			this.displayDate = this.created_at;
 		}
 	}
 }
-	
- 

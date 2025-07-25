@@ -9,6 +9,7 @@
 		<typeAlias type="com.boot.commu.model.Posts" alias="posts"/>
 		<typeAlias type="com.boot.commu.model.Page" alias="page"/>
 		<typeAlias type="com.boot.commu.model.Notices" alias="Notice"/>
-		
+		<typeAlias type="com.boot.commu.model.Users" alias="users"/>
+		<typeAlias type="com.boot.commu.model.Comments" alias="comments"/>
 	</typeAliases>
 </configuration>

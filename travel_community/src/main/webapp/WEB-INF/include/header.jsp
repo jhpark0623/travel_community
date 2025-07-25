@@ -8,6 +8,7 @@
 <meta charset="UTF-8">
 <title>Header</title>
 
+<!-- bootstrap -->
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
 	rel="stylesheet"
@@ -17,6 +18,8 @@
 	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
 	integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
 	crossorigin="anonymous"></script>
+	
+
 
 <style>
 body {
@@ -67,40 +70,44 @@ button:hover, input[type="submit"]:hover {
 	<div class="header-container">
 
 		<div class="header-left">
-			<c:choose>
-				<c:when test="${sessionScope.loginMember.store_code == 0}">
-					<a href="<%=request.getContextPath()%>/admin_main.go">Admin
-						Home</a>
-				</c:when>
-				<c:when test="${sessionScope.loginMember.store_code > 0}">
-					<a href="<%=request.getContextPath()%>/store_page.go">Store
-						Home</a>
-				</c:when>
-				<c:otherwise>
-					<a href="<%=request.getContextPath()%>/">Home</a>
-				</c:otherwise>
-			</c:choose>
+			<a href="<%=request.getContextPath()%>/">Home</a>
 		</div>
 
 		<div class="header-right">
 			<button class="btn btn-primary"
-				onclick="location.href='<%=request.getContextPath()%>/parking_in.go?floor=1'">입차</button>
+				onclick="location.href='<%=request.getContextPath()%>/'">버튼1</button>
 
 			<button class="btn btn-primary"
-				onclick="location.href='<%=request.getContextPath()%>/parking_out.go'">출차</button>
+				onclick="location.href='<%=request.getContextPath()%>/'">버튼2</button>
 
 			<c:choose>
-				<c:when test="${empty sessionScope.loginMember}">
+				<c:when test="${empty sessionScope.loginUser}">
 					<button class="btn btn-outline-secondary"
-						onclick="location.href='<%=request.getContextPath()%>/admin_login.go'">로그인</button>
+						onclick="location.href='<%=request.getContextPath()%>/user_login.go'">로그인</button>
 				</c:when>
 				<c:otherwise>
-					<button class="btn btn-outline-secondary"
-						onclick="location.href='<%=request.getContextPath()%>/admin_logout.go'">로그아웃</button>
+					<button class="btn btn-outline-secondary" onclick="if(confirm('정말로 로그아웃하시겠습니까?')) {
+						location.href='<%=request.getContextPath()%>/user_logout.go'
+					}">로그아웃</button>
 				</c:otherwise>
 			</c:choose>
+			
+			<c:if test="${!empty sessionScope.loginUser }">
+				<div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+					<div class="btn-group" role="group">
+					  <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+					    마이페이지
+					  </button>
+					  <ul class="dropdown-menu">
+					    <li><a class="dropdown-item" href="myprofile.go">내 정보</a></li>
+					    <li><a class="dropdown-item" href="myposts.go">내 게시물</a></li>
+					    <li><a class="dropdown-item" href="mycomments.go">내 답글</a></li>
+					  </ul>
+					</div>
+				</div>
+			</c:if>
 		</div>
-
+	
 	</div>
 
 </body>

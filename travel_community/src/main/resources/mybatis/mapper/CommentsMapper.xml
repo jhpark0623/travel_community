@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.boot.commu.mapper.CommentsMapper">
+
+	<!-- 게시글 ID로 댓글 목록 조회 (작성자 닉네임 포함) -->
+	<select id="getCommentsByPostId" parameterType="int" resultType="com.boot.commu.model.CommentDTO">
+		select 
+		   c.id,
+		   c.post_id,
+		   c.user_id,
+		   c.content,
+		   to_char(c.created_at, 'YYYY-MM-DD HH24:MI') as created_at,
+		   c.parent_id,
+		   u.nickname as nickname
+		from a_comments c
+		join a_users u on c.user_id = u.id
+		where c.post_id = #{postId}
+		  and c.state = 'Y'
+		order by c.id asc
+	</select>
+
+	<!-- 댓글 등록 -->
+	<insert id="insertComment" parameterType="com.boot.commu.model.Comments">
+	    insert into a_comments (
+	        id,
+	        post_id,
+	        user_id,
+	        content,
+	        created_at,
+	        state
+	    ) values (
+	        (SELECT NVL(MAX(id), 0) + 1 FROM a_comments),
+	        #{post_id},
+	        #{user_id},
+	        #{content},
+	        sysdate,
+	        'Y'
+	    )
+	</insert>
+
+	<!-- 댓글 삭제 -->
+	<update id="deleteComment" parameterType="int">
+	    update a_comments
+	    set state = 'N'
+	    where id = #{id}
+	</update>
+
+	<!-- 댓글 단일 조회 -->
+	<select id="getCommentById" parameterType="int" resultType="com.boot.commu.model.CommentDTO">
+	    select 
+	        c.id,
+	        c.post_id,
+	        c.user_id,
+	        c.content,
+	        to_char(c.created_at, 'YYYY-MM-DD HH24:MI') as created_at,
+	        c.parent_id,
+	        u.nickname
+	    from a_comments c
+	    join a_users u on c.user_id = u.id
+	    where c.id = #{id}
+	</select>
+
+	<!-- 댓글 수정 -->
+	<update id="updateComment" parameterType="com.boot.commu.model.Comments">
+	    update a_comments
+	    set content = #{content}
+	    where id = #{id}
+	</update>
+
+</mapper>
