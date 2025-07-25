@@ -13,9 +13,9 @@ import com.boot.commu.model.PostsDetailDTO;
 @Mapper
 public interface PostsMapper {
 
-	List<Posts> list(String i);
+	List<Posts> list(Page pdto);
 
-	int countByCategory(String i);
+	int countByCategory(int i);
 
 	// 게시글 ID로 상세 정보 조회 (JOIN 포함)
 	PostsDetailDTO getPostDetailById(int id);

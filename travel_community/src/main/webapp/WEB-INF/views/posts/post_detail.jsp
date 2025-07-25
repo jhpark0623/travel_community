@@ -187,11 +187,12 @@ function toggleLike(postId) {
 
         <!-- 댓글 작성 -->
         <c:if test="${empty loginUser}">
-            <p style="color: gray;">댓글을 작성하려면 <a href="/login">로그인</a> 해주세요.</p>
+            <p style="color: gray;">댓글을 작성하려면 <a href="/user_login.go">로그인</a> 해주세요.</p>
         </c:if>
         <c:if test="${not empty loginUser}">
             <form action="/comment_write.go" method="post">
                 <input type="hidden" name="post_id" value="${post.id}">
+                <input type="hidden" name="page" value="${page }">
                 <textarea name="content" rows="3" style="width: 100%;"></textarea><br>
                 <button type="submit">댓글 작성</button>
             </form>
@@ -224,6 +225,7 @@ function toggleLike(postId) {
                     <form action="/comment_delete.go" method="post" style="display:inline;">
                         <input type="hidden" name="id" value="${comment.id}" />
                         <input type="hidden" name="postId" value="${post.id}" />
+                        <input type="hidden" name="page" value="${page }">
                         <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
                     </form>
                 </c:if>
@@ -232,7 +234,9 @@ function toggleLike(postId) {
     </div>
 
     <br>
+    <!-- 목록으로 가는게 아니라 이전 페이지로 이동중 <= 수정 필요. -->
     <button onclick="history.back()">← 목록으로</button>
+    
 
 </div>
 
