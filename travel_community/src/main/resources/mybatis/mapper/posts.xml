@@ -8,15 +8,16 @@
 <mapper namespace="com.boot.commu.mapper.PostsMapper">
 
 	<select id="countByCategory" parameterType="int" resultType="int">
- 	   select count(*) from a_posts where category_id = #{i}
+ 	   select count(*) from a_posts where category_id = #{i} and state = 'Y'
 	</select>
 	
 	<select id="list" parameterType="page" resultType="Posts">
 		SELECT p.*, u.nickname
 		FROM 
-		(SELECT ROW_NUMBER() OVER (ORDER BY id DESC) AS rnum, p.* FROM a_posts p where p.category_id = #{categoryId}) 
+		(SELECT ROW_NUMBER() OVER (ORDER BY id DESC) AS rnum, 
+		p.* FROM a_posts p where p.category_id = #{categoryId} and p.state = 'Y') 
 		p JOIN a_users u ON p.user_id = u.id
-		WHERE p.rnum BETWEEN #{startNo} AND #{endNo}
+		WHERE p.rnum BETWEEN #{startNo} AND #{endNo} 
 	</select>
 	 
 
