@@ -51,10 +51,10 @@ public class PostsController {
 	private NoticesMapper noticesMapper;
 	
 	// 한 페이지당 보여질 게시물의 수. 
-	private final int rowsize = 1;
+	private final int rowsize = 5;
 	
 	// DB 상의 전체 게시물의 수. 
-	private int totalRecord = 5;
+	private int totalRecord = 0;
 
 	@GetMapping("/")
 	public String main() {
