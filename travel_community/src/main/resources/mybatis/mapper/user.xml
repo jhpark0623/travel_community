@@ -7,7 +7,7 @@
 <mapper namespace="com.boot.commu.mapper.UserMapper">
 
 	<select id="login" parameterType="map" resultType="users">
-		select * from a_users where email = #{email} and password = #{password} and state = 'Y'
+		select id, nickname, role from a_users where email = #{email} and password = #{password} and state = 'Y'
 	</select>
 	
 	<select id="chkId" parameterType="String" resultType="int">
@@ -30,20 +30,51 @@
 		#{name}, #{nickname}, default, default, sysdate, '')
 	</insert>
 	
+<<<<<<< HEAD
 	<select id="myPosts" resultType="posts" parameterType="int">
 	select * from a_posts where user_id = #{id} and state ='Y'
 </select>
+=======
+>>>>>>> branch 'main' of https://github.com/jangseryong/travel_community.git
 
-<select id="myComments" resultType="comments" parameterType="int">
+	<select id="findId" resultType="String" parameterType="users">
+		select email from a_users where name = #{name} and phone = #{phone}
+	</select>
 	
+<<<<<<< HEAD
 	select
 		c.id, c.post_id, c.user_id, c.content, c.created_at, c.state, c.parent_id,
 		p.title as post_title, p.content as post_content
 		from a_comments c
 		join a_posts p On c.post_id = p.id
 		where c.user_id = #{id} and c.state = 'Y' and p.state = 'Y'
+=======
+	<select id="findCreated" resultType="String" parameterType="String">
+		select created_at from a_users where email = #{email}
+	</select>
+	
+	<select id="findPwd" resultType="String" parameterType="users">
+		select password from a_users where email = #{email} and name = #{name} and phone = #{phone}
+	</select>
+>>>>>>> branch 'main' of https://github.com/jangseryong/travel_community.git
 
+	<select id="myPosts" resultType="posts" parameterType="int">
+		select * from a_posts where user_id = #{id} and state ='Y'
+	</select>
+	
+	<select id="myComments" resultType="comments" parameterType="int">
+		
+		select
+			c.*,
+			p.title as post_title, p.content as post_content
+			from a_comments c
+			join a_posts p On c.post_id = p.id
+			where c.user_id = #{id} and c.state = 'Y' and p.state = 'Y'
+	
+	
+	</select>
 
+<<<<<<< HEAD
 </select>
 
 <select id="search" parameterType="map" resultType="posts">
@@ -52,5 +83,7 @@
 	(title  like '%' || #{search} || '%' or content like '%' || #{search} || '%')
 
 </select>
+=======
+>>>>>>> branch 'main' of https://github.com/jangseryong/travel_community.git
 	
 </mapper>

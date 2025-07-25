@@ -35,8 +35,11 @@ public class UserController {
 		// 로그인 페이지 이전의 페이지를 저장시키는 과정.
 		String prevPage = request.getHeader("Referer");
 		
-		// 폼 페이지가 포함된 경우에 오류가 생기기때문에 방지하는 과정. => 이를 이용한 페이지 이동시 메인페이지로 이동.
-		if(prevPage != null && !prevPage.contains("/user_login") && !prevPage.contains("/user_signin")) { // 이전 페이지가 로그인 페이지가 아니고 이전 페이지 정보가 null이 아닌 경우
+		System.out.println(prevPage);
+		
+		// 폼 페이지가 포함된 경우에 오류가 생기기때문에 방지하는 과정. => 이를 이용한 페이지 이동시 메인페이지로 이동(일종의 예외처리)
+		if(prevPage != null && !prevPage.contains("/user_login") && !prevPage.contains("/user_signin") 
+				&& !prevPage.contains("/user_find")) { // 이전 페이지가 로그인 페이지가 아니고 이전 페이지 정보가 null이 아닌 경우
             request.getSession().setAttribute("prevPage", prevPage); // 이전 페이지 정보 세션에 저장 
         }
 		
@@ -90,14 +93,14 @@ public class UserController {
 		PrintWriter out = response.getWriter();
 		response.setContentType("text/html; charset=UTF-8");
 		
-		// 로그인 아웃 이전의 페이지를 저장시키는 과정.
+		// 로그인 아웃 이전의 페이지를 저장시키는 과정. 
 		String prevPage = request.getHeader("Referer");
 	    
 	    // 로그아웃 실행
 	    session.invalidate();
 		
 		out.println("<script>");
-		out.println("location.href='"+prevPage+"'");		// 기존에 보고있던 페이지로 이동
+		out.println("location.href='/'");		// 기존에 보고있던 페이지로 이동 <= 에러 방지용으로 일단 메인페이지로 이동
 		out.println("</script>");
 	}
 	
@@ -158,16 +161,49 @@ public class UserController {
 	
 	@GetMapping("user_findid.go")
 	public String findId() {
-		// 추가중..
+		
 		return "user/user_findId"; 
 	}
 	
 	@GetMapping("user_findpwd.go")
 	public String findPwd() {
-		// 추가중..
+		
 		return "user/user_findPwd"; 
 	}
+
+	@PostMapping("user_findid_ok.go")
+	public String findIdOk(Users dto, Model model) throws IOException {
+		
+		String email = this.mapper.findId(dto);
+		System.out.println(email);
+		
+		if(email != null) {
+			String created_at = this.mapper.findCreated(email);
+			
+			dto.setEmail(email);
+			dto.setCreated_at(created_at);
+			
+			model.addAttribute("res", dto);
+		}
+		
+		return "user/user_findId_res";
+	}
 	
+	@PostMapping("user_findpwd_ok.go")
+	public String findPwdOk(Users dto, Model model) {
+		
+		String pwd = this.mapper.findPwd(dto);
+		if(pwd != null) {
+			String created_at = this.mapper.findCreated(dto.getEmail());
+			
+			dto.setPassword(pwd);
+			dto.setCreated_at(created_at);
+			
+			model.addAttribute("res", dto);
+		}
+		
+		return "user/user_findPwd_res";
+	}
 	
 	// 내 게시물 출력
 	@GetMapping("myposts.go")
@@ -206,6 +242,7 @@ public class UserController {
 		
 		
 		return "user/user_myprofile";
+
 	}
 	
 	// 내 게시물 내의 검색

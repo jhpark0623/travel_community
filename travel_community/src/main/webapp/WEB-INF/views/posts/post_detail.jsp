@@ -25,6 +25,53 @@ window.onload = function () {
         }
     }
 };
+
+function toggleLike(postId) {
+    fetch("/like_toggle.go", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "postId=" + postId
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            const btn = document.getElementById("likeBtn");
+            const count = document.getElementById("likeCount");
+            
+         	// 좋아요 수 갱신
+            count.innerText = data.likeCount;
+            // 하트 변경
+            if (data.liked) {
+                btn.innerHTML = `
+                <svg fill="red" width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                           2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
+                           C13.09 3.81 14.76 3 16.5 3
+                           19.58 3 22 5.42 22 8.5
+                           c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>`;
+            } else {
+                btn.innerHTML = `
+                <svg fill="gray" width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M16.5 3c-1.74 0-3.41 0.81-4.5 2.09
+                           C10.91 3.81 9.24 3 7.5 3
+                           4.42 3 2 5.42 2 8.5
+                           c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32
+                           C18.6 15.36 22 12.28 22 8.5
+                           22 5.42 19.58 3 16.5 3z"/>
+                </svg>`;
+            }
+        } else if (data.status === "not_logged_in") {
+            alert("로그인 후 이용해주세요.");
+        }
+    })
+    .catch(err => {
+        alert("오류 발생: 좋아요 처리 실패");
+        console.error(err);
+    });
+}
 </script>
 </head>
 <body>
@@ -71,7 +118,51 @@ window.onload = function () {
 
     <!-- 조회수 / 좋아요 수 -->
     <p>조회수: ${post.view_count}</p>
-    <p>좋아요 수: ${post.like_count}</p>
+    <p>좋아요: <span id="likeCount">${likeCount}</span></p>
+    <!-- 좋아요 하트 버튼 (좋아요 수는 출력 안 함) -->
+	<c:choose>
+	  <c:when test="${not empty loginUser}">
+	    <button id="likeBtn" onclick="toggleLike(${post.id})" style="background: none; border: none;">
+	      <c:choose>
+	        <c:when test="${postLiked}">
+	          <!-- ❤️ 꽉 찬 하트 -->
+	          <svg fill="red" width="24" height="24" viewBox="0 0 24 24">
+	            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+	                     2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
+	                     C13.09 3.81 14.76 3 16.5 3
+	                     19.58 3 22 5.42 22 8.5
+	                     c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+	          </svg>
+	        </c:when>
+	        <c:otherwise>
+	          <!-- 🤍 빈 하트 -->
+	          <svg fill="gray" width="24" height="24" viewBox="0 0 24 24">
+	            <path d="M16.5 3c-1.74 0-3.41 0.81-4.5 2.09
+	                     C10.91 3.81 9.24 3 7.5 3
+	                     4.42 3 2 5.42 2 8.5
+	                     c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32
+	                     C18.6 15.36 22 12.28 22 8.5
+	                     22 5.42 19.58 3 16.5 3z"/>
+	          </svg>
+	        </c:otherwise>
+	      </c:choose>
+	    </button>
+	  </c:when>
+	
+	  <c:otherwise>
+	    <!-- 비로그인: 하트 클릭 시 alert -->
+	    <button onclick="alert('로그인 후 이용해주세요.')" style="background:none; border:none;">
+	      <svg fill="gray" width="24" height="24" viewBox="0 0 24 24">
+	        <path d="M16.5 3c-1.74 0-3.41 0.81-4.5 2.09
+	                 C10.91 3.81 9.24 3 7.5 3
+	                 4.42 3 2 5.42 2 8.5
+	                 c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32
+	                 C18.6 15.36 22 12.28 22 8.5
+	                 22 5.42 19.58 3 16.5 3z"/>
+	      </svg>
+	    </button>
+	  </c:otherwise>
+	</c:choose>
 
     <!-- 게시글 수정/삭제 버튼 -->
     <c:if test="${not empty loginUser && (loginUser.id == post.user_id || loginUser.role eq 'ADMIN')}">

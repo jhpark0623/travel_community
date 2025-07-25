@@ -17,7 +17,7 @@
 	    var objPhone = document.getElementById("phone");
 	    
 	    // password 값 데이터 정규화 공식
-        const regul1 = /^[a-zA-Z0-9]{4,12}$/;
+        const regul1 = /^[a-zA-Z0-9]{3,12}$/;
         // email 정규화 공식
 	    const regul2 = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
         // name,nickname 정규화 공식
@@ -34,7 +34,7 @@
 
         // 비밀번호
         if (!regul1.test(objPwd1.value)) {
-            alert("비밀번호는 4~12자의 영문/숫자만 가능합니다.");
+            alert("비밀번호는 3~12자의 영문/숫자만 가능합니다.");
             objPwd1.focus();
             return false;
         }
@@ -80,7 +80,7 @@
 
 	<jsp:include page="../../include/header.jsp" />
 	
-	<div class="container">
+	<div class="container mt-5">
     <div class="input-form-backgroud row">
       <div class="input-form col-md-6 mx-auto">
         <h4 class="mb-3">회원가입</h4>
@@ -89,12 +89,12 @@
           <div class="row">
             <div class="col-md-12 mb-3">
             	<label for="email">이메일</label>
-            	<input type="email" class="form-control" id="email" placeholder="예) travler@naver.com" name="email" >
+            	<input type="email" class="form-control" id="email" placeholder="예) travler@example.com" name="email" >
             </div>
             
             <div class="col-md-12 mb-3">
             	<label for="password1">비밀번호</label>
-            	<input type="password" class="form-control" id="password1" placeholder="비밀번호는 4~12자의 대소문자와 숫자로만 입력 가능" 
+            	<input type="password" class="form-control" id="password1" placeholder="비밀번호는 3~12자의 대소문자와 숫자로만 입력 가능" 
             	name="password" >
             </div>
             

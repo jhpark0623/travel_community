@@ -12,7 +12,7 @@
 		var objPwd = document.getElementById("PwdInput");
 		
 		// password 값 데이터 정규화 공식
-        const regul1 = /^[a-zA-Z0-9]{4,12}$/;
+        const regul1 = /^[a-zA-Z0-9]{3,12}$/;
 		// email 정규화 공식
 	    const regul2 = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
 		
@@ -34,9 +34,9 @@
             objEmail.focus();
             return false;
         }
-	    // 비밀번호 형식 체크
+	    // 비밀번호 형식 체크s
         if (!regul1.test(objPwd.value)) {
-            alert("비밀번호는 4~12자의 영문/숫자만 가능합니다.");
+            alert("비밀번호는 3~12자의 영문/숫자만 가능합니다.");
             objPwd.focus();
             return false;
         }
@@ -51,13 +51,15 @@
 	<jsp:include page="../../include/header.jsp" />
 	
 	<div class="container mt-5 w-25">	
+	<div class="input-form-backgroud">
+      <div class="input-form">
 		<form method="post" onsubmit="return validate()" action="<%=request.getContextPath()%>/user_login_ok.go">
 			<div class="mt-3">
 				<label for="EmailInput" class="form-label">아이디</label>
-				<input name="email" type="email" class="form-control" id="EmailInput" placeholder="예) travler@naver.com">
+				<input name="email" type="email" class="form-control" id="EmailInput" placeholder="예) travler@example.com">
 			</div>
 			
-			<div class="mt-3 ">
+			<div class="mt-3">
 				<label for="PwdInput" class="form-label">비밀번호</label>
 				<input name="password" type="password" class="form-control" id="PwdInput" placeholder="비밀번호를 입력하세요.">
 			</div>
@@ -78,6 +80,8 @@
 				</div>
 			</div>
 		</form>
+		</div>
+		</div>
 	</div>
 	
 </body>
