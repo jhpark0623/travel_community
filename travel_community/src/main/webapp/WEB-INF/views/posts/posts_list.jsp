@@ -40,7 +40,7 @@
 	                    <c:forEach items="${popNotice}" var="notice">
 	                        <tr>
 	                            <td>
-	                                <a href="${pageContext.request.contextPath}/notice_content.go?no=${notice.id}" class="text-decoration-none">
+	                                <a href="${pageContext.request.contextPath}/notices_content.go?no=${notice.id}&page=${Paging.page}" class="text-decoration-none">
 	                                    ${notice.title}
 	                                </a>
 	                            </td>
@@ -71,7 +71,7 @@
 	                    <tr>
 	                        <td>${dto.id}</td>
 	                        <td class="text-start position-relative p-0">
-	                            <a href="${pageContext.request.contextPath}/posts_content.go?no=${dto.id}&page=${Paging.page}" 
+	                            <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}" 
 	                               class="d-block stretched-link text-decoration-none px-2 py-2">
 	                                 ${dto.title}
 	                            </a>
@@ -103,33 +103,33 @@
 	        <ul class="pagination justify-content-center">
 	            <c:if test="${Paging.page > Paging.block}">
 	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=1">처음</a>
+	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId }?page=1">처음</a>
 	                </li>
 	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=${Paging.startBlock - 1}">이전</a>
+	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId }?page=${Paging.startBlock - 1}">이전</a>
 	                </li>
 	            </c:if>
 	
 	            <c:forEach begin="${Paging.startBlock}" end="${Paging.endBlock}" var="i">
 	                <li class="page-item ${i == Paging.page ? 'active' : ''}">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=${i}">${i}</a>
+	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId }?page=${i}">${i}</a>
 	                </li>
 	            </c:forEach>
 	
 	            <c:if test="${Paging.endBlock < Paging.allPage}">
 	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=${Paging.endBlock + 1}">다음</a>
+	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId }?page=${Paging.endBlock + 1}">다음</a>
 	                </li>
 	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=${Paging.allPage}">마지막</a>
+	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId }?page=${Paging.allPage}">마지막</a>
 	                </li>
 	            </c:if>
 	        </ul>
 	    </nav>
 	
 	    <!-- ✅ 검색 영역 -->
-	    <!-- ✅ 검색 영역 -->
-	   <form method="post" action="${pageContext.request.contextPath}/notices_search.go" class="d-flex justify-content-center mt-4">
+	    <!-- ✅ 검색 영역 -->		<!-- 공지로 검색되서 url 뺐습니다. 현재 작동 x -->
+	   <form method="post" action="#" class="d-flex justify-content-center mt-4">
 	      <div class="input-group w-50">
 	         <select class="form-select" name="field">
 	            	<option value="title">제목</option>

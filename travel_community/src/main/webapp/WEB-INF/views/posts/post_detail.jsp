@@ -228,57 +228,62 @@ function toggleLike(postId) {
 
     <!-- 댓글 영역 -->
     <!-- 댓글 전체 영역 -->
-	<div id="commentArea" class="mt-4" style="display: none;">
-	    <h4 class="mb-3">댓글</h4>
-	
-	    <!-- 댓글 작성 -->
-	    <c:if test="${empty loginUser}">
-	        <p class="text-muted">댓글을 작성하려면 <a href="/user_login.go">로그인</a> 해주세요.</p>
-	    </c:if>
-	    <c:if test="${not empty loginUser}">
-	        <form action="/comment_write.go" method="post" class="mb-4">
-	            <input type="hidden" name="post_id" value="${post.id}">
-	            <textarea name="content" rows="3" class="form-control mb-2" placeholder="댓글을 입력하세요."></textarea>
-	            <button type="submit" class="btn btn-primary btn-sm">댓글 작성</button>
-	        </form>
-	    </c:if>
-	
-	    <hr>
-	
-	    <!-- 댓글 목록 -->
-	    <c:forEach var="comment" items="${comments}">
-	        <div id="comment-${comment.id}" class="border rounded p-3 mb-3">
-	            <div class="d-flex justify-content-between">
-	                <strong>${comment.nickname}</strong>
-	                <small class="text-muted">${comment.created_at}</small>
-	            </div>
-	
-	            <!-- 기본 보기 -->
-	            <div id="content-${comment.id}" class="mt-2">
-	                <div>${comment.content}</div>
-	            </div>
-	
-	            <!-- 수정 폼 -->
-	            <div id="edit-area-${comment.id}" style="display: none;" class="mt-2">
-	                <textarea id="edit-content-${comment.id}" class="form-control mb-2" rows="3">${comment.content}</textarea>
-	                <button type="button" class="btn btn-success btn-sm me-1" onclick="submitEdit(${comment.id})">✅ 저장</button>
-	                <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEdit(${comment.id})">❌ 취소</button>
-	            </div>
-	
-	            <!-- 수정/삭제 -->
-	            <c:if test="${not empty loginUser && (loginUser.id == comment.user_id || loginUser.role eq 'ADMIN')}">
-	                <div class="mt-2">
-	                    <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="editComment(${comment.id})">✏ 수정</button>
-	                    <form action="/comment_delete.go" method="post" class="d-inline">
-	                        <input type="hidden" name="id" value="${comment.id}" />
-	                        <input type="hidden" name="postId" value="${post.id}" />
-	                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
-	                    </form>
-	                </div>
-	            </c:if>
-	        </div>
-	    </c:forEach>
-	</div>
+
+    <div id="commentArea" style="display: none; margin-top: 20px;">
+        <h4>댓글</h4>
+
+        <!-- 댓글 작성 -->
+        <c:if test="${empty loginUser}">
+            <p style="color: gray;">댓글을 작성하려면 <a href="/user_login.go">로그인</a> 해주세요.</p>
+        </c:if>
+        <c:if test="${not empty loginUser}">
+            <form action="/comment_write.go" method="post">
+                <input type="hidden" name="post_id" value="${post.id}">
+                <input type="hidden" name="page" value="${page }">
+                <textarea name="content" rows="3" style="width: 100%;"></textarea><br>
+                <button type="submit">댓글 작성</button>
+            </form>
+        </c:if>
+
+        <hr>
+
+        <!-- 댓글 목록 -->
+        <c:forEach var="comment" items="${comments}">
+            <div id="comment-${comment.id}" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd;">
+                <b>${comment.nickname}</b><br>
+
+                <!-- 기본 보기 -->
+                <div id="content-${comment.id}">
+                    <div>${comment.content}</div>
+                </div>
+
+                <!-- 수정 폼 -->
+                <div id="edit-area-${comment.id}" style="display: none;">
+                    <textarea id="edit-content-${comment.id}" style="width: 100%;" rows="3">${comment.content}</textarea><br>
+                    <button type="button" onclick="submitEdit(${comment.id})">✅ 저장</button>
+                    <button type="button" onclick="cancelEdit(${comment.id})">❌ 취소</button>
+                </div>
+
+                <small style="color: gray;">${comment.created_at}</small>
+
+                <!-- 수정/삭제 -->
+                <c:if test="${not empty loginUser && (loginUser.id == comment.user_id || loginUser.role eq 'ADMIN')}">
+                    <button type="button" onclick="editComment(${comment.id})">✏ 수정</button>
+                    <form action="/comment_delete.go" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="${comment.id}" />
+                        <input type="hidden" name="postId" value="${post.id}" />
+                        <input type="hidden" name="page" value="${page }">
+                        <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
+                    </form>
+                </c:if>
+            </div>
+        </c:forEach>
+    </div>
+
+    <br>
+    <!-- 목록으로 가는게 아니라 이전 페이지로 이동중 <= 수정 필요. -->
+    <button onclick="history.back()">← 목록으로</button>
+    
 </div>
 
 

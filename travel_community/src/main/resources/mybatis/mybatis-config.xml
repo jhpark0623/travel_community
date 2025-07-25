@@ -11,5 +11,6 @@
 		<typeAlias type="com.boot.commu.model.Notices" alias="Notice"/>
 		<typeAlias type="com.boot.commu.model.Users" alias="users"/>
 		<typeAlias type="com.boot.commu.model.Comments" alias="comments"/>
+		<typeAlias type="com.boot.commu.model.Page" alias="page"/>
 	</typeAliases>
 </configuration>
