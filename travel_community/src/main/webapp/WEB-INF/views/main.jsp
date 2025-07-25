@@ -25,7 +25,7 @@
 	   <a href="<%=request.getContextPath() %>/posts_list.go/3">[질문 게시판]</a>
 	   <a href="<%=request.getContextPath() %>/notices_list.go">[공지사항]</a>
 	</div>
- <a href="/post_detail.go?id=1">게시글 하나 상세 보기</a><br>
+
 
 
 </body>
