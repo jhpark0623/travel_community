@@ -40,11 +40,8 @@ public interface UserMapper {
 	
 	// 내 댓글목록 받아오는 메서드
 	List<Comments> myComments(int id);
-<<<<<<< HEAD
 	
 	// 내 게시물 검색
 	List<Posts> search(Map<String, Object> map);
-=======
 
->>>>>>> branch 'main' of https://github.com/jangseryong/travel_community.git
 }
