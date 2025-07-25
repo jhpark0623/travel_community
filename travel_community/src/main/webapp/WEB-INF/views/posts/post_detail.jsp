@@ -197,7 +197,7 @@ function toggleLike(postId) {
 	  <div>
 	    <c:choose>
 	      <c:when test="${not empty prevId}">
-	        <a href="/post_detail.go?id=${prevId}" class="btn btn-outline-secondary btn-sm">← 이전글</a>
+	        <a href="/post_detail.go?id=${prevId}&page=${page }" class="btn btn-outline-secondary btn-sm">← 이전글</a>
 	      </c:when>
 	      <c:otherwise>
 	        <button class="btn btn-outline-secondary btn-sm invisible">← 이전글</button>
@@ -207,14 +207,15 @@ function toggleLike(postId) {
 	
 	  <!-- 가운데: 목록으로 -->
 	  <div class="position-absolute start-50 translate-middle-x">
-	    <button class="btn btn-outline-dark btn-sm" onclick="/posts_list.go/${post.category_id}">목록으로</button>
+	    <button class="btn btn-outline-dark btn-sm" onclick="location.href='<%=request.getContextPath() %>/posts_list.go/${post.category_id}?page=${page }'">목록으로</button>
+	    <%-- <a href="<%=request.getContextPath() %>/posts_list.go/${post.category_id}">TEST</a> --%>
 	  </div>
 	
 	  <!-- 오른쪽: 다음글 -->
 	  <div>
 	    <c:choose>
 	      <c:when test="${not empty nextId}">
-	        <a href="/post_detail.go?id=${nextId}" class="btn btn-outline-secondary btn-sm">다음글 →</a>
+	        <a href="/post_detail.go?id=${nextId}&page=${page }" class="btn btn-outline-secondary btn-sm">다음글 →</a>
 	      </c:when>
 	      <c:otherwise>
 	        <button class="btn btn-outline-secondary btn-sm invisible">다음글 →</button>
