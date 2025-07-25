@@ -208,7 +208,6 @@ function toggleLike(postId) {
 	  <!-- 가운데: 목록으로 -->
 	  <div class="position-absolute start-50 translate-middle-x">
 	    <button class="btn btn-outline-dark btn-sm" onclick="location.href='<%=request.getContextPath() %>/posts_list.go/${post.category_id}?page=${page }'">목록으로</button>
-	    <%-- <a href="<%=request.getContextPath() %>/posts_list.go/${post.category_id}">TEST</a> --%>
 	  </div>
 	
 	  <!-- 오른쪽: 다음글 -->
@@ -280,7 +279,6 @@ function toggleLike(postId) {
             </div>
         </c:forEach>
     </div>
-    
 </div>
 
 
