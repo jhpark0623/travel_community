@@ -65,8 +65,28 @@
 	
 	</select>
 	
+	<select id="myComments_search" parameterType="map" resultType="comments">
+		select * from a_comments
+		where user_id = #{id} and state = 'Y' 
+		and content like '%' || #{search} || '%'
+	
+	</select>
+	
 	<select id="myProfile" parameterType="int" resultType="users">
 		select * from a_users where id = #{id}
 	</select>
+	
+	<update id="modify" parameterType="users">
+		update a_users
+		set phone = #{phone}, nickname = #{nickname}
+		where id = #{id}
+		
+	</update>
+	
+	<update id="deleteUser" parameterType="users">
+		update a_users
+		set state = 'N'
+		where id = #{id}
+	</update>
 
 </mapper>

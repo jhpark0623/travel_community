@@ -2,11 +2,13 @@ package com.boot.commu.mapper;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.boot.commu.model.Posts;
+import com.boot.commu.model.Notices;
 import com.boot.commu.model.Hashtags;
 import com.boot.commu.model.Page;
 import com.boot.commu.model.PostsDetailDTO;
@@ -16,14 +18,23 @@ import com.boot.commu.model.Region_province;
 @Mapper
 public interface PostsMapper {
 
+	Posts cont(int no);
+
+	List<Posts> search(Page pdto);
+
+	int scount(Map<String, String> map);
+
 	// category_id 에 해당하는 게시글 전체 리스트 조회.
 	List<Posts> list(Page pdto);
 
 	// category_id 에 해당하는 게시글의 수 조회.
 	int countByCategory(int i);
 
+	// notices 테이블의 is_pop = 'Y' 인 게시글의 수 조회
+	int countByNotice();
+
 	// category_id에 해당하는 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
-	List<Posts> t_list(Page pdto);
+	List<Posts> c_list(Page pdto);
 
 	// 게시글 ID로 상세 정보 조회 (JOIN 포함)
 	PostsDetailDTO getPostDetailById(int id);
@@ -57,12 +68,19 @@ public interface PostsMapper {
 
 	// DB 좋아요 감소
 	void decrementLikeCount(@Param("postId") int postId);
-	
+
 	// 시/광역시 정보 출력
-    List<Region_province> getProvinceList();
+
+    List<Region_province> getProvinceList();  
     
-    // 시/군/구 정보 출력
-    List<Region_city> getCityList(int provinceCode);
+	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
+	List<Posts> a_list(Page pdto); 
+	    
+	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y')의 수 반환.
+	
+	  
+	// 시/군/구 정보 출력
+	List<Region_city> getCityList(int provinceCode);
 
 	// 게시글 정보 저장
 	int insertPost(Posts posts);
@@ -70,7 +88,7 @@ public interface PostsMapper {
 	// 해시태그가 DB에 있는지 검색
 	int findHashtag(String hashtag);
 
-	// 해시태그 저장
+	// 해시태그 저	장
 	void insertHashtag(Hashtags hash);
 
 	// 해시태그 id 검색

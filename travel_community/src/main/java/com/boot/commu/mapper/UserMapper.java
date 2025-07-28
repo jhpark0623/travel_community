@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.yaml.snakeyaml.tokens.CommentToken;
 
 import com.boot.commu.model.Comments;
 import com.boot.commu.model.Posts;
@@ -44,7 +45,16 @@ public interface UserMapper {
 	// 내 게시물 검색
 	List<Posts> search(Map<String, Object> map);
 	
+	// 내 댓글 검색
+	List<Comments> myComments_search(Map<String, Object> map);
+	
 	// 내 정보 받아오는 메서드
 	Users myProfile(int id);
+	
+	// 내 정보 수정하는 메서드
+	int modify(Users user);
+	
+	// 회원 탈퇴
+	int deleteUser(Users user);
 
 }

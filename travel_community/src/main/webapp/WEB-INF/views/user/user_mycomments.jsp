@@ -12,33 +12,43 @@
 
 	<jsp:include page="../../include/header.jsp" />
 	
-	<div align="center">
+	<div class="container my-5" style="width: 900px">
 	
-		<h2>내 댓글</h2>
-		<table border="1" width="600">
+		<h5 class="text-danger fw-bold">내 댓글 리스트</h2>
+		<table class="table table-bordered table-striped align-middle text-center">
 		<c:set value="${myComments }" var="mycom"></c:set>
-			<tr>
-				<th>게시물 제목</th>
-				<th>게시물 내용</th>
-			</tr>
-			
-			<c:forEach items="${mycom }" var="myc">
-				<tr style="background-color: lightgray">
-					<td ><a href="<%=request.getContextPath()%>/post_detail.go?id=${myc.post_id}">${myc.post_title }</a></td>
-					<td>${myc.post_content }
-				</tr>
-				
-				<tr>
-					<td colspan="2" style="color: red "> >>>>>답글 : ${myc.content }</td>
-				</tr>
+			<thead class="table-primary">	
+				<tr style="text-align: center">
+					<th style="width: 70px;">글번호</th>
+					<th style="width: 415px;">게시물 제목</th>
+					<th style="width: 415px;">내 답글</th>
 					
-			</c:forEach>
+				</tr>
+			</thead>	
+			<tbody>
+				<c:forEach items="${mycom }" var="myc">
+					<tr style="background-color: lightgray">
+						<td>${myc.post_id }</td>
+						<td ><a href="<%=request.getContextPath()%>/post_detail.go?id=${myc.post_id}&page=1">${myc.post_title }</a></td>
+						<td style="color: red; text-align:left "> → ${myc.content }</td>
+						
+					</tr>
+						
+				</c:forEach>
 		
-		
+			</tbody>	
 		</table>
 		
 	
 	</div>
-
+	<br><br>
+	
+	<div align="center">
+		<form method="get" action="<%= request.getContextPath() %>/mycomment_search.go">
+			<input name="mycomment_search" placeholder="댓글 내용">
+			<input type="submit" value="검색">
+	
+		</form>
+	</div>
 </body>
 </html>

@@ -36,5 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 
-.upload
+**/src/main/upload/**/
 .env
