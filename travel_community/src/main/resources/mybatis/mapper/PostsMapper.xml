@@ -97,5 +97,69 @@
 	      and state = 'Y'
 	  ]]>
 	</select>
+	
+	<!-- 좋아요 수 +1 -->
+	<update id="incrementLikeCount" parameterType="int">
+	  update a_posts
+	  set like_count = like_count + 1
+	  where id = #{postId}
+	</update>
+	
+	<!-- 좋아요 수 -1 -->
+	<update id="decrementLikeCount" parameterType="int">
+	  update a_posts
+	  set like_count = like_count - 1
+	  where id = #{postId}
+	</update>
+	
+	<select id="getProvinceList" resultType="province">
+		SELECT * FROM
+		a_region_province
+	</select>
 
+	<select id="getCityList" parameterType="int" resultType="city">
+		SELECT *
+		FROM a_region_city where province_id = #{provinceCode}
+	</select>
+
+	<!-- 개시글 작성 -->
+	<insert id="insertPost" parameterType="posts">
+
+		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+			SELECT
+			NVL(MAX(id), 0) + 1
+			FROM a_posts
+		</selectKey>
+
+		INSERT INTO a_posts (id,
+		user_id, category_id, city_id, title, content)
+		VALUES(#{id}, #{user_id},
+		#{category_id},
+		#{city_id}, #{title},
+		#{content})
+	</insert>
+
+	<select id="findHashtag" resultType="int" parameterType="String">
+		SELECT
+		NVL(MAX(id), 0) FROM a_hashtags WHERE hashtag = #{hashtag}
+	</select>
+
+	<insert id="insertHashtag" parameterType="hashtag">
+		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+			SELECT
+			NVL(MAX(id), 0) + 1
+			FROM a_hashtags
+		</selectKey>
+
+		INSERT INTO a_hashtags VALUES(#{id}, #{hashtag})
+	</insert>
+	
+	<select id="selectHashtagId" parameterType="String" resultType="int">
+		SELECT id FROM a_hashtags WHERE hashtag = #{hashtag}
+	</select>
+	
+	<insert id="insertPostHashtag" parameterType="hashmap">
+		INSERT INTO a_post_hashtag values(#{post_id}, #{hashtag_id})
+	</insert>
+	
 </mapper>

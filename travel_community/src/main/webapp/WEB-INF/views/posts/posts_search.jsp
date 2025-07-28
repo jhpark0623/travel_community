@@ -30,7 +30,7 @@
 	      <thead class="table-primary">
 	         <tr>
 	             <th style="width: 65px;">글번호</th>
-	             <th>제목</th>
+	             <th style="width: 207px">제목</th>
 	             <th style="width: 120px;">작성자</th>
 	             <th style="width: 140px;">작성일</th>
 	             <th style="width: 65px;">조회수</th>
@@ -72,32 +72,33 @@
 	
 	   <!-- 페이징 처리 -->
 	   <nav>
-	      <ul class="pagination justify-content-center">
-	         <c:if test="${paging.page > paging.block}">
-	            <li class="page-item">
-	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=1">처음</a>
-	            </li>
-	            <li class="page-item">
-	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=${paging.startBlock - 1}">이전</a>
-	            </li>
-	         </c:if>
-	
-	         <c:forEach begin="${paging.startBlock}" end="${paging.endBlock}" var="i">
-	            <li class="page-item ${i == paging.page ? 'active' : ''}">
-	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=${i}">${i}</a>
-	            </li>
-	         </c:forEach>
-	
-	         <c:if test="${paging.endBlock < paging.allPage}">
-	            <li class="page-item">
-	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=${paging.endBlock + 1}">다음</a>
-	            </li>
-	            <li class="page-item">
-	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=${paging.allPage}">마지막</a>
-	            </li>
-	         </c:if>
-	      </ul>
-	   </nav>
+		   <ul class="pagination justify-content-center">
+		      <c:if test="${paging.page > paging.block}">
+		         <li class="page-item">
+		            <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${i}?page=1">처음</a>
+		         </li>
+		         <li class="page-item">
+		            <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${i}?page=${paging.startBlock - 1}">이전</a>
+		         </li>
+		      </c:if>
+		
+		      <c:forEach begin="${paging.startBlock}" end="${paging.endBlock}" var="i">
+		         <li class="page-item ${i == paging.page ? 'active' : ''}">
+		            <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${i}?page=${i}">${i}</a>
+		         </li>
+		      </c:forEach>
+		
+		      <c:if test="${paging.endBlock < paging.allPage}">
+		         <li class="page-item">
+		            <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${i}?page=${paging.endBlock + 1}">다음</a>
+		         </li>
+		         <li class="page-item">
+		            <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${i}?page=${paging.allPage}">마지막</a>
+		         </li>
+		      </c:if>
+		   </ul>
+		</nav>
+
 	
 	   <!-- ✅ 검색 영역 -->
 	   <form method="post" action="${pageContext.request.contextPath}/posts_search.go" class="d-flex justify-content-center mt-4">

@@ -69,4 +69,101 @@
 	  ORDER BY p.id DESC
 	</select>
 
+	
+	<select id="countByNotice" parameterType="int">
+		select count(*) from a_notices where is_pop = 'Y'
+	</select>
+	
+	<select id="c_list" parameterType="page" resultType="Posts">
+	  <![CDATA[
+	  SELECT *
+	  FROM (
+	    SELECT combined.id,
+	           combined.nickname,
+	           combined.title,
+	           combined.content,
+	           combined.created_at,
+	           combined.type,
+	           combined.view_count,
+	           combined.like_count,
+	           ROW_NUMBER() OVER (ORDER BY combined.order_type ASC, combined.id DESC) AS rnum
+	    FROM (
+	      SELECT n.id,
+	             NULL AS nickname,
+	             n.title,
+	             n.content,
+	             n.created_at,
+	             'notice' AS type,
+	             NULL AS view_count,
+	             NULL AS like_count,
+	             0 AS order_type
+	      FROM a_notices n
+	      WHERE n.is_pop = 'Y'
+	
+	      UNION ALL
+	
+	      SELECT p.id,
+	             u.nickname,
+	             p.title,
+	             p.content,
+	             p.created_at,
+	             'post' AS type,
+	             p.view_count,
+	             p.like_count,
+	             1 AS order_type
+	      FROM a_posts p
+	      JOIN a_users u ON p.user_id = u.id
+	      WHERE p.category_id = #{categoryId} AND p.state = 'Y'
+	    ) combined
+	  )
+	  WHERE rnum BETWEEN #{startNo} AND #{endNo}
+	  ]]>
+	</select>
+	
+	<select id="a_list" parameterType="page" resultType="Posts">
+	  <![CDATA[
+	  SELECT *
+	  FROM (
+	    SELECT combined.id,
+	           combined.nickname,
+	           combined.title,
+	           combined.content,
+	           combined.created_at,
+	           combined.type,
+	           combined.view_count,
+	           combined.like_count,
+	           ROW_NUMBER() OVER (ORDER BY combined.order_type ASC, combined.id DESC) AS rnum
+	    FROM (
+	      SELECT n.id,
+	             NULL AS nickname,
+	             n.title,
+	             n.content,
+	             n.created_at,
+	             'notice' AS type,
+	             NULL AS view_count,
+	             NULL AS like_count,
+	             0 AS order_type
+	      FROM a_notices n
+	      WHERE n.is_pop = 'Y'
+	
+	      UNION ALL
+	
+	      SELECT p.id,
+	             u.nickname,
+	             p.title,
+	             p.content,
+	             p.created_at,
+	             'post' AS type,
+	             p.view_count,
+	             p.like_count,
+	             1 AS order_type
+	      FROM a_posts p
+	      JOIN a_users u ON p.user_id = u.id
+	      WHERE p.state = 'Y'
+	    ) combined
+	  )
+	  WHERE rnum BETWEEN #{startNo} AND #{endNo}
+	  ]]>
+	</select>
+	
 </mapper>

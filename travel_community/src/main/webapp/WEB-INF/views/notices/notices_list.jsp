@@ -64,10 +64,15 @@
 	   </table>
 	
 	   <!-- 글쓰기 버튼 -->
-	   <div class="d-flex justify-content-end my-3 mx-auto" style="width: 800px;">
-          <a href="notices_write.go" class="btn btn-success">✍ 글쓰기</a>
-       </div>
-	
+
+		<c:if test="${not empty loginUser && loginUser.role eq 'ADMIN'}">
+		   <div class="container d-flex justify-content-end my-4" style="max-width: 830px;">
+		      <a href="notices_write.go" class="btn btn-success" style="min-width: 100px;">
+		         ✍ 글쓰기
+		      </a>
+		   </div>
+		</c:if>
+			
 	   <!-- 페이징 처리 -->
 	   <nav>
 	      <ul class="pagination justify-content-center">
@@ -109,9 +114,6 @@
 	      </div>
 	   </form>
 	</div>
-
-<!-- ✅ Bootstrap JS (optional) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

@@ -17,11 +17,8 @@
 	<div class="container my-5" style="width: 900px">
 	
 	    <h2 class="text-center mb-4">📋 Posts 게시물 리스트</h2>
-	
-	    <!-- ✅ 전체 게시물 수 -->
-	    <div class="d-flex justify-content-end mb-2">
-	        <small class="text-muted">전체 게시물 수: ${Paging.totalRecord}개</small>
-	    </div>
+	    
+	   
 	     
 		<div class="container my-4 d-flex align-items-center">
 		  <div class="d-flex flex-column" style="margin-right: 50px;">
@@ -54,15 +51,29 @@
                 <option value="">선택하세요</option>
             </select>
         </div>
-		  
 		
-		  <a href="posts_write.go" class="btn btn-success ms-auto" style="height: 38px; margin-top: 24px; ">
-		    ✍ 글쓰기
-		  </a>
+		<!-- ✅ 검색 영역 -->
+	   <form method="post" action="<%=request.getContextPath() %>/posts_search.go" class="d-flex justify-content-center mt-4">
+
+		  <div class="input-group" style="width: 600px;">   
+		    <select class="form-select" name="field" style="max-width: 120px;">
+		        <option value="title">제목</option>
+		        <option value="cont">내용</option>
+		        <option value="nickname">작성자</option>
+		        <option value="hashtag">해시태그</option>
+		    </select>
+		    <input type="text" name="keyword" class="form-control" style="max-width: 190px" placeholder="검색어를 입력하세요">
+		    <button class="btn btn-outline-primary" type="submit">검색</button>
+		  </div>
+		</form>
+				
+		  
 		</div>
 
-
-	    <br> <br>
+ <!-- ✅ 전체 게시물 수 -->
+	    <div class="d-flex justify-content-end mb-2">
+	        <small class="text-muted">전체 게시물 수: ${Paging.totalRecord}개</small>
+	    </div>
 	
 	    <!-- ✅ 공지사항 영역 -->
 	    <c:if test="${!empty popNotice}">
@@ -94,10 +105,12 @@
 		</c:if>
 	
 	    <!-- ✅ 게시글 리스트 테이블 -->
+	    
+	    <!-- tList 영역 -->
 	    <table class="table table-bordered table-striped align-middle text-center">
 	        <thead class="table-primary">
 	            <tr>
-	                <th style="width: 65px;">글번호</th>
+	                <th style="width: 90px;">글번호</th>
 	                <th>제목</th>
 	                <th style="width: 120px;">작성자</th>
 	                <th style="width: 140px;">작성일</th>
@@ -106,24 +119,48 @@
 	            </tr>
 	        </thead>
 	        <tbody>
-	            <c:if test="${!empty List}">
-	                <c:forEach items="${List}" var="dto">
-	                    <tr>
-	                        <td>${dto.id}</td>
-	                        <td class="text-start position-relative p-0">
-	                            <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}" 
-	                               class="d-block stretched-link text-decoration-none px-2 py-2">
-	                                 ${dto.title}
-	                            </a>
-	                        </td>
-	                        <td>${dto.nickname}</td>
-	                        <td>${dto.displayDate}</td>
-	                        <td>${dto.view_count}</td>
-	                        <td>${dto.like_count}</td>
-	                    </tr>
-	                </c:forEach>
+
+	            <c:if test="${!empty tList}">
+	                <c:forEach items="${tList}" var="dto">
+	                
+	                	<!-- 공지사항 목록 출력 -->
+	                    <c:if test="${empty dto.nickname }">	
+		                    <tr>
+		                        <td>공지사항</td>
+		                        <td class="text-start position-relative p-0">
+		                            <a href="${pageContext.request.contextPath}/notices_content.go?no=${dto.id}&page=${Paging.page}"  
+		                               class="d-block stretched-link text-decoration-none px-2 py-2">
+		                                 ${dto.title}
+		                            </a>
+		                        </td>
+		                        <td>관리자</td>
+		                        <td>${dto.displayDate}</td>
+		                        <td>${dto.view_count}</td>
+		                        <td>${dto.like_count}</td>
+		                    </tr>
+	            		</c:if>
+	                	
+	                	<!-- 게시글 목록 출력 -->
+	                	<c:if test="${!empty dto.nickname }">	
+		                    <tr>
+		                        <td>${dto.id }</td>
+		                        <td class="text-start position-relative p-0">
+		                            <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}" 
+		                               class="d-block stretched-link text-decoration-none px-2 py-2">
+		                                 ${dto.title}
+		                            </a>
+		                        </td>
+		                        <td>${dto.nickname }</td>
+		                        <td>${dto.displayDate}</td>
+		                        <td>${dto.view_count}</td>
+		                        <td>${dto.like_count}</td>
+		                    </tr>
+	                    </c:if>   
+	            	</c:forEach>
 	            </c:if>
-	            <c:if test="${empty List}">
+	            
+	            
+	            <c:if test="${empty tList}">
 	                <tr>
 	                    <td colspan="6" class="text-center">
 	                        <div class="py-4 fw-bold">전체 게시물 목록이 없습니다.</div>
@@ -132,8 +169,10 @@
 	            </c:if>
 	        </tbody>
 	    </table>
+	    
 	
-	  
+	 
+	
 	    <!-- ✅ 페이징 처리 -->
 	    <nav>
 		    <ul class="pagination justify-content-center">
@@ -163,23 +202,13 @@
 		    </ul>
 		</nav>
 	
-	    <!-- ✅ 검색 영역 -->
-	   <form method="post" action="<%=request.getContextPath() %>/posts_search.go" class="d-flex justify-content-center mt-4">
-
-	      <div class="input-group w-50">
-	         <select class="form-select" name="field">
-	            	<option value="title">제목</option>
-	                <option value="cont">내용</option>
-	                <option value="nickname">작성자</option>
-	                <option value="hashtag">해시태그</option>
-	         </select>
-	         <input type="text" name="keyword" class="form-control" placeholder="검색어를 입력하세요">
-	         <button class="btn btn-outline-primary" type="submit">검색</button>
-	      </div>
-	   </form>
-	</div> 
+	   <!-- ✅ 글쓰기 버튼 -->
+	    <div class="d-flex justify-content-end my-3">
+	        <a href="<%=request.getContextPath() %>/post_write.go" class="btn btn-success">✍ 글쓰기</a>
+	    </div>
 	<!-- ✅ 지역 데이터 및 연동 스크립트 -->
 	
+	</div> 
 	<script>
 	const districtData = {
 		    '서울특별시': ['종로구', '중구', '용산구', '성동구', '광진구', '동대문구', '중랑구', '성북구', '강북구', '도봉구', '노원구', '은평구', '서대문구', '마포구', '양천구', '강서구', '구로구', '금천구', '영등포구', '동작구', '관악구', '서초구', '강남구', '송파구', '강동구'],
