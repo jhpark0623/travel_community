@@ -24,7 +24,7 @@
 <style>
 body {
 	margin: 0;
-	background: linear-gradient(135deg, #eeeeee, #e5e5e5);
+	background: #ffffff;
 	height: 100vh;
 	min-height:900px;
 	width: 100%;
@@ -72,6 +72,11 @@ button:hover, input[type="submit"]:hover {
 		<div class="header-left">
 			<a href="<%=request.getContextPath()%>/">Home</a>
 		</div>
+		
+		 <a href="<%=request.getContextPath() %>/posts_list.go/1">[자유 게시판]</a>
+	   <a href="<%=request.getContextPath() %>/posts_list.go/2">[정보 게시판]</a>
+	   <a href="<%=request.getContextPath() %>/posts_list.go/3">[질문 게시판]</a>
+	   <a href="<%=request.getContextPath() %>/notices_list.go">[공지사항]</a>
 
 		<div class="header-right">
 			<button class="btn btn-primary"

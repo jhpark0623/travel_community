@@ -49,4 +49,11 @@ public interface PostsMapper {
 
     // 현재 게시글 ID 기준으로 다음글 ID 가져오기
     Integer getNextPostId(@Param("id") int id, @Param("category_id") int categoryId);
+    
+    // DB 좋아요 증가
+    void incrementLikeCount(@Param("postId") int postId);
+    
+    // DB 좋아요 감소
+    void decrementLikeCount(@Param("postId") int postId);
+
 }

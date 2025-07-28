@@ -115,17 +115,19 @@
 
     <!-- 버튼 -->
     <div class="btn-group">
-        <button class="btn btn-outline-primary"
-                onclick="location.href='notices_modify.go?no=${dto.id}&page=${Page}'">글수정</button>
-
-        <button class="btn btn-outline-danger"
-                onclick="if(confirm('게시글을 정말로 삭제하시겠습니까?')) {
-                             location.href='notices_delete.go?no=${dto.id}&page=${Page}'
-                         }">글삭제</button>
-
-        <button class="btn btn-outline-secondary"
-                onclick="location.href='notices_list.go?page=${Page}'">전체목록</button>
-    </div>
+	    <c:if test="${loginUser.role eq 'ADMIN'}">
+	        <button class="btn btn-outline-primary"
+	                onclick="location.href='notices_modify.go?no=${dto.id}&page=${Page}'">글수정</button>
+	
+	        <button class="btn btn-outline-danger"
+	                onclick="if(confirm('게시글을 정말로 삭제하시겠습니까?')) {
+	                             location.href='notices_delete.go?no=${dto.id}&page=${Page}'
+	                         }">글삭제</button>
+	    </c:if>
+	
+	    <button class="btn btn-outline-secondary"
+	            onclick="location.href='notices_list.go?page=${Page}'">전체목록</button>
+	</div>
 </div>
 
 <!-- Bootstrap Icons -->

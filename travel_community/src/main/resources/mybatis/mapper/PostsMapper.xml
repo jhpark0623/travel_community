@@ -97,5 +97,19 @@
 	      and state = 'Y'
 	  ]]>
 	</select>
-
+	
+	<!-- 좋아요 수 +1 -->
+	<update id="incrementLikeCount" parameterType="int">
+	  update a_posts
+	  set like_count = like_count + 1
+	  where id = #{postId}
+	</update>
+	
+	<!-- 좋아요 수 -1 -->
+	<update id="decrementLikeCount" parameterType="int">
+	  update a_posts
+	  set like_count = like_count - 1
+	  where id = #{postId}
+	</update>
+	
 </mapper>

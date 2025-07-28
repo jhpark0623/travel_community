@@ -6,55 +6,151 @@
 <head>
 <meta charset="UTF-8">
 <title>${post.title} - 게시글 상세</title>
+<style type="text/css">
+/* 제목 강조 */
+h2.mb-3 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2b2b2b;
+}
+/* 카테고리 링크 스타일 */
+ul li a.text-dark:hover {
+  color: #0d6efd;
+  text-decoration: underline;
+}
+
+/* 해시태그 스타일 */
+.custom-hashtag {
+  background-color: #6c757d;
+  color: #fff;
+  font-size: 0.9rem;
+  margin-right: 6px;
+  padding: 6px 12px;
+  border-radius: 15px;
+  display: inline-block;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.custom-hashtag:hover {
+  background-color: #495057;
+  transform: scale(1.05);
+}
+
+/* 댓글 입력창 */
+#commentArea textarea {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+/* 댓글 말풍선 스타일 */
+[id^="comment-"] {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+}
+
+/* 댓글 수정/저장/삭제 버튼 간격 */
+#commentArea button {
+  margin-right: 6px;
+}
+
+/* 목록/이전/다음 버튼 공통 */
+.post-nav-btn {
+  font-size: 0.95rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  text-decoration: none;
+}
+
+/* 이전/다음 버튼 */
+.btn-prev-next {
+  border: 1px solid #ced4da;
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.btn-prev-next:hover {
+  background-color: #e2e6ea;
+  color: #212529;
+}
+
+/* 목록으로 버튼 */
+.btn-list {
+  background-color: #212529;
+  color: white;
+  border: none;
+}
+
+.btn-list:hover {
+  background-color: #343a40;
+}
+.container:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+</style>
 </head>
 <body>
 <jsp:include page="../../include/header.jsp" />
 <!-- 전체 컨테이너 -->
-<div class="container mt-5 mb-5" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;">
-
+<div class="container mt-5 mb-5"
+     style="width: 820px;border-radius: 2px; box-shadow: 0 3px 9px rgba(0,0,0,0.2); padding: 30px;margin-bottom: 100px;">
+	
+	<!-- 지역 -->
+	<li class="list-inline-item d-flex align-items-center">
+	    📍 <span class="ms-1">${post.province_name} ${post.city_name}</span>
+	</li>
+	
     <!-- 게시글 제목 -->
     <h2 class="mb-3">${post.title}</h2>
 
-    <!-- 작성자/카테고리/지역 -->
-    <ul class="list-unstyled text-muted mb-4 fs-6">
-	    <li>👤 ${post.nickname}</li>
-	    <li>
-  			📂 <a href="#" class="text-dark text-decoration-none" style="font-size: 1rem;">
-		    ${post.category_name}
-		  </a>
-		</li>
-	    <li>📍 ${post.province_name} ${post.city_name}</li>
-	    <li>
-	        🕒 
-	        <c:choose>
-	            <c:when test="${not empty post.updated_at}">
-	                수정일: ${post.updated_at}
-	            </c:when>
-	            <c:otherwise>
-	                작성일: ${post.created_at}
-	            </c:otherwise>
-	        </c:choose>
-	    </li>
+    <!-- 작성자/카테고리/날짜 정보 -->
+	<ul class="list-inline text-muted mb-4 fs-6 d-flex flex-wrap gap-3">
+	  <li class="list-inline-item d-flex align-items-center">
+	    👤 <span class="ms-1">${post.nickname}</span>
+	  </li>
+	  <li class="list-inline-item d-flex align-items-center">
+	    📂 <span class="ms-1">${post.category_name}</span>
+	  </li>	  
+	  <li class="list-inline-item d-flex align-items-center">
+	    🕒 
+	    <span class="ms-1">
+	      <c:choose>
+	        <c:when test="${not empty post.updated_at}">
+	          수정일: ${post.updated_at}
+	        </c:when>
+	        <c:otherwise>
+	          작성일: ${post.created_at}
+	        </c:otherwise>
+	      </c:choose>
+	    </span>
+	  </li>
 	</ul>
-	
     <hr>
-
     <!-- 본문 내용 -->
-    <div class="mb-4">
-        <c:out value="${post.content}" escapeXml="false" />
-    </div>
-
+	<div class="mb-4 p-3">
+	  <article class="lh-lg fs-6 text-dark">
+	    <c:out value="${post.content}" escapeXml="false" />
+	  </article>
+	</div>
     <!-- 해시태그 -->
     <c:if test="${not empty hashtags}">
         <p>
             <c:forEach var="tag" items="${hashtags}">
-                <a href="#" class="badge bg-secondary text-decoration-none">#${tag.hashtag}</a>
+                <a href="#" class="badge custom-hashtag">#${tag.hashtag}</a>
             </c:forEach>
         </p>
     </c:if>
-
     <hr>
-
 	<!-- 조회수 / 좋아요 수 -->
     <div class="d-flex align-items-center mb-3">
     <span class="me-2">조회수: ${post.view_count}</span>
@@ -124,94 +220,106 @@
     <hr>
 
 	<!-- 이전/다음글 + 목록버튼 가운데 정렬 -->
-	<div class="d-flex justify-content-between align-items-center position-relative mt-4">	
+	<div class="d-flex justify-content-between align-items-center position-relative mt-4">
 	  <!-- 왼쪽: 이전글 -->
 	  <div>
 	    <c:choose>
 	      <c:when test="${not empty prevId}">
-	        <a href="/post_detail.go?id=${prevId}&page=${page }" class="btn btn-outline-secondary btn-sm">← 이전글</a>
+	        <a href="/post_detail.go?id=${prevId}&page=${page}" class="post-nav-btn btn-prev-next text-decoration-none">← 이전글</a>
 	      </c:when>
 	      <c:otherwise>
-	        <button class="btn btn-outline-secondary btn-sm invisible">← 이전글</button>
+	        <button class="post-nav-btn btn-prev-next invisible">← 이전글</button>
 	      </c:otherwise>
 	    </c:choose>
 	  </div>
 	
 	  <!-- 가운데: 목록으로 -->
 	  <div class="position-absolute start-50 translate-middle-x">
-	    <button class="btn btn-outline-dark btn-sm" onclick="location.href='<%=request.getContextPath() %>/posts_list.go/${post.category_id}?page=${page }'">목록으로</button>
-	    <%-- <a href="<%=request.getContextPath() %>/posts_list.go/${post.category_id}">TEST</a> --%>
+	    <button class="post-nav-btn btn-list" onclick="location.href='<%=request.getContextPath() %>/posts_list.go/${post.category_id}?page=${page}'">
+	      목록으로
+	    </button>
 	  </div>
 	
 	  <!-- 오른쪽: 다음글 -->
 	  <div>
 	    <c:choose>
 	      <c:when test="${not empty nextId}">
-	        <a href="/post_detail.go?id=${nextId}&page=${page }" class="btn btn-outline-secondary btn-sm">다음글 →</a>
+	        <a href="/post_detail.go?id=${nextId}&page=${page}" class="post-nav-btn btn-prev-next text-decoration-none">다음글 →</a>
 	      </c:when>
 	      <c:otherwise>
-	        <button class="btn btn-outline-secondary btn-sm invisible">다음글 →</button>
+	        <button class="post-nav-btn btn-prev-next invisible">다음글 →</button>
 	      </c:otherwise>
 	    </c:choose>
-	  </div>	
+	  </div>
 	</div>
 	  <hr>
 	<!-- 댓글 토글 버튼 -->
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleComments()">💬 댓글</button>
+	<button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleComments()">💬 댓글</button>
+	
+	<!-- 댓글 전체 영역 -->
+	<div id="commentArea" class="mt-4" style="display: none;">
+	    <h5 class="mb-3">댓글</h5>
+	
+	    <!-- 댓글 작성 -->
+	    <c:if test="${empty loginUser}">
+	        <div class="bg-light text-muted rounded p-3 small mb-3">
+			  댓글을 작성하려면 <a href="/user_login.go" class="text-primary text-decoration-none fw-semibold">로그인</a> 해주세요.
+			</div>
+	    </c:if>
+	
+	    <c:if test="${not empty loginUser}">
+		    <form action="/comment_write.go" method="post" class="mb-4">
+		        <input type="hidden" name="post_id" value="${post.id}">
+		        <input type="hidden" name="page" value="${page}">
+		        
+		        <div class="mb-2">
+		            <textarea name="content" class="form-control" rows="3" placeholder="댓글을 입력하세요." style="resize: none"></textarea>
+		        </div>
+		        
+		        <div class="text-end">
+		            <button type="submit" class="btn btn-success btn-sm">💬 댓글 작성</button>
+		        </div>
+		    </form>
+		</c:if>
+	
+	    <hr>
+	
+	    <!-- 댓글 목록 -->
+	    <c:forEach var="comment" items="${comments}">
+	        <div id="comment-${comment.id}" class="border rounded p-3 mb-3">
+	            <div class="d-flex justify-content-between mb-1">
+	                <strong>${comment.nickname}</strong>
+	                <small class="text-muted">${comment.created_at}</small>
+	            </div>
+	
+	            <!-- 기본 보기 -->
+	            <div id="content-${comment.id}" class="mb-2">
+	                <div>${comment.content}</div>
+	            </div>
+	
+	            <!-- 수정 폼 -->
+	            <div id="edit-area-${comment.id}" class="mb-2" style="display: none;">
+	                <textarea id="edit-content-${comment.id}" class="form-control mb-2" rows="3">${comment.content}</textarea>
+	                <button type="button" class="btn btn-success btn-sm me-1" onclick="submitEdit(${comment.id})">✅ 저장</button>
+	                <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEdit(${comment.id})">❌ 취소</button>
+	            </div>
+	
+	            <!-- 수정/삭제 버튼 -->
+	            <c:if test="${not empty loginUser && (loginUser.id == comment.user_id || loginUser.role eq 'ADMIN')}">
+				    <div class="text-end mt-2">
+				        <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="editComment(${comment.id})">✏ 수정</button>
+				        <form action="/comment_delete.go" method="post" class="d-inline">
+				            <input type="hidden" name="id" value="${comment.id}" />
+				            <input type="hidden" name="postId" value="${post.id}" />
+				            <input type="hidden" name="page" value="${page}">
+				            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
+				        </form>
+				    </div>
+				</c:if>
+	        </div>
+	    </c:forEach>
+	</div>
 
-    <!-- 댓글 영역 -->
-    <!-- 댓글 전체 영역 -->
-
-    <div id="commentArea" style="display: none; margin-top: 20px;">
-        <h4>댓글</h4>
-
-        <!-- 댓글 작성 -->
-        <c:if test="${empty loginUser}">
-            <p style="color: gray;">댓글을 작성하려면 <a href="/user_login.go">로그인</a> 해주세요.</p>
-        </c:if>
-        <c:if test="${not empty loginUser}">
-            <form action="/comment_write.go" method="post">
-                <input type="hidden" name="post_id" value="${post.id}">
-                <input type="hidden" name="page" value="${page }">
-                <textarea name="content" rows="3" style="width: 100%;"></textarea><br>
-                <button type="submit">댓글 작성</button>
-            </form>
-        </c:if>
-
-        <hr>
-
-        <!-- 댓글 목록 -->
-        <c:forEach var="comment" items="${comments}">
-            <div id="comment-${comment.id}" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd;">
-                <b>${comment.nickname}</b><br>
-
-                <!-- 기본 보기 -->
-                <div id="content-${comment.id}">
-                    <div>${comment.content}</div>
-                </div>
-
-                <!-- 수정 폼 -->
-                <div id="edit-area-${comment.id}" style="display: none;">
-                    <textarea id="edit-content-${comment.id}" style="width: 100%;" rows="3">${comment.content}</textarea><br>
-                    <button type="button" onclick="submitEdit(${comment.id})">✅ 저장</button>
-                    <button type="button" onclick="cancelEdit(${comment.id})">❌ 취소</button>
-                </div>
-
-                <small style="color: gray;">${comment.created_at}</small>
-
-                <!-- 수정/삭제 -->
-                <c:if test="${not empty loginUser && (loginUser.id == comment.user_id || loginUser.role eq 'ADMIN')}">
-                    <button type="button" onclick="editComment(${comment.id})">✏ 수정</button>
-                    <form action="/comment_delete.go" method="post" style="display:inline;">
-                        <input type="hidden" name="id" value="${comment.id}" />
-                        <input type="hidden" name="postId" value="${post.id}" />
-                        <input type="hidden" name="page" value="${page }">
-                        <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
-                    </form>
-                </c:if>
-            </div>
-        </c:forEach>
-    </div>
 </div>
 
 <!-- 스크립트 -->
@@ -309,12 +417,21 @@ function toggleLike(postId) {
             if (data.liked) {
                 btn.innerHTML = `
                 <svg fill="red" width="24" height="24" viewBox="0 0 24 24">
-                  <path d="..."/>
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                  2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
+                  C13.09 3.81 14.76 3 16.5 3
+                  19.58 3 22 5.42 22 8.5
+                  c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>`;
             } else {
                 btn.innerHTML = `
                 <svg fill="gray" width="24" height="24" viewBox="0 0 24 24">
-                  <path d="..."/>
+                  <path d="M16.5 3c-1.74 0-3.41 0.81-4.5 2.09
+	                     C10.91 3.81 9.24 3 7.5 3
+	                     4.42 3 2 5.42 2 8.5
+	                     c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32
+	                     C18.6 15.36 22 12.28 22 8.5
+	                     22 5.42 19.58 3 16.5 3z"/>
                 </svg>`;
             }
         } else if (data.status === "not_logged_in") {

@@ -424,30 +424,37 @@ public class PostsController {
         Map<String, Object> result = new HashMap<>();
         Users loginUser = (Users) session.getAttribute("loginUser");
 
-        // 로그인하지 않은 경우
         if (loginUser == null) {
             result.put("status", "not_logged_in");
             return result;
         }
 
         int userId = loginUser.getId();
-        boolean alreadyLiked = (pmapper.isPostLiked(postId, userId)>0);
+        boolean alreadyLiked = (pmapper.isPostLiked(postId, userId) > 0);
 
-        if (alreadyLiked) {
-            // 좋아요 취소
-            pmapper.deleteLike(postId, userId);
-        } else {
-            // 좋아요 등록
-            pmapper.insertLike(postId, userId);
+        try {
+            if (alreadyLiked) {
+                // 좋아요 취소
+                pmapper.deleteLike(postId, userId);
+                pmapper.decrementLikeCount(postId); // DB 좋아요 감소
+            } else {
+                // 좋아요 등록
+                pmapper.insertLike(postId, userId);
+                pmapper.incrementLikeCount(postId); // DB 좋아요 증가
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("status", "fail");
+            return result;
         }
-        
-        int newLikeCount = pmapper.getLikeCount(postId); 
 
-        // 클라이언트에게 현재 상태를 알려줌
+        int newLikeCount = pmapper.getLikeCount(postId);
+
         result.put("status", "success");
-        result.put("liked", !alreadyLiked);  // 누른 후 상태 전달
+        result.put("liked", !alreadyLiked);
         result.put("likeCount", newLikeCount);
 
         return result;
     }
+
 }
