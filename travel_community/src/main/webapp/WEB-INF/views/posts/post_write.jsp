@@ -83,7 +83,7 @@ span:hover {
 	
 /* 		// post 수정 시 게시글 가져와서 화면에 출력
 		window.onload = function () {
-			$('#summernote').summernote('code', '<p>123<img style="" src="/upload/image/fileupload/29/915ddce2-854c-419c-bed6-04adb70d7a16.gif" alt="아무튼"></p>')
+			$('#summernote').summernote('code', '<p>123<img style="" src="/.upload/image/fileupload/29/915ddce2-854c-419c-bed6-04adb70d7a16.gif" alt="아무튼"></p>')
 		} */
 
 		var hashtags;
