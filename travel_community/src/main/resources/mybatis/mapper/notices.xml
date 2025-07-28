@@ -68,19 +68,39 @@
 	</update>
 	
 	<select id="scount" parameterType="map" resultType="int">
-	   select count(*) from a_notices
-	   
-	   <choose>
-	      <when test="Field == 'title'">
-	         where title
-	      </when>
-	      
-	      <when test="Field == 'content'">
-	         where content
-	      </when>
-	   </choose>
-	   
-	      like '%' || #{keyword} || '%'
+       select count(*) from a_notices
+	    <where>
+	      <choose>
+	         <when test="field == 'title'">
+	           title like '%' || #{keyword} || '%'
+	         </when>
+	         <when test="field == 'content'">
+	           content like '%' || #{keyword} || '%'
+	         </when>
+	         <otherwise>
+	           1 = 1  <!-- 아무 조건 없을 때 모두 카운트 -->
+	         </otherwise>
+	      </choose>
+	    </where>
 	</select>
 	
+	<select id="search" parameterType="page" resultType="Notice">
+       select * from a_notices
+	    <where>
+	        <choose>
+	            <when test="field == 'title'">
+	                title like '%' || #{keyword} || '%'
+	            </when>
+	            <when test="field == 'content'">
+	                content like '%' || #{keyword} || '%'
+	            </when>
+	            <otherwise>
+	                1 = 1
+	            </otherwise>
+	        </choose>
+	    </where>
+	    order by id desc
+	</select>
+	
+		
 </mapper>
