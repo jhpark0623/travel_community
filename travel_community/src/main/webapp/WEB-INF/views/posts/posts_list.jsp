@@ -23,35 +23,62 @@
 	    <div class="d-flex justify-content-end mb-2">
 	        <small class="text-muted">전체 게시물 수: ${Paging.totalRecord}개</small>
 	    </div>
+	     
+		<div class="container my-4">
+	  	  <div class="row g-3">
+		    <div class="col-md-4">
+		      <label for="selectContinent" class="form-label fw-bold">대륙</label>
+		      <select id="selectContinent" class="form-select">
+		        <option value="">선택하세요</option>
+		      
+		      </select>
+		    </div>
+		    <div class="col-md-4">
+		      <label for="selectCountry" class="form-label fw-bold">나라</label>
+		      <select id="selectCountry" class="form-select">
+		        <option value="">선택하세요</option>
+		       
+		      </select>
+		    </div>
+		    <div class="col-md-4">
+		      <label for="selectCity" class="form-label fw-bold">도시</label>
+		      <select id="selectCity" class="form-select">
+		        <option value="">선택하세요</option>
+		     
+		      </select>
+		    </div>
+		  </div>
+		</div>
+	    <br> <br>
 	
 	    <!-- ✅ 공지사항 영역 -->
 	    <c:if test="${!empty popNotice}">
-	        <div class="mb-3">
-	            <h5 class="text-danger fw-bold">📢 공지사항</h5>
-	            <table class="table table-bordered table-hover align-middle bg-light">
-	                <thead class="table-secondary">
-	                    <tr>
-	                        <th style="text-align: center;" >제목</th>
-	                        <th style="text-align: center; width: 120px;">작성자</th>
-	                        <th style="text-align: center; width: 140px;">작성일</th>
-	                    </tr>
-	                </thead>
-	                <tbody>
-	                    <c:forEach items="${popNotice}" var="notice">
-	                        <tr>
-	                            <td>
-	                                <a href="${pageContext.request.contextPath}/notice_content.go?no=${notice.id}" class="text-decoration-none">
-	                                    ${notice.title}
-	                                </a>
-	                            </td>
-	                            <td>관리자</td>
-	                            <td>${notice.displayDate}</td>
-	                        </tr>
-	                    </c:forEach>
-	                </tbody>
-	            </table>
-	        </div>
-	    </c:if>
+		    <div class="mb-3">
+		        <h5 class="text-danger fw-bold">📢 공지사항</h5>
+		        <table class="table table-bordered table-hover align-middle bg-light">
+		            <thead class="table-secondary">
+		                <tr>
+		                    <th style="text-align:center;">제목</th> 
+		                    <th class="text-center" style="width: 120px;">작성자</th> 
+		                    <th class="text-center" style="width: 140px;">작성일</th> 
+		                </tr>
+		            </thead>
+		            <tbody>
+		                <c:forEach items="${popNotice}" var="notice">
+		                    <tr>
+		                        <td>
+		                            <a href="${pageContext.request.contextPath}/posts_notices_content.go?no=${notice.id}&page=${Paging.page}" class="d-block  text-decoration-none px-2 py-2">
+		                                ${notice.title}
+		                            </a>
+		                        </td>
+		                        <td class="text-center">관리자</td>  
+		                        <td class="text-center">${notice.displayDate}</td>  
+		                    </tr>
+		                </c:forEach>
+		            </tbody>
+		        </table>
+		    </div>
+		</c:if>
 	
 	    <!-- ✅ 게시글 리스트 테이블 -->
 	    <table class="table table-bordered table-striped align-middle text-center">
@@ -71,7 +98,7 @@
 	                    <tr>
 	                        <td>${dto.id}</td>
 	                        <td class="text-start position-relative p-0">
-	                            <a href="${pageContext.request.contextPath}/posts_content.go?no=${dto.id}&page=${Paging.page}" 
+	                            <a href="${pageContext.request.contextPath}/posts_detail.go?no=${dto.id}&page=${Paging.page}" 
 	                               class="d-block stretched-link text-decoration-none px-2 py-2">
 	                                 ${dto.title}
 	                            </a>
@@ -100,36 +127,36 @@
 	
 	    <!-- ✅ 페이징 처리 -->
 	    <nav>
-	        <ul class="pagination justify-content-center">
-	            <c:if test="${Paging.page > Paging.block}">
-	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=1">처음</a>
-	                </li>
-	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=${Paging.startBlock - 1}">이전</a>
-	                </li>
-	            </c:if>
-	
-	            <c:forEach begin="${Paging.startBlock}" end="${Paging.endBlock}" var="i">
-	                <li class="page-item ${i == Paging.page ? 'active' : ''}">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=${i}">${i}</a>
-	                </li>
-	            </c:forEach>
-	
-	            <c:if test="${Paging.endBlock < Paging.allPage}">
-	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=${Paging.endBlock + 1}">다음</a>
-	                </li>
-	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go?page=${Paging.allPage}">마지막</a>
-	                </li>
-	            </c:if>
-	        </ul>
-	    </nav>
+		    <ul class="pagination justify-content-center">
+		        <c:if test="${Paging.page > Paging.block}">
+		            <li class="page-item">
+		                <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId}?page=1">처음</a>
+		            </li>
+		            <li class="page-item">
+		                <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId}?page=${Paging.startBlock - 1}">이전</a>
+		            </li>
+		        </c:if>
+		
+		        <c:forEach begin="${Paging.startBlock}" end="${Paging.endBlock}" var="i">
+		            <li class="page-item ${i == Paging.page ? 'active' : ''}">
+		                <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId}?page=${i}">${i}</a>
+		            </li>
+		        </c:forEach>
+		
+		        <c:if test="${Paging.endBlock < Paging.allPage}">
+		            <li class="page-item">
+		                <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId}?page=${Paging.endBlock + 1}">다음</a>
+		            </li>
+		            <li class="page-item">
+		                <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${CategoryId}?page=${Paging.allPage}">마지막</a>
+		            </li>
+		        </c:if>
+		    </ul>
+		</nav>
+
 	
 	    <!-- ✅ 검색 영역 -->
-	    <!-- ✅ 검색 영역 -->
-	   <form method="post" action="${pageContext.request.contextPath}/notices_search.go" class="d-flex justify-content-center mt-4">
+	   <form method="post" action="${pageContext.request.contextPath}/posts_search.go" class="d-flex justify-content-center mt-4">
 	      <div class="input-group w-50">
 	         <select class="form-select" name="field">
 	            	<option value="title">제목</option>

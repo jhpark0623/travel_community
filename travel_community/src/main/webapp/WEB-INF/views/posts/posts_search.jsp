@@ -15,7 +15,7 @@
 <jsp:include page="../../include/header.jsp" />
 
 	<div class="container my-5">
-	   <h2 class="text-center mb-4">📢 Notices 공지 검색 리스트</h2>
+	   <h2 class="text-center mb-4">📢 Posts 검색 리스트</h2>
 	
 	   <!-- ✅ paging 변수 설정 -->
 	   <c:set var="paging" value="${Paging}" />
@@ -29,30 +29,36 @@
 	   <table class="table table-bordered table-striped align-middle text-center">
 	      <thead class="table-primary">
 	         <tr>
-	            <th style="width: 56px;">번호</th>
-	            <th style="width: 207px;">제목</th>
-	            <th style="width: 117px;">작성일자</th>
+	             <th style="width: 65px;">글번호</th>
+	             <th>제목</th>
+	             <th style="width: 120px;">작성자</th>
+	             <th style="width: 140px;">작성일</th>
+	             <th style="width: 65px;">조회수</th>
+	             <th style="width: 65px">좋아요</th>
 	         </tr>
 	      </thead>
 	      <tbody>
-	         <c:if test="${!empty searchPageList}">
-	            <c:forEach items="${searchPageList}" var="dto">
+	         <c:if test="${!empty postsList}">
+	            <c:forEach items="${postsList}" var="dto">
 	               <tr>
 	                  <td>${dto.id}</td>
 	                  <td class="text-start position-relative p-0">
-	                     <a href="${pageContext.request.contextPath}/notices_search_content.go?no=${dto.id}&page=${paging.page}"
+	                     <a href="${pageContext.request.contextPath}/posts_search_content.go?no=${dto.id}&page=${paging.page}"
 	                        class="d-block stretched-link text-decoration-none px-2 py-2">
 	                        ${dto.title}
 	                     </a>
 	                  </td>
+	                  <td>${dto.nickname}</td>
 	                  <td>${dto.displayDate}</td>
+	                  <td>${dto.view_count}</td>
+	                  <td>${dto.like_count}</td>
 	               </tr>
 	            </c:forEach>
 	         </c:if>
-	         <c:if test="${empty searchPageList}">
+	         <c:if test="${empty postsList}">
 	            <tr>
 	               <td colspan="6" class="text-center">
-	                  <div class="py-4 fw-bold">공지사항 검색 리스트가 없습니다</div>
+	                  <div class="py-4 fw-bold">Posts 검색 리스트가 없습니다</div>
 	               </td>
 	            </tr>
 	         </c:if>
@@ -61,7 +67,7 @@
 	
 	   <!-- 글쓰기 버튼 -->
 	   <div class="d-flex justify-content-end my-3">
-	      <a href="notices_write.go" class="btn btn-success">✍ 글쓰기</a>
+	      <a href="posts_write.go" class="btn btn-success">✍ 글쓰기</a>
 	   </div>
 	
 	   <!-- 페이징 처리 -->
@@ -69,36 +75,38 @@
 	      <ul class="pagination justify-content-center">
 	         <c:if test="${paging.page > paging.block}">
 	            <li class="page-item">
-	               <a class="page-link" href="${pageContext.request.contextPath}/notices_list.go?page=1">처음</a>
+	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=1">처음</a>
 	            </li>
 	            <li class="page-item">
-	               <a class="page-link" href="${pageContext.request.contextPath}/notices_list.go?page=${paging.startBlock - 1}">이전</a>
+	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=${paging.startBlock - 1}">이전</a>
 	            </li>
 	         </c:if>
 	
 	         <c:forEach begin="${paging.startBlock}" end="${paging.endBlock}" var="i">
 	            <li class="page-item ${i == paging.page ? 'active' : ''}">
-	               <a class="page-link" href="${pageContext.request.contextPath}/notices_list.go?page=${i}">${i}</a>
+	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=${i}">${i}</a>
 	            </li>
 	         </c:forEach>
 	
 	         <c:if test="${paging.endBlock < paging.allPage}">
 	            <li class="page-item">
-	               <a class="page-link" href="${pageContext.request.contextPath}/notices_list.go?page=${paging.endBlock + 1}">다음</a>
+	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=${paging.endBlock + 1}">다음</a>
 	            </li>
 	            <li class="page-item">
-	               <a class="page-link" href="${pageContext.request.contextPath}/notices_list.go?page=${paging.allPage}">마지막</a>
+	               <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/{i}?page=${paging.allPage}">마지막</a>
 	            </li>
 	         </c:if>
 	      </ul>
 	   </nav>
 	
 	   <!-- ✅ 검색 영역 -->
-	   <form method="post" action="${pageContext.request.contextPath}/notices_search.go" class="d-flex justify-content-center mt-4">
+	   <form method="post" action="${pageContext.request.contextPath}/posts_search.go" class="d-flex justify-content-center mt-4">
 	      <div class="input-group w-50">
 	         <select class="form-select" name="field">
 	            <option value="title">제목</option>
 	            <option value="cont">내용</option> 
+	            <option value="nickname">작성자</option>
+	            <option value="hashtage">해시태그</option>
 	         </select>
 	         <input type="text" name="keyword" class="form-control" placeholder="검색어를 입력하세요">
 	         <button class="btn btn-outline-primary" type="submit">검색</button>

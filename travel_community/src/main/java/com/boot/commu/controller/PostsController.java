@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+ 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -62,36 +63,88 @@ public class PostsController {
 	}
 	
  
+	 
 	
 	@GetMapping("/posts_list.go/{i}")
-	public String list(@PathVariable("i") String i, @RequestParam(value = "page", defaultValue = "1") 
-			int page, Model model) {
-		
-	    // DB 상의 전체 게시물 수
-	    int totalRecord = this.pmapper.countByCategory(i);
+	public String list(@PathVariable("i") String categoryId,
+	                   @RequestParam(value = "page", defaultValue = "1") int page,
+	                   Model model) {
+	    int rowsize = 5; // 한 페이지당 보여줄 게시물 수
 
-	    // 페이징 객체 생성
+	    int totalRecord = pmapper.countByCategory(categoryId);
+
 	    Page pdto = new Page(page, rowsize, totalRecord);
 
-	    
-	    List<Posts> list = this.pmapper.list(i);
-	    		
-	    // ✅ displayDate 세팅
+	    // 페이지 시작 행번호, 끝 행번호 계산
+	    int startRow = (page - 1) * rowsize + 1;
+	    int endRow = page * rowsize;
+
+	    // 기존 pmapper.list(categoryId) 대신 startRow, endRow 같이 넘기기
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("categoryId", categoryId);
+	    params.put("startRow", startRow);
+	    params.put("endRow", endRow);
+
+	    List<Posts> list = pmapper.list(params);
+
 	    for (Posts post : list) {
 	        post.setDisplayDateFromCreatedAt();
 	    }
-	    
+
 	    List<Notices> popNoticesList = noticesMapper.popNoticeList();
 
-	    //System.out.println(popNoticesList);
-	    
 	    model.addAttribute("List", list)
 	         .addAttribute("Paging", pdto)
-	         .addAttribute("CategoryId", i)
-	    	 .addAttribute("popNotice", popNoticesList);
+	         .addAttribute("CategoryId", categoryId)
+	         .addAttribute("popNotice", popNoticesList);
 
 	    return "posts/posts_list";
 	}
+
+	
+	
+	@GetMapping("posts_notices_content.go")
+	public String content(@RequestParam("no") int no, @RequestParam("page") int nowPage, Model model) {
+		
+		Posts cont = this.pmapper.cont(no);
+		
+		model.addAttribute("Cont", cont)
+			 .addAttribute("Page", nowPage);
+		
+		return "posts/posts_notices_content";
+	}
+	
+	
+	@PostMapping("/posts_search.go")
+	public String search(@RequestParam("field") String field,
+	                     @RequestParam("keyword") String keyword,
+	                     @RequestParam(value = "page", defaultValue = "1") int page,
+	                     Model model) {
+
+	    // 검색 페이징 작업 
+
+	    // 검색분류와 검색어에 해당하는 게시글의 수를 DB에서 확인하는 작업. 
+	    Map<String, String> map = new HashMap<>();
+	    map.put("field", field);
+	    map.put("keyword", keyword);
+
+	    int totalRecord = this.pmapper.scount(map);
+
+	    Page pdto = new Page(page, rowsize, totalRecord, field, keyword);
+
+	    List<Posts> search = this.pmapper.search(pdto);
+
+	    // displayDate 세팅
+	    for (Posts post : search) {
+	        post.setDisplayDateFromCreatedAt();
+	    }
+
+	    model.addAttribute("postsList", search)
+	         .addAttribute("Paging", pdto);
+
+	    return "posts/posts_search";
+	}
+
 	
 	
 	@GetMapping("/notices_list.go")
@@ -112,33 +165,53 @@ public class PostsController {
 	
 	
 	@GetMapping("/notices_write.go")
-	public String write() {
-		
-		return "notices/notices_write";
+	public String write(HttpSession session, HttpServletResponse response) throws IOException {
+	    Users loginUser = (Users) session.getAttribute("loginUser");
+
+	    if (loginUser == null || !loginUser.getRole().equals("ADMIN")) {
+	        response.setContentType("text/html; charset=UTF-8");
+	        PrintWriter out = response.getWriter();
+	        out.println("<script>");
+	        out.println("alert('관리자만 접근 가능합니다.');");
+	        out.println("location.href='notices_list.go';");
+	        out.println("</script>");
+	        return null;
+	    }
+
+	    return "notices/notices_write";
 	}
-	
+
 	
 	@PostMapping("notices_write_ok.go")
-	public void write_ok(Notices dto, HttpServletResponse response) throws IOException {
-		
-		int res = this.noticesMapper.add(dto);
-		
-		response.setContentType("text/html; charset=UTF-8");
-		
-		PrintWriter out = response.getWriter();
-		
-		if(res > 0) {
-			out.println("<script>");
-			out.println("alert('게시글 등록 성공')");
-			out.println("location.href='notices_list.go'");
-			out.println("</script>");
-		}else {
-			out.println("<script>");
-			out.println("alert('게시글 등록 실패')");
-			out.println("history.back()");
-			out.println("</script>");
-		}
+	public void write_ok(Notices dto, HttpSession session, HttpServletResponse response) throws IOException {
+	    Users loginUser = (Users) session.getAttribute("loginUser");
+
+	    response.setContentType("text/html; charset=UTF-8");
+	    PrintWriter out = response.getWriter();
+
+	    if (loginUser == null || !loginUser.getRole().equals("ADMIN")) {
+	        out.println("<script>");
+	        out.println("alert('관리자만 글을 작성할 수 있습니다.');");
+	        out.println("location.href='notices_list.go';");
+	        out.println("</script>");
+	        return;
+	    }
+
+	    int res = this.noticesMapper.add(dto);
+
+	    if (res > 0) {
+	        out.println("<script>");
+	        out.println("alert('게시글 등록 성공');");
+	        out.println("location.href='notices_list.go';");
+	        out.println("</script>");
+	    } else {
+	        out.println("<script>");
+	        out.println("alert('게시글 등록 실패');");
+	        out.println("history.back();");
+	        out.println("</script>");
+	    }
 	}
+
 	
 	
 	@GetMapping("/notices_content.go")
@@ -152,6 +225,7 @@ public class PostsController {
 		
 		return "notices/notices_content";
 	}
+	 
 	
 	
 	@GetMapping("/notices_modify.go")
@@ -217,11 +291,12 @@ public class PostsController {
 	}
 	
 	
-	@GetMapping("/notices_search.go")
-	public String search(@RequestParam("field") String field, 
+	@PostMapping("/notices_search.go")
+	public String searchList(@RequestParam("field") String field, 
 						@RequestParam("keyword") String keyword,
 						@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
 		
+	 
 		// 검색 페이징 작업 
 		
 		// 검색분류와 검색어에 해당하는 게시글의 수를 DB에서 확인하는 작업. 
@@ -238,11 +313,26 @@ public class PostsController {
 		// 검색한 게시물을 List로 가져오는 메서드 호출.
 		List<Notices> searchList = this.noticesMapper.search(pdto);
 		
+		
+		
 		model.addAttribute("searchPageList", searchList)
 		     .addAttribute("Paging", pdto);
 		
 		return "notices/notices_search_list";
 		
+	}
+	
+	
+	@GetMapping("/notices_search_content.go")
+	public String searchContent(@RequestParam("no") int no, @RequestParam(value = "page", defaultValue = "1") int nowPage, Model model) {
+	    Notices cont = noticesMapper.cont(no);
+	    if (cont == null) {
+	        return "redirect:/notices_list.go?page=" + nowPage;
+	    }
+	    model.addAttribute("Content", cont);
+	    model.addAttribute("Page", nowPage);
+	    
+	    return "notices/notices_search_content";
 	}
 
     // 게시글 상세 페이지 진입

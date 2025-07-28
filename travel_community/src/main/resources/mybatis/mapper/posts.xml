@@ -8,13 +8,66 @@
 <mapper namespace="com.boot.commu.mapper.PostsMapper">
 
 	<select id="countByCategory" parameterType="String" resultType="int">
- 	   select count(*) from a_posts where category_id = #{i}
+     SELECT COUNT(*) FROM a_posts WHERE TO_CHAR(category_id) = #{i}
 	</select>
 	
-	<select id="list" parameterType="String" resultType="Posts">
-	   select p.*, u.nickname from a_posts p join a_users u on p.user_id = u.id where p.category_id = #{i}
-	   order by p.id desc
+	<select id="list" parameterType="map" resultType="Posts">
+	  SELECT * FROM (
+	    SELECT p.*, u.nickname,
+	           ROW_NUMBER() OVER (ORDER BY p.id DESC) AS rn
+	    FROM a_posts p
+	    JOIN a_users u ON p.user_id = u.id
+	    WHERE p.category_id = #{categoryId}
+	  )
+	  WHERE rn BETWEEN #{startRow} AND #{endRow}
 	</select>
-	 
+
+	
+	<select id="cont" parameterType="int" resultType="Posts">
+	   select * from a_posts where id = #{id}
+	</select>
+	
+	<select id="scount" parameterType="map" resultType="int">
+	   select count(*) from a_posts
+	   <where>
+	      <choose>
+	         <when test="field == 'title'">
+	            title like '%' || #{keyword} || '%'
+	         </when>
+	         <when test="field == 'content'">
+	            content like '%' || #{keyword} || '%'
+	         </when>
+	         <otherwise>
+	            1 = 1
+	         </otherwise>
+	      </choose>
+	   </where>
+	</select>
+ 
+	<select id="search" parameterType="page" resultType="Posts">
+	  SELECT p.id, p.title, p.content,
+	         TO_CHAR(p.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+	         p.view_count, p.like_count,
+	         u.nickname
+	  FROM a_posts p
+	  JOIN a_users u ON p.user_id = u.id
+	  <where>
+	    <choose>
+	      <when test="field == 'title'">
+	        p.title LIKE '%' || #{keyword} || '%'
+	      </when>
+	      <when test="field == 'content'">
+	        p.content LIKE '%' || #{keyword} || '%'
+	      </when>
+	      <when test="field == 'nickname'">
+	        u.nickname LIKE '%' || #{keyword} || '%'
+	      </when>
+	      <otherwise>
+	        1 = 1
+	      </otherwise>
+	    </choose>
+	  </where>
+	  ORDER BY p.id DESC
+	</select>
 
 </mapper>

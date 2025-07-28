@@ -7,16 +7,23 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.boot.commu.model.Posts;
+import com.boot.commu.model.Notices;
 import com.boot.commu.model.Page;
 import com.boot.commu.model.PostsDetailDTO;
 
 @Mapper
 public interface PostsMapper {
 
-	List<Posts> list(String i);
+	List<Posts> list(Map<String, Object> params);
 
 	int countByCategory(String i);
 
+	Posts cont(int no);
+	
+	List<Posts> search(Page pdto);
+	
+	int scount(Map<String, String> map);
+	
 	// 게시글 ID로 상세 정보 조회 (JOIN 포함)
 	PostsDetailDTO getPostDetailById(int id);
 
@@ -34,4 +41,6 @@ public interface PostsMapper {
 	void insertLike(@Param("postId") int postId, @Param("userId") int userId);
 
 	void deleteLike(@Param("postId") int postId, @Param("userId") int userId);
+
+
 }
