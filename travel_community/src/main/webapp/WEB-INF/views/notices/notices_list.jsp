@@ -64,9 +64,11 @@
 	   </table>
 	
 	   <!-- 글쓰기 버튼 -->
-	   <div class="d-flex justify-content-end my-3">
-	      <a href="notices_write.go" class="btn btn-success">✍ 글쓰기</a>
-	   </div>
+		<c:if test="${not empty loginUser && loginUser.role eq 'ADMIN'}">
+		   <div class="d-flex justify-content-end my-3">
+		      <a href="notices_write.go" class="btn btn-success">✍ 글쓰기</a>
+		   </div>
+		</c:if>
 	
 	   <!-- 페이징 처리 -->
 	   <nav>
