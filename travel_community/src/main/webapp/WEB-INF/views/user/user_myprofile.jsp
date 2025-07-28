@@ -1,69 +1,73 @@
 <%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+    pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="EUC-KR">
-<title>»ç¿ëÀÚ Á¤º¸</title>
+<title>ì‚¬ìš©ìž ì •ë³´</title>
 
-<style>
-.table-wrapper {
-  width: 600px;        /* Å×ÀÌºí °¡·Î Å©±â */
-  height: 600px;       /* Å×ÀÌºí ¼¼·Î Å©±â */
-  overflow: auto;      /* ³»¿ëÀÌ ³ÑÄ¡¸é ½ºÅ©·Ñ */
-  margin: 0 auto;      /* °¡¿îµ¥ Á¤·Ä */
-}
-
-.custom-table {
-  width: 100%;
-  height: 100%;
-  table-layout: fixed;
-}
-</style>
+<!-- âœ… Bootstrap CDN ì¶”ê°€ -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
 <body>
 
   <jsp:include page="../../include/header.jsp" />
 
-  <div  class="text-center mt-5">
-    <h2>${UserProfile.name }´Ô Á¤º¸</h2>
-  </div>
-
   <c:set value="${UserProfile }" var="user" />
 
-  <div class="table-wrapper mt-3">
-    <form method="post" action="#">
-      <table class="table table-borderless table-hover custom-table">
-        <tr>
-          <th>ÀÌ ¸§</th>
-          <td><input class="form-control" value="${user.name }" readonly></td>
-        </tr>
-        <tr>
-          <th>ÀÌ¸ÞÀÏ</th>
-          <td><input class="form-control" value="${user.email }" readonly></td>
-        </tr>
-        <tr>
-          <th>ÀüÈ­¹øÈ£</th>
-          <td><input class="form-control" value="${user.phone }" readonly></td>
-        </tr>
-        <tr>
-          <th>´Ð³×ÀÓ</th>
-          <td><input class="form-control" value="${user.nickname }"></td>
-        </tr>
-        <tr>
-          <th>°¡ÀÔÀÏÀÚ</th>
-          <td><input class="form-control" value="${user.created_at }" readonly></td>
-        </tr>
-      </table>
-
-      <div class="text-center">
-        <input type="submit" value="¼öÁ¤ÇÏ±â" class="btn btn-primary me-2">
-        <input type="button" onclick="history.back()" value="Ãë¼Ò" class="btn btn-secondary me-2">
-        <input type="button" onclick="#" value="È¸¿ø Å»Åð" class="btn btn-danger">
+  <div class="container mt-5" style="max-width: 700px;">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white text-center">
+        <h4 class="mb-0">${user.name} ë‹˜ì˜ ì •ë³´</h4>
       </div>
-    </form>
+      <div class="card-body">
+        <form method="post" action="<%=request.getContextPath()%>/myprofileModify.go">
+          <input type="hidden" name="id" value="${user.id}">
+          <input type="hidden" name="password" value="${user.password}">
+
+          <div class="mb-3">
+            <label class="form-label">ì´ë¦„</label>
+            <input class="form-control" value="${user.name}" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">ì´ë©”ì¼</label>
+            <input class="form-control" value="${user.email}" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">ì „í™”ë²ˆí˜¸</label>
+            <input class="form-control" name="phone" value="${user.phone}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">ë‹‰ë„¤ìž„</label>
+            <input class="form-control" name="nickname" value="${user.nickname}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">ê°€ìž…ì¼ìž</label>
+            <input class="form-control" value="${user.created_at}" readonly>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">í˜„ìž¬ ë¹„ë°€ë²ˆí˜¸ ìž…ë ¥</label>
+            <input type="password" class="form-control" name="pwd" required>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">ìˆ˜ì •í•˜ê¸°</button>
+            <button type="button" class="btn btn-secondary" onclick="history.back()">ì·¨ì†Œ</button>
+            <button type="button" class="btn btn-danger"
+              onclick="if(confirm('ì •ë§ íšŒì› íƒˆí‡´í•˜ì‹œê² ìŠµë‹ˆê¹Œ?')) location.href='<%=request.getContextPath()%>/deleteUser.go';">
+              íšŒì› íƒˆí‡´
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
 </body>

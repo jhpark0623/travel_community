@@ -12,32 +12,41 @@
 	
 	<jsp:include page="../../include/header.jsp" />
 	
-	<div align="center">
+	<div class="container my-5" style="width: 900px">
 		<c:set var="posts" value="${myPosts }" />
-		<h2>내가 작성한 게시물 </h2>
+		<h5 class="text-danger fw-bold">내가 작성한 게시물 </h2>
 		
-		<table border="1" width="800">
-			<tr>
-				<th>지역</th>
-				<th>제목</th>
-				<th>내용</th>
-				<th>작성일자</th>
-			</tr>
-			
+		<table class="table table-bordered table-striped align-middle text-center">
+			<thead class="table-primary">
+				<tr style="text-align: center">
+					<th style="width: 65px;">글번호</th>
+					<th style="width: 120px;">제목</th>
+					<th style="width: 140px;">작성일자</th>
+					<th style="width: 65px;">조회수</th>
+					<th style="width: 65px;">좋아요</th>
+					
+				</tr>
+			</thead>
+			<tbody>
 				<c:forEach items="${posts}" var="post">
 					<tr>
-						<td> ${post.city_id } </td>
-						<td><a href="<%=request.getContextPath()%>/post_detail.go?id=${post.id}">${post.title }</a></td>
-						<td> ${post.content } </td>
+						<td> ${post.id } </td>
+						<td class="text-start position-relative p-0">
+						<a href="<%=request.getContextPath()%>/post_detail.go?id=${post.id}&page=1"class="d-block stretched-link text-decoration-none px-2 py-2">${post.title }</a>
+						</td>
 						<td> ${post.created_at} </td>
+						<td> ${post.view_count} </td>
+						<td> ${post.like_count} </td>
+						
 					</tr>
 				</c:forEach>
 				
 				<c:if test="${empty posts }">
 					<tr>
-						<th colspan="5"> 검색된 게시물이 없습니다!!</th>
+						<th colspan="5" class="text-center"> 검색된 게시물이 없습니다!!</th>
 					</tr>
 				</c:if>
+			</tbody>
 		</table>
 	</div>
 	<br><br>
