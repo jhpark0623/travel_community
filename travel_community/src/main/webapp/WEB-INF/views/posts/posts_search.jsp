@@ -112,10 +112,6 @@
 	         <button class="btn btn-outline-primary" type="submit">검색</button>
 	      </div>
 	   </form>
-	</div>
-
-<!-- ✅ Bootstrap JS (optional) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+	</div> 
 </body>
 </html>

@@ -20,6 +20,9 @@ public class Page {
 	private int allPage;		// 전체 페이지 수. 
 	private int block = 5;		// 아래에 보여질 최대 페이지 수. 
 	
+	// 게시판 카테고리에 맞춰 리스트 출력할때 쓰는 멤버 선언.
+	private int categoryId;
+	
 	// 검색 관련 멤버 선언.
 	private String field;	 
 	private String keyword;	
@@ -51,6 +54,13 @@ public class Page {
 		}
 		
 	} // 인자 생성자. 
+	
+	// 카테고리에 해당하는 게시글목록을 출력하는 페이징 처리 인자 생성자. 
+		public Page(int page, int rowsize, int totalRecord, int categoryId) {
+			
+			this(page, rowsize, totalRecord);
+			this.categoryId = categoryId;
+		} // 인자 생성자 
 	
 	
 	// 검색을 하는 페이징 처리 인자 생성자. 

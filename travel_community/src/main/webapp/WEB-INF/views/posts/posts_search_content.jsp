@@ -77,14 +77,14 @@
     </style>
 </head>
 <body>
- 
+<jsp:include page="../../include/header.jsp" /> 
 	
 <div class="container" style="max-width: 750px; padding: 30px;"> <!-- ✅ 너비+패딩 증가 -->
-    <c:set var="dto" value="${Content}" />
+    <c:set var="dto" value="${Cont}" />
 
     <!-- 제목 -->
     <div class="main-title">
-        <i class="bi bi-megaphone-fill"></i> 공지사항 검색내용
+        <i class="bi bi-megaphone-fill"></i> 게시글 검색내용
     </div>
 
     <!-- 상세 테이블 -->
@@ -113,14 +113,7 @@
         </c:if>
     </table>
 
-    <!-- 버튼 -->
-    <div class="btn-group">
-        <button class="btn btn-outline-primary"
-                onclick="location.href='notices_search_list.go?page=${Page}&field=${Field }&keyword=${keyword }'">검색목록</button>
-                
-		<button class="btn btn-outline-primary"
-                onclick="location.href='notices_list.go'">전체목록</button>
-    </div>
+    
 </div>
 
 </body>

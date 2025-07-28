@@ -7,19 +7,18 @@
 
 <mapper namespace="com.boot.commu.mapper.PostsMapper">
 
-	<select id="countByCategory" parameterType="String" resultType="int">
-     SELECT COUNT(*) FROM a_posts WHERE TO_CHAR(category_id) = #{i}
+	<select id="countByCategory" parameterType="int" resultType="int">
+ 	   select count(*) from a_posts where category_id = #{i} and state = 'Y'
 	</select>
 	
-	<select id="list" parameterType="map" resultType="Posts">
-	  SELECT * FROM (
-	    SELECT p.*, u.nickname,
-	           ROW_NUMBER() OVER (ORDER BY p.id DESC) AS rn
-	    FROM a_posts p
-	    JOIN a_users u ON p.user_id = u.id
-	    WHERE p.category_id = #{categoryId}
-	  )
-	  WHERE rn BETWEEN #{startRow} AND #{endRow}
+
+	<select id="list" parameterType="page" resultType="Posts">
+		SELECT p.*, u.nickname
+		FROM 
+		(SELECT ROW_NUMBER() OVER (ORDER BY id DESC) AS rnum, 
+		p.* FROM a_posts p where p.category_id = #{categoryId} and p.state = 'Y') 
+		p JOIN a_users u ON p.user_id = u.id
+		WHERE p.rnum BETWEEN #{startNo} AND #{endNo} 
 	</select>
 
 	

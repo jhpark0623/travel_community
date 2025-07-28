@@ -23,13 +23,13 @@
 			</tr>
 			
 			<c:forEach items="${mycom }" var="myc">
-				<tr>
-					<td>${myc.post_title }</td>
+				<tr style="background-color: lightgray">
+					<td ><a href="<%=request.getContextPath()%>/post_detail.go?id=${myc.post_id}">${myc.post_title }</a></td>
 					<td>${myc.post_content }
 				</tr>
 				
 				<tr>
-					<td colspan="2"> >>>>>답글 : ${myc.content }</td>
+					<td colspan="2" style="color: red "> >>>>>답글 : ${myc.content }</td>
 				</tr>
 					
 			</c:forEach>

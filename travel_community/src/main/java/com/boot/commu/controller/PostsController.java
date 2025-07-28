@@ -66,37 +66,25 @@ public class PostsController {
 	 
 	
 	@GetMapping("/posts_list.go/{i}")
-	public String list(@PathVariable("i") String categoryId,
-	                   @RequestParam(value = "page", defaultValue = "1") int page,
-	                   Model model) {
-	    int rowsize = 5; // 한 페이지당 보여줄 게시물 수
-
-	    int totalRecord = pmapper.countByCategory(categoryId);
-
-	    Page pdto = new Page(page, rowsize, totalRecord);
-
-	    // 페이지 시작 행번호, 끝 행번호 계산
-	    int startRow = (page - 1) * rowsize + 1;
-	    int endRow = page * rowsize;
-
-	    // 기존 pmapper.list(categoryId) 대신 startRow, endRow 같이 넘기기
-	    Map<String, Object> params = new HashMap<>();
-	    params.put("categoryId", categoryId);
-	    params.put("startRow", startRow);
-	    params.put("endRow", endRow);
-
-	    List<Posts> list = pmapper.list(params);
-
-	    for (Posts post : list) {
+	public String list(@PathVariable("i") int pCategory, @RequestParam(value = "page", defaultValue = "1") 
+			int page, Model model) {
+		
+	    // DB 상의 전체 게시물 수
+	    int totalRecord = this.pmapper.countByCategory(pCategory);
+	    // 페이징 객체 생성
+	    Page pdto = new Page(page, rowsize, totalRecord, pCategory);
+	    List<Posts> postList = this.pmapper.list(pdto);
+	    		
+	    // ✅ displayDate 세팅
+	    for (Posts post : postList) {
 	        post.setDisplayDateFromCreatedAt();
 	    }
 
 	    List<Notices> popNoticesList = noticesMapper.popNoticeList();
-
-	    model.addAttribute("List", list)
+	    model.addAttribute("List", postList)
 	         .addAttribute("Paging", pdto)
-	         .addAttribute("CategoryId", categoryId)
-	         .addAttribute("popNotice", popNoticesList);
+	         .addAttribute("CategoryId", pCategory)
+	    	 .addAttribute("popNotice", popNoticesList);
 
 	    return "posts/posts_list";
 	}
@@ -143,6 +131,19 @@ public class PostsController {
 	         .addAttribute("Paging", pdto);
 
 	    return "posts/posts_search";
+	}
+	
+	
+	@GetMapping("/posts_search_content.go")
+	public String searchCont(@RequestParam("no") int no, @RequestParam(value = "page", defaultValue = "1") int nowPage, Model model) {
+	    Posts cont = pmapper.cont(no);
+	    if (cont == null) {
+	        return "redirect:/posts_list.go?page=" + nowPage;
+	    }
+	    model.addAttribute("Cont", cont);
+	    model.addAttribute("Page", nowPage);
+	    
+	    return "posts/posts_search_content";
 	}
 
 	
@@ -299,7 +300,7 @@ public class PostsController {
 	 
 		// 검색 페이징 작업 
 		
-		// 검색분류와 검색어에 해당하는 게시글의 수를 DB에서 확인하는 작업. 
+		// 검색분류와 검색어에 해당하는 게시글의 수를 DB에서 확인하는 작업.
 		Map<String, String> map = new HashMap<String, String>();
 		
 		map.put("Field", field);
@@ -337,7 +338,8 @@ public class PostsController {
 
     // 게시글 상세 페이지 진입
     @RequestMapping("/post_detail.go")
-    public String postDetail(@RequestParam("id") int id, Model model, HttpSession session, HttpServletResponse response) throws IOException {
+    public String postDetail(@RequestParam("id") int id,  @RequestParam("page") int nowPage,
+    		Model model, HttpSession session, HttpServletResponse response) throws IOException {
         // 게시글 상세 정보 먼저 조회
         PostsDetailDTO post = pmapper.getPostDetailById(id);
 
@@ -357,7 +359,6 @@ public class PostsController {
 
         // 나머지 데이터 조회
         List<Hashtags> hashtags = hmapper.getHashtagsByPostId(id);
-        System.out.println(hashtags);
         List<CommentDTO> comments = commentsMapper.getCommentsByPostId(id);
         Users loginUser = (Users) session.getAttribute("loginUser");
 
@@ -367,8 +368,12 @@ public class PostsController {
             liked = (pmapper.isPostLiked(id, loginUser.getId()) > 0);
         }
 
-        // ★ 좋아요 수 조회 추가
+        // 좋아요 수 조회 추가
         int likeCount = pmapper.getLikeCount(id);
+        
+        // 이전글 / 다음글 ID 조회
+        Integer prevId = pmapper.getPrevPostId(id, post.getCategory_id());
+	    Integer nextId = pmapper.getNextPostId(id, post.getCategory_id());
         
         // 모델에 데이터 추가
         model.addAttribute("post", post);
@@ -377,6 +382,12 @@ public class PostsController {
         model.addAttribute("loginUser", loginUser);
         model.addAttribute("postLiked", liked);
         model.addAttribute("likeCount", likeCount); 
+        // 페이지도 추가
+        model.addAttribute("page", nowPage);
+
+        model.addAttribute("prevId", prevId); 
+        model.addAttribute("nextId", nextId);
+
 
         return "posts/post_detail";
     }
@@ -392,7 +403,7 @@ public class PostsController {
         response.setContentType("text/html; charset=UTF-8");
         PrintWriter out = response.getWriter();
 
-        // 로그인 안 한 경우
+        // 로그인 안 한 경우	
         if (loginUser == null) {
             out.println("<script>alert('로그인이 필요합니다.'); location.href='/user_login.go';</script>");
             return;
@@ -411,6 +422,7 @@ public class PostsController {
     @RequestMapping("/comment_write.go")
     public void writeComment(@RequestParam("post_id") int postId,
                              @RequestParam("content") String content,
+                             @RequestParam("page") int nowPage,
                              HttpSession session,
                              HttpServletResponse response) throws IOException {
 
@@ -432,7 +444,7 @@ public class PostsController {
         if (content == null || content.trim().isEmpty()) {
             out.println("<script>");
             out.println("alert('댓글을 작성해주세요.');");
-            out.println("location.href='/post_detail.go?id=" + postId + "&commentOpen=true';");
+            out.println("location.href='/post_detail.go?id=" + postId + "&page="+nowPage+"&commentOpen=true';");
             out.println("</script>");
             return;
         }
@@ -446,7 +458,7 @@ public class PostsController {
 
         // 성공 후 이동
         out.println("<script>");
-        out.println("location.href='/post_detail.go?id=" + postId + "&commentOpen=true';");
+        out.println("location.href='/post_detail.go?id=" + postId + "&page="+nowPage+"&commentOpen=true';");
         out.println("</script>");
     }
 
@@ -455,6 +467,7 @@ public class PostsController {
     @RequestMapping("/comment_delete.go")
     public String deleteComment(@RequestParam("id") int commentId,
                                 @RequestParam("postId") int postId,
+                                @RequestParam("page") int nowPage,
                                 HttpSession session) {
 
         Users loginUser = (Users) session.getAttribute("loginUser");
@@ -468,7 +481,7 @@ public class PostsController {
         }
 
         // 다시 상세 페이지로 이동 + 댓글창 열림
-        return "redirect:/post_detail.go?id=" + postId + "&commentOpen=true";
+        return "redirect:/post_detail.go?id=" + postId + "&page="+nowPage+"&commentOpen=true';";
     }
 
     // 댓글 수정 처리 (AJAX)

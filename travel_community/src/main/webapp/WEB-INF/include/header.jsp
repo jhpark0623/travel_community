@@ -24,7 +24,7 @@
 <style>
 body {
 	margin: 0;
-	background: linear-gradient(135deg, #f0f4f9, #ffffff);
+	background: linear-gradient(135deg, #eeeeee, #e5e5e5);
 	height: 100vh;
 	min-height:900px;
 	width: 100%;
