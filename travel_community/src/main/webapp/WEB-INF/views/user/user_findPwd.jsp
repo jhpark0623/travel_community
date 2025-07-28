@@ -114,7 +114,7 @@
 		   	<form method="post" onsubmit="return validateByPhone()" action="<%=request.getContextPath()%>/user_findpwd_ok.go">
 		   		<div class="input-form-background">
 		   		<div class="mb-2">
-			      <label for="namePhone" class="form-label">아이디</label>
+			      <label for="namePhone" class="form-label">아이디</label>	<!-- 이전에 아이디 찾기로 넘어왔을시 value에 email 값 받아서 value에 저장 -->
 			      <input type="text" class="form-control" id="email" name="email" value="${email }"  placeholder="예) travler@example.com">
 			    </div>
 			    <div class="mb-2">
