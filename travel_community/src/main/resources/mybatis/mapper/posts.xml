@@ -56,7 +56,7 @@
         	) p
         	JOIN a_users u ON p.user_id = u.id
         	<![CDATA[
-        	WHERE rnum <= (SELECT 10 - cnt FROM notice_count)
+        	WHERE rnum <= (SELECT #{rowsize} - cnt FROM notice_count)
         	]]>
       		)
       		SELECT * FROM notices
