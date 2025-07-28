@@ -64,5 +64,9 @@
 		(title  like '%' || #{search} || '%' or content like '%' || #{search} || '%')
 	
 	</select>
+	
+	<select id="myProfile" parameterType="int" resultType="users">
+		select * from a_users where id = #{id}
+	</select>
 
 </mapper>

@@ -204,58 +204,100 @@ public class UserController {
 	}
 
 	// 내 게시물 출력
-	@GetMapping("myposts.go")
-	public String myposts(HttpSession session, Model model) {
+		@GetMapping("myposts.go")
+		public String myposts(HttpSession session, Model model, HttpServletResponse response) throws IOException {
+			
+			if(!loginalert(response, session)) {
+				return null;
+			}
+			
+			int users = ((Users) session.getAttribute("loginUser")).getId();
 
-		int users = ((Users) session.getAttribute("loginUser")).getId();
+			List<Posts> myPosts = this.mapper.myPosts(users);
 
-		List<Posts> myPosts = this.mapper.myPosts(users);
+			model.addAttribute("myPosts", myPosts);
 
-		model.addAttribute("myPosts", myPosts);
+			return "user/user_myposts";
 
-		return "user/user_myposts";
+		}
+
+		// 내 댓글 출력
+		@GetMapping("mycomments.go")
+		public String mycomments(HttpSession session, Model model, HttpServletResponse response) throws IOException {
+			
+			if(!loginalert(response, session)) {
+				return null;
+			}
+			
+			int users = ((Users) session.getAttribute("loginUser")).getId();
+
+			List<Comments> myComments = this.mapper.myComments(users);
+
+			System.out.println(myComments);
+
+			model.addAttribute("myComments", myComments);
+
+			return "user/user_mycomments";
+		}
+
+		// 내 정보 출력
+		@GetMapping("myprofile.go")
+		public String myprofile(HttpSession session, Model model, HttpServletResponse response) throws IOException {
+			
+			if(!loginalert(response, session)) {
+				return null;
+			}
+			
+			int users = ((Users)session.getAttribute("loginUser")).getId();
+			
+			Users user = this.mapper.myProfile(users);
+			
+			model.addAttribute("UserProfile", user);
+			
+			return "user/user_myprofile";
+
+		}
+
+		// 내 게시물 내의 검색
+		@GetMapping("myposts_search.go")
+		public String myposts_search(@RequestParam("myposts_search") String search, Model model, HttpSession session) {
+
+			int users = ((Users) session.getAttribute("loginUser")).getId();
+
+			Map<String, Object> map = new HashMap<>();
+
+			map.put("search", search);
+			map.put("id", users);
+
+			List<Posts> myPosts = this.mapper.search(map);
+
+			model.addAttribute("myPosts", myPosts);
+
+			return "user/user_myposts";
+
+		}
+		// 로그인 안하고 접속시 로그인 페이지로 보내주는 메서드
+		public static boolean loginalert(HttpServletResponse response, HttpSession session) throws IOException {
+			
+			Users loginUser = (Users) session.getAttribute("loginUser");
+			
+			response.setContentType("text/html; charset=UTF-8");
+			
+			PrintWriter out = response.getWriter();
+			
+			if(loginUser == null) {
+				
+				
+				out.println("<script>");
+				out.println("alert('로그인이 필요합니다')");
+				out.println("location.href='user_login.go'");
+				out.println("</script>");
+				
+				return false;
+			}
+			
+			return true;
+		}
+		
 
 	}
-
-	// 내 댓글 출력
-	@GetMapping("mycomments.go")
-	public String mycomments(HttpSession session, Model model) {
-
-		int users = ((Users) session.getAttribute("loginUser")).getId();
-
-		List<Comments> myComments = this.mapper.myComments(users);
-
-		System.out.println(myComments);
-
-		model.addAttribute("myComments", myComments);
-
-		return "user/user_mycomments";
-	}
-
-	// 내 정보 출력
-	@GetMapping("myprofile.go")
-	public String myprofile() {
-
-		return "user/user_myprofile";
-
-	}
-
-	// 내 게시물 내의 검색
-	@GetMapping("myposts_search.go")
-	public String myposts_search(@RequestParam("myposts_search") String search, Model model, HttpSession session) {
-
-		int users = ((Users) session.getAttribute("loginUser")).getId();
-
-		Map<String, Object> map = new HashMap<>();
-
-		map.put("search", search);
-		map.put("id", users);
-
-		List<Posts> myPosts = this.mapper.search(map);
-
-		model.addAttribute("myPosts", myPosts);
-
-		return "user/user_myposts";
-	}
-
-}
