@@ -70,13 +70,15 @@ public interface PostsMapper {
 	void decrementLikeCount(@Param("postId") int postId);
 
 	// 시/광역시 정보 출력
-	List<Region_province> getProvinceList();
 
+    List<Region_province> getProvinceList();  
+    
 	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
-	List<Posts> a_list(Page pdto);
-
+	List<Posts> a_list(Page pdto); 
+	    
 	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y')의 수 반환.
-
+	
+	  
 	// 시/군/구 정보 출력
 	List<Region_city> getCityList(int provinceCode);
 
@@ -86,7 +88,7 @@ public interface PostsMapper {
 	// 해시태그가 DB에 있는지 검색
 	int findHashtag(String hashtag);
 
-	// 해시태그 저장
+	// 해시태그 저	장
 	void insertHashtag(Hashtags hash);
 
 	// 해시태그 id 검색

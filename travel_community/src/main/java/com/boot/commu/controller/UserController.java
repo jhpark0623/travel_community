@@ -1,5 +1,8 @@
 package com.boot.commu.controller;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -279,6 +282,93 @@ public class UserController {
 			return "user/user_myposts";
 
 		}
+		
+		// 내 댓글 내의 검색
+		@GetMapping("mycomment_search.go")
+		public String mycomment_search(@RequestParam("mycomment_search") String search, Model model, HttpSession session) {
+			
+			int user = ((Users)session.getAttribute("loginUser")).getId();
+			
+			Map<String, Object> map = new HashMap<>();
+			
+			map.put("search", search);
+			map.put("id", user);
+			
+			List<Comments> myComment_search = this.mapper.myComments_search(map);
+			
+			model.addAttribute("myComments", myComment_search);
+			
+			return "user/user_mycomments";
+		}
+		
+		// 내 정보 수정
+		@PostMapping("myprofileModify.go")
+		public void MyProfileModify(@RequestParam("pwd") String pwd, Users user, HttpServletResponse response ) throws IOException{
+			
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+			
+			
+			if(user.getPassword().equals(pwd)) {
+				
+				int res = this.mapper.modify(user);
+				
+				if(res == 0) {
+					out.println("<script>");
+					out.println("alert('수정 실패')");
+					out.println("history.back()");
+					out.println("</script>");
+					
+				}else {
+					out.println("<script>");
+					out.println("alert('수정 성공')");
+					out.println("location.href='myprofile.go'");
+					out.println("</script>");
+				}
+			}else {
+				out.println("<script>");
+				out.println("alert('비밀번호가 일치하지 않습니다')");
+				out.println("history.back()");
+				out.println("</script>");
+			}
+		}
+		
+		// 회원 탈퇴
+		@GetMapping("deleteUser.go")
+		public void deleteUser(@RequestParam("pwd") String pwd, Users user, HttpServletResponse response ) throws IOException {
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+			
+			if(user.getPassword().equals(pwd)) {
+				
+				int res = this.mapper.deleteUser(user);
+				
+				if(res == 0) {
+					out.println("<script>");
+					out.println("alert('삭제 실패')");
+					out.println("history.back()");
+					out.println("</script>");
+					
+				}else {
+					out.println("<script>");
+					out.println("alert('삭제 성공')");
+					out.println("location.href='myprofile.go'");
+					out.println("</script>");
+				}
+			}else {
+				out.println("<script>");
+				out.println("alert('비밀번호가 일치하지 않습니다')");
+				out.println("history.back()");
+				out.println("</script>");
+			}
+				
+		}
+	
+		
+		
+		
+		
+		
 		// 로그인 안하고 접속시 로그인 페이지로 보내주는 메서드
 		public static boolean loginalert(HttpServletResponse response, HttpSession session) throws IOException {
 			

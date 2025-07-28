@@ -336,7 +336,7 @@ public class PostsController {
 
 	// 게시글 상세 페이지 진입
 	@RequestMapping("/post_detail.go")
-	public String postDetail(@RequestParam("id") int id, @RequestParam("page") int nowPage, Model model,
+	public String postDetail(@RequestParam("id") int id, @RequestParam(value = "page", defaultValue = "1") int nowPage, Model model,
 			HttpSession session, HttpServletResponse response) throws IOException {
 		// 게시글 상세 정보 먼저 조회
 		PostsDetailDTO post = pmapper.getPostDetailById(id);
