@@ -43,5 +43,8 @@ public interface UserMapper {
 	
 	// 내 게시물 검색
 	List<Posts> search(Map<String, Object> map);
+	
+	// 내 정보 받아오는 메서드
+	Users myProfile(int id);
 
 }
