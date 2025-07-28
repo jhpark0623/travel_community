@@ -39,6 +39,23 @@
 	        <tbody>
 	            <c:if test="${!empty tList}">
 	                <c:forEach items="${tList}" var="dto">
+	                
+	                	<!-- 공지사항 목록 출력 -->
+	                    <c:if test="${empty dto.nickname }">	
+		                    <tr>
+		                        <td>공지사항</td>
+		                        <td class="text-start position-relative p-0">
+		                            <a href="${pageContext.request.contextPath}/notices_content.go?no=${dto.id}&page=${Paging.page}"  
+		                               class="d-block stretched-link text-decoration-none px-2 py-2">
+		                                 ${dto.title}
+		                            </a>
+		                        </td>
+		                        <td>관리자</td>
+		                        <td>${dto.displayDate}</td>
+		                        <td>${dto.view_count}</td>
+		                        <td>${dto.like_count}</td>
+		                    </tr>
+	            		</c:if>
 	                	
 	                	<!-- 게시글 목록 출력 -->
 	                	<c:if test="${!empty dto.nickname }">	
@@ -55,24 +72,7 @@
 		                        <td>${dto.view_count}</td>
 		                        <td>${dto.like_count}</td>
 		                    </tr>
-	                    </c:if>
-	                    
-	                    <!-- 공지사항 목록 출력 -->
-	                    <c:if test="${empty dto.nickname }">	
-		                    <tr>
-		                        <td>공지사항</td>
-		                        <td class="text-start position-relative p-0">
-		                            <a href="${pageContext.request.contextPath}/notices_content.go?no=${dto.id}&page=${Paging.page}"  
-		                               class="d-block stretched-link text-decoration-none px-2 py-2">
-		                                 ${dto.title}
-		                            </a>
-		                        </td>
-		                        <td>관리자</td>
-		                        <td>${dto.displayDate}</td>
-		                        <td>${dto.view_count}</td>
-		                        <td>${dto.like_count}</td>
-		                    </tr>
-	            		</c:if>
+	                    </c:if>   
 	            	</c:forEach>
 	            </c:if>
 	            
