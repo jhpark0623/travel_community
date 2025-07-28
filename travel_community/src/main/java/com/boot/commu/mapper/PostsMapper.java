@@ -14,9 +14,14 @@ import com.boot.commu.model.PostsDetailDTO;
 public interface PostsMapper {
 
 
-	  List<Posts> list(Page pdto);
+	// category_id 에 해당하는 게시글 전체 리스트 조회.
+	List<Posts> list(Page pdto);
 
-	  int countByCategory(int i);
+	// category_id 에 해당하는 게시글의 수 조회.
+	int countByCategory(int i);
+	  
+	// category_id에 해당하는 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
+	List<Posts> t_list(Page pdto);
 
     // 게시글 ID로 상세 정보 조회 (JOIN 포함)
     PostsDetailDTO getPostDetailById(int id);

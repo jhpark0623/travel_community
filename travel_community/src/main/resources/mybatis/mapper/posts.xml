@@ -19,6 +19,74 @@
 		p JOIN a_users u ON p.user_id = u.id
 		WHERE p.rnum BETWEEN #{startNo} AND #{endNo} 
 	</select>
+	
+	<select id="t_list" parameterType="page" resultType="Posts">
+		<choose>	<!-- 공지사항이 포함되는 1페이지와 포함되지 않는 그 이후 페이지를 위해 조건절 구분. -->
+		
+    	<!-- 첫 페이지 처리 : 공지사항 포함해서 rnum <= (10 - 공지사항 수) 작업 필요. -->
+    	<when test="page == 1">
+      		WITH notices AS (
+	        	SELECT n.id,
+		            NULL AS nickname,
+		            n.title,
+		            n.content,
+		            n.created_at,	
+		            'notice' AS type,
+		            NULL AS view_count,
+		            NULL AS like_count
+	        	FROM a_notices n
+	        	WHERE n.is_pop = 'Y'
+      		),
+	      	notice_count AS (
+	        	SELECT COUNT(*) AS cnt FROM notices
+	      	),
+   		 	posts AS (
+       			SELECT p.id,
+	               	u.nickname,
+	              	p.title,
+	               	p.content,
+	               	p.created_at,
+	               	'post' AS type,
+	               	p.view_count,
+               		p.like_count
+        	FROM (
+	          	SELECT p.*, ROW_NUMBER() OVER (ORDER BY p.id DESC) AS rnum
+	          	FROM a_posts p
+	         	WHERE p.category_id = #{categoryId} AND p.state = 'Y'
+        	) p
+        	JOIN a_users u ON p.user_id = u.id
+        	<![CDATA[
+        	WHERE rnum <= (SELECT #{rowsize} - cnt FROM notice_count)
+        	]]>
+      		)
+      		SELECT * FROM notices
+      		UNION ALL
+      		SELECT * FROM posts
+	    </when>
+	
+	    <!-- 2페이지 이상 처리 : a_notices 출력 x, a_posts만 category_id 에 맞게 출력  -->
+	    <otherwise>
+	      SELECT *
+	      FROM (
+	        SELECT p.id,
+	               u.nickname,
+	               p.title,
+	               p.content,
+	               p.created_at,
+	               'post' AS type,
+	               p.view_count,
+				   p.like_count,
+	               ROW_NUMBER() OVER (ORDER BY p.id DESC) AS rnum
+	        FROM a_posts p
+	        JOIN a_users u ON p.user_id = u.id
+	        WHERE p.category_id = #{categoryId} AND p.state = 'Y'
+	      )
+	      WHERE rnum BETWEEN #{startNo} AND #{endNo}
+	    </otherwise>
+	  </choose>
+	</select>
+	
+	
 	 
 
 </mapper>
