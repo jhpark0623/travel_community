@@ -442,9 +442,6 @@ public class PostsController {
         }
         
         int newLikeCount = pmapper.getLikeCount(postId); 
-        
-        
-        System.out.println(newLikeCount);
 
         // 클라이언트에게 현재 상태를 알려줌
         result.put("status", "success");
