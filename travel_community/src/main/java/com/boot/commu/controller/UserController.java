@@ -165,8 +165,11 @@ public class UserController {
 	}
 
 	@GetMapping("user_findpwd.go")
-	public String findPwd() {
+	public String findPwd(@RequestParam(value = "email" , defaultValue = "") String email, Model model) {
 
+		// 아이디 찾기 결과에서 넘어왔을 경우 email 값 받고 보내주는 과정.
+		model.addAttribute("email", email);
+		
 		return "user/user_findPwd";
 	}
 
