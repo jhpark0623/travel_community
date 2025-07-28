@@ -51,7 +51,7 @@ public class PostsController {
 	private NoticesMapper noticesMapper;
 	
 	// 한 페이지당 보여질 게시물의 수. 
-	private final int rowsize = 5;
+	private final int rowsize = 10;
 	
 	// DB 상의 전체 게시물의 수. 
 	private int totalRecord = 0;
@@ -60,8 +60,7 @@ public class PostsController {
 	public String main() {
 		return "main";
 	}
-	
- 
+
 	
 	@GetMapping("/posts_list.go/{i}")
 	public String list(@PathVariable("i") int pCategory, @RequestParam(value = "page", defaultValue = "1") 
@@ -72,20 +71,18 @@ public class PostsController {
 
 	    // 페이징 객체 생성
 	    Page pdto = new Page(page, rowsize, totalRecord, pCategory);
-
-	    List<Posts> postList = this.pmapper.list(pdto);
-	    		
-	    // ✅ displayDate 세팅
-	    for (Posts post : postList) {
+  
+	    // 해당 카테고리에 해당하는 게시글 + 공지사항 리스트
+	    List<Posts> tList = this.pmapper.t_list(pdto);
+	    
+	    // ✅ displayDate 메서드
+	    for (Posts post : tList) {
 	        post.setDisplayDateFromCreatedAt();
 	    }
 	    
-	    List<Notices> popNoticesList = noticesMapper.popNoticeList();
-	        
-	    model.addAttribute("List", postList)
-	         .addAttribute("Paging", pdto)
-	         .addAttribute("CategoryId", pCategory)
-	    	 .addAttribute("popNotice", popNoticesList);
+	    model.addAttribute("tList", tList);
+	    model.addAttribute("Paging", pdto);
+	    model.addAttribute("CategoryId", pCategory);
 
 	    return "posts/posts_list";
 	}

@@ -18,46 +18,17 @@
 	<div class="container my-5" style="width: 900px">
 	
 	    <h2 class="text-center mb-4">📋 Posts 게시물 리스트</h2>
-	
+	    
 	    <!-- ✅ 전체 게시물 수 -->
 	    <div class="d-flex justify-content-end mb-2">
 	        <small class="text-muted">전체 게시물 수: ${Paging.totalRecord}개</small>
 	    </div>
-	
-	    <!-- ✅ 공지사항 영역 -->
-	    <c:if test="${!empty popNotice}">
-	        <div class="mb-3">
-	            <h5 class="text-danger fw-bold">📢 공지사항</h5>
-	            <table class="table table-bordered table-hover align-middle bg-light">
-	                <thead class="table-secondary">
-	                    <tr>
-	                        <th style="text-align: center;" >제목</th>
-	                        <th style="text-align: center; width: 120px;">작성자</th>
-	                        <th style="text-align: center; width: 140px;">작성일</th>
-	                    </tr>
-	                </thead>
-	                <tbody>
-	                    <c:forEach items="${popNotice}" var="notice">
-	                        <tr>
-	                            <td>
-	                                <a href="${pageContext.request.contextPath}/notices_content.go?no=${notice.id}&page=${Paging.page}" class="text-decoration-none">
-	                                    ${notice.title}
-	                                </a>
-	                            </td>
-	                            <td>관리자</td>
-	                            <td>${notice.displayDate}</td>
-	                        </tr>
-	                    </c:forEach>
-	                </tbody>
-	            </table>
-	        </div>
-	    </c:if>
-	
-	    <!-- ✅ 게시글 리스트 테이블 -->
+	    
+	    <!-- tList 영역 -->
 	    <table class="table table-bordered table-striped align-middle text-center">
 	        <thead class="table-primary">
 	            <tr>
-	                <th style="width: 65px;">글번호</th>
+	                <th style="width: 90px;">글번호</th>
 	                <th>제목</th>
 	                <th style="width: 120px;">작성자</th>
 	                <th style="width: 140px;">작성일</th>
@@ -66,24 +37,47 @@
 	            </tr>
 	        </thead>
 	        <tbody>
-	            <c:if test="${!empty List}">
-	                <c:forEach items="${List}" var="dto">
-	                    <tr>
-	                        <td>${dto.id}</td>
-	                        <td class="text-start position-relative p-0">
-	                            <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}" 
-	                               class="d-block stretched-link text-decoration-none px-2 py-2">
-	                                 ${dto.title}
-	                            </a>
-	                        </td>
-	                        <td>${dto.nickname}</td>
-	                        <td>${dto.displayDate}</td>
-	                        <td>${dto.view_count}</td>
-	                        <td>${dto.like_count}</td>
-	                    </tr>
-	                </c:forEach>
+	            <c:if test="${!empty tList}">
+	                <c:forEach items="${tList}" var="dto">
+	                	
+	                	<!-- 게시글 목록 출력 -->
+	                	<c:if test="${!empty dto.nickname }">	
+		                    <tr>
+		                        <td>${dto.id }</td>
+		                        <td class="text-start position-relative p-0">
+		                            <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}" 
+		                               class="d-block stretched-link text-decoration-none px-2 py-2">
+		                                 ${dto.title}
+		                            </a>
+		                        </td>
+		                        <td>${dto.nickname }</td>
+		                        <td>${dto.displayDate}</td>
+		                        <td>${dto.view_count}</td>
+		                        <td>${dto.like_count}</td>
+		                    </tr>
+	                    </c:if>
+	                    
+	                    <!-- 공지사항 목록 출력 -->
+	                    <c:if test="${empty dto.nickname }">	
+		                    <tr>
+		                        <td>공지사항</td>
+		                        <td class="text-start position-relative p-0">
+		                            <a href="${pageContext.request.contextPath}/notices_content.go?no=${dto.id}&page=${Paging.page}"  
+		                               class="d-block stretched-link text-decoration-none px-2 py-2">
+		                                 ${dto.title}
+		                            </a>
+		                        </td>
+		                        <td>관리자</td>
+		                        <td>${dto.displayDate}</td>
+		                        <td>${dto.view_count}</td>
+		                        <td>${dto.like_count}</td>
+		                    </tr>
+	            		</c:if>
+	            	</c:forEach>
 	            </c:if>
-	            <c:if test="${empty List}">
+	            
+	            
+	            <c:if test="${empty tList}">
 	                <tr>
 	                    <td colspan="6" class="text-center">
 	                        <div class="py-4 fw-bold">전체 게시물 목록이 없습니다.</div>
@@ -92,6 +86,7 @@
 	            </c:if>
 	        </tbody>
 	    </table>
+	    
 	
 	    <!-- ✅ 글쓰기 버튼 -->
 	    <div class="d-flex justify-content-end my-3">
