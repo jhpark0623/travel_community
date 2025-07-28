@@ -75,7 +75,35 @@ public class PostsController {
 
 	@GetMapping("/")
 	public String main(@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
-		// 전체 게시글 리스트 출력될 예정.
+		
+		// is_pop = 'Y' 인 공지사항의 수.
+		int countN = this.pmapper.countByNotice();
+		// state = 'Y'인 전체 게시글의 수.
+		int countP = this.pmapper.countByAll();
+		
+		totalRecord = countN + countP;
+		
+		// 페이징 객체 생성
+		Page pdto = new Page(page, rowsize, totalRecord);
+		
+		// 전체 게시글 리스트 + 공지사항 리스트
+		List<Posts> aList = this.pmapper.a_list(pdto);
+		
+		// ✅ displayDate 메서드
+	    for (Posts post : aList) {
+	        post.setDisplayDateFromCreatedAt();
+	    }
+	    
+	    // category_id에 맞게 게시판이 문자열로 출력하기 위한 준비작업.
+	    Map<Integer, String> categoryMap = Map.of(
+	    		  1, "자유게시판",
+	    		  2, "정보게시판",
+	    		  3, "질문게시판"
+	    		);
+	    
+		model.addAttribute("categoryMap", categoryMap); 
+	    model.addAttribute("aList", aList);
+	    model.addAttribute("Paging", pdto);
 		
 		return "main";
 	}
@@ -87,7 +115,7 @@ public class PostsController {
 		
 	    // 카테고리에 해당하는 게시글의 수
 	    int countP = this.pmapper.countByCategory(pCategory);
-      // is_pop = 'Y' 인 공지사항 
+	    // is_pop = 'Y' 인 공지사항의 수
 	    int countN = this.pmapper.countByNotice();
 	    
 	    totalRecord = countP + countN;
@@ -103,7 +131,7 @@ public class PostsController {
 	        post.setDisplayDateFromCreatedAt();
 	    }
 	    
-	    model.addAttribute("tList", cList);
+	    model.addAttribute("cList", cList);
 	    model.addAttribute("Paging", pdto);
 	    model.addAttribute("CategoryId", pCategory);
 

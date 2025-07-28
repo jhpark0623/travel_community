@@ -67,8 +67,8 @@ public interface PostsMapper {
 	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
 	List<Posts> a_list(Page pdto); 
 	    
-	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y')의 수 반환.
-	
+	// 게시글 전체 수 반환.
+	int countByAll();
 	  
 	// 시/군/구 정보 출력
 	List<Region_city> getCityList(int provinceCode);
