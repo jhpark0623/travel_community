@@ -35,8 +35,8 @@
 	         </tr>
 	      </thead>
 	      <tbody>
-	         <c:if test="${!empty Notices}">
-	            <c:forEach items="${Notices}" var="dto">
+	         <c:if test="${!empty searchPageList}">
+	            <c:forEach items="${searchPageList}" var="dto">
 	               <tr>
 	                  <td>${dto.id}</td>
 	                  <td class="text-start position-relative p-0">
@@ -49,7 +49,7 @@
 	               </tr>
 	            </c:forEach>
 	         </c:if>
-	         <c:if test="${empty Notices}">
+	         <c:if test="${empty searchPageList}">
 	            <tr>
 	               <td colspan="6" class="text-center">
 	                  <div class="py-4 fw-bold">공지사항 검색 리스트가 없습니다</div>

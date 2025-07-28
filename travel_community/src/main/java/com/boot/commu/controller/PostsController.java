@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -51,7 +52,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class PostsController {
-	
+
 	@Value("${realPath}")
 	private String realPath;
 
@@ -76,38 +77,88 @@ public class PostsController {
 	@GetMapping("/")
 	public String main(@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
 		// 전체 게시글 리스트 출력될 예정.
-		
+
 		return "main";
 	}
 
 	@GetMapping("/posts_list.go/{i}")
 
-	public String list(@PathVariable("i") int pCategory, @RequestParam(value = "page", defaultValue = "1") 
-			int page, Model model) {
-		
-	    // 카테고리에 해당하는 게시글의 수
-	    int countP = this.pmapper.countByCategory(pCategory);
-      // is_pop = 'Y' 인 공지사항 
-	    int countN = this.pmapper.countByNotice();
-	    
-	    totalRecord = countP + countN;
+	public String list(@PathVariable("i") int pCategory, @RequestParam(value = "page", defaultValue = "1") int page,
+			Model model) {
 
-	    // 페이징 객체 생성
-	    Page pdto = new Page(page, rowsize, totalRecord, pCategory);
-  
-	    // 해당 카테고리에 해당하는 게시글 + 공지사항 리스트
-	    List<Posts> cList = this.pmapper.c_list(pdto);
-	    
-	    // ✅ displayDate 메서드
-	    for (Posts post : cList) {
-	        post.setDisplayDateFromCreatedAt();
-	    }
-	    
-	    model.addAttribute("tList", cList);
-	    model.addAttribute("Paging", pdto);
-	    model.addAttribute("CategoryId", pCategory);
+		// 카테고리에 해당하는 게시글의 수
+		int countP = this.pmapper.countByCategory(pCategory);
+		// is_pop = 'Y' 인 공지사항
+		int countN = this.pmapper.countByNotice();
 
-	    return "posts/posts_list";
+		totalRecord = countP + countN;
+
+		// 페이징 객체 생성
+		Page pdto = new Page(page, rowsize, totalRecord, pCategory);
+
+		// 해당 카테고리에 해당하는 게시글 + 공지사항 리스트
+		List<Posts> cList = this.pmapper.c_list(pdto);
+
+		// ✅ displayDate 메서드
+		for (Posts post : cList) {
+			post.setDisplayDateFromCreatedAt();
+		}
+
+		model.addAttribute("tList", cList);
+		model.addAttribute("Paging", pdto);
+		model.addAttribute("CategoryId", pCategory);
+
+		return "posts/posts_list";
+	}
+
+	@GetMapping("posts_notices_content.go")
+	public String content(@RequestParam("no") int no, @RequestParam("page") int nowPage, Model model) {
+
+		Posts cont = this.pmapper.cont(no);
+
+		model.addAttribute("Cont", cont).addAttribute("Page", nowPage);
+
+		return "posts/posts_notices_content";
+	}
+
+	@PostMapping("/posts_search.go")
+	public String search(@RequestParam("field") String field, @RequestParam("keyword") String keyword,
+			@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
+
+		// 검색 페이징 작업
+
+		// 검색분류와 검색어에 해당하는 게시글의 수를 DB에서 확인하는 작업.
+		Map<String, String> map = new HashMap<>();
+		map.put("field", field);
+		map.put("keyword", keyword);
+
+		int totalRecord = this.pmapper.scount(map);
+
+		Page pdto = new Page(page, rowsize, totalRecord, field, keyword);
+
+		List<Posts> search = this.pmapper.search(pdto);
+
+		// displayDate 세팅
+		for (Posts post : search) {
+			post.setDisplayDateFromCreatedAt();
+		}
+
+		model.addAttribute("postsList", search).addAttribute("Paging", pdto);
+
+		return "posts/posts_search";
+	}
+
+	@GetMapping("/posts_search_content.go")
+	public String searchCont(@RequestParam("no") int no, @RequestParam(value = "page", defaultValue = "1") int nowPage,
+			Model model) {
+		Posts cont = pmapper.cont(no);
+		if (cont == null) {
+			return "redirect:/posts_list.go?page=" + nowPage;
+		}
+		model.addAttribute("Cont", cont);
+		model.addAttribute("Page", nowPage);
+
+		return "posts/posts_search_content";
 	}
 
 	@GetMapping("/notices_list.go")
@@ -127,31 +178,51 @@ public class PostsController {
 	}
 
 	@GetMapping("/notices_write.go")
-	public String write() {
+	public String write(HttpSession session, HttpServletResponse response) throws IOException {
+		Users loginUser = (Users) session.getAttribute("loginUser");
+
+		if (loginUser == null || !loginUser.getRole().equals("ADMIN")) {
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+			out.println("<script>");
+			out.println("alert('관리자만 접근 가능합니다.');");
+			out.println("location.href='notices_list.go';");
+			out.println("</script>");
+			return null;
+		}
 
 		return "notices/notices_write";
 	}
 
 	@PostMapping("notices_write_ok.go")
-	public void write_ok(Notices dto, HttpServletResponse response) throws IOException {
+	public void write_ok(Notices dto, HttpSession session, HttpServletResponse response) throws IOException {
+		Users loginUser = (Users) session.getAttribute("loginUser");
+
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
+
+		if (loginUser == null || !loginUser.getRole().equals("ADMIN")) {
+			out.println("<script>");
+			out.println("alert('관리자만 글을 작성할 수 있습니다.');");
+			out.println("location.href='notices_list.go';");
+			out.println("</script>");
+			return;
+		}
 
 		int res = this.noticesMapper.add(dto);
 
-		response.setContentType("text/html; charset=UTF-8");
-
-		PrintWriter out = response.getWriter();
-
 		if (res > 0) {
 			out.println("<script>");
-			out.println("alert('게시글 등록 성공')");
-			out.println("location.href='notices_list.go'");
+			out.println("alert('게시글 등록 성공');");
+			out.println("location.href='notices_list.go';");
 			out.println("</script>");
 		} else {
 			out.println("<script>");
-			out.println("alert('게시글 등록 실패')");
-			out.println("history.back()");
+			out.println("alert('게시글 등록 실패');");
+			out.println("history.back();");
 			out.println("</script>");
 		}
+
 	}
 
 	@GetMapping("/notices_content.go")
@@ -226,11 +297,10 @@ public class PostsController {
 	}
 
 	@PostMapping("/notices_search.go")
-	public String search(@RequestParam("field") String field, @RequestParam("keyword") String keyword,
+	public String searchList(@RequestParam("field") String field, @RequestParam("keyword") String keyword,
 			@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
 
 		// 검색 페이징 작업
-
 		// 검색분류와 검색어에 해당하는 게시글의 수를 DB에서 확인하는 작업.
 		Map<String, String> map = new HashMap<String, String>();
 
@@ -249,6 +319,19 @@ public class PostsController {
 
 		return "notices/notices_search_list";
 
+	}
+
+	@GetMapping("/notices_search_content.go")
+	public String searchContent(@RequestParam("no") int no,
+			@RequestParam(value = "page", defaultValue = "1") int nowPage, Model model) {
+		Notices cont = noticesMapper.cont(no);
+		if (cont == null) {
+			return "redirect:/notices_list.go?page=" + nowPage;
+		}
+		model.addAttribute("Content", cont);
+		model.addAttribute("Page", nowPage);
+
+		return "notices/notices_search_content";
 	}
 
 	// 게시글 상세 페이지 진입
@@ -482,134 +565,134 @@ public class PostsController {
 	}
 
 	// 시/광역시 코드를 받아서 해당 도시의 시/군/구 코드 출력
-		@PostMapping(value = "/getCityCode", produces = "application/json; charset=utf8")
-		@ResponseBody
-		public String getCityCode(@RequestParam("provinceCode") int provinceCode) throws JSONException {
-			JsonObject jsonObject = new JsonObject();
+	@PostMapping(value = "/getCityCode", produces = "application/json; charset=utf8")
+	@ResponseBody
+	public String getCityCode(@RequestParam("provinceCode") int provinceCode) throws JSONException {
+		JsonObject jsonObject = new JsonObject();
 
-			// 시/군/구 리스트 출력
-			List<Region_city> getCityList = this.pmapper.getCityList(provinceCode);
+		// 시/군/구 리스트 출력
+		List<Region_city> getCityList = this.pmapper.getCityList(provinceCode);
 
-			//
-			List<JSONObject> cityList = new ArrayList<>();
+		//
+		List<JSONObject> cityList = new ArrayList<>();
 
-			// 각각 리스트 json으로 변환 후 리스트에 저장
-			for (Region_city city : getCityList) {
-				JSONObject cityJson = new JSONObject();
+		// 각각 리스트 json으로 변환 후 리스트에 저장
+		for (Region_city city : getCityList) {
+			JSONObject cityJson = new JSONObject();
 
-				cityJson.put("id", city.getId());
-				cityJson.put("Province_id", city.getProvince_id());
-				cityJson.put("name", city.getName());
+			cityJson.put("id", city.getId());
+			cityJson.put("Province_id", city.getProvince_id());
+			cityJson.put("name", city.getName());
 
-				cityList.add(cityJson);
-			}
-
-			jsonObject.addProperty("cityList", cityList.toString());
-			jsonObject.addProperty("responseCode", "success");
-
-			return jsonObject.toString();
+			cityList.add(cityJson);
 		}
 
-		// 게시글 작성 정보 저장
-		@PostMapping("/post_write_ok.go")
-		public String postWriteOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags,
-				@RequestParam("province") int province_id, HttpSession session, HttpServletResponse response)
-				throws IOException {
+		jsonObject.addProperty("cityList", cityList.toString());
+		jsonObject.addProperty("responseCode", "success");
 
-			response.setContentType("text/html; charset=UTF-8");
-			PrintWriter out = response.getWriter();
+		return jsonObject.toString();
+	}
 
-			// 로그인 정보
-			Users user = (Users) session.getAttribute("loginUser");
+	// 게시글 작성 정보 저장
+	@PostMapping("/post_write_ok.go")
+	public String postWriteOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags,
+			@RequestParam("province") int province_id, HttpSession session, HttpServletResponse response)
+			throws IOException {
 
-			posts.setUser_id(user.getId());
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
 
-			// 게시글 정보 저장
-			int result = this.pmapper.insertPost(posts);
+		// 로그인 정보
+		Users user = (Users) session.getAttribute("loginUser");
 
-			if (result > 0) {
+		posts.setUser_id(user.getId());
 
-				for (String hashtag : hashtags) {
+		// 게시글 정보 저장
+		int result = this.pmapper.insertPost(posts);
 
-					Post_hashtag ph = new Post_hashtag();
-					Hashtags hash = new Hashtags();
+		if (result > 0) {
 
-					hash.setHashtag(hashtag);
+			for (String hashtag : hashtags) {
 
-					// 해시태그 검색
-					int hashtag_id = this.pmapper.findHashtag(hashtag);
+				Post_hashtag ph = new Post_hashtag();
+				Hashtags hash = new Hashtags();
 
-					// 해시태그가 없을 경우 새로 생성 후 해당 id값 저장
-					if (hashtag_id == 0) {
-						this.pmapper.insertHashtag(hash);
-						ph.setHashtag_id(hash.getId());
-						// 해시태그가 있으면 해당 id값 저장
-					} else {
-						ph.setHashtag_id(this.pmapper.selectHashtagId(hashtag));
-					}
-					// db에 저장할 정보 저장
-					HashMap<String, Integer> map = new HashMap<String, Integer>();
+				hash.setHashtag(hashtag);
 
-					map.put("post_id", posts.getId());
-					map.put("hashtag_id", ph.getHashtag_id());
+				// 해시태그 검색
+				int hashtag_id = this.pmapper.findHashtag(hashtag);
 
-					// insert post_hashtag
-					this.pmapper.insertPostHashtag(map);
-
+				// 해시태그가 없을 경우 새로 생성 후 해당 id값 저장
+				if (hashtag_id == 0) {
+					this.pmapper.insertHashtag(hash);
+					ph.setHashtag_id(hash.getId());
+					// 해시태그가 있으면 해당 id값 저장
+				} else {
+					ph.setHashtag_id(this.pmapper.selectHashtagId(hashtag));
 				}
+				// db에 저장할 정보 저장
+				HashMap<String, Integer> map = new HashMap<String, Integer>();
 
-				out.println("<script>");
-				out.println("alert('게시글 작성 완료')");
-				out.println("location.href='/posts_list.go/" + posts.getId() + "'");
-				out.println("</script>");
+				map.put("post_id", posts.getId());
+				map.put("hashtag_id", ph.getHashtag_id());
 
-				return null;
+				// insert post_hashtag
+				this.pmapper.insertPostHashtag(map);
+
 			}
 
-			return "main";
+			out.println("<script>");
+			out.println("alert('게시글 작성 완료')");
+			out.println("location.href='/posts_list.go/" + posts.getId() + "'");
+			out.println("</script>");
+
+			return null;
 		}
 
-		// 서머노트 이미지 업로드
-		@PostMapping(value = "/uploadImageFile", produces = "application/json; charset=utf8")
-		@ResponseBody
-		public String uploadSummernoteImageFile(@RequestParam("file") MultipartFile multipartFile,
-				HttpServletRequest request) {
-			// JSON 객체 생성
-			JsonObject jsonObject = new JsonObject();
+		return "main";
+	}
 
-			// 이미지 파일이 저장될 경로 설정
-			String contextRoot = realPath + "/upload/image/fileupload/";
-			String fileRoot = contextRoot;
+	// 서머노트 이미지 업로드
+	@PostMapping(value = "/uploadImageFile", produces = "application/json; charset=utf8")
+	@ResponseBody
+	public String uploadSummernoteImageFile(@RequestParam("file") MultipartFile multipartFile,
+			HttpServletRequest request) {
+		// JSON 객체 생성
+		JsonObject jsonObject = new JsonObject();
 
-			// 업로드된 파일의 원본 파일명과 확장자 추출
-			String originalFileName = multipartFile.getOriginalFilename();
-			String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+		// 이미지 파일이 저장될 경로 설정
+		String contextRoot = realPath + "/upload/image/fileupload/";
+		String fileRoot = contextRoot;
 
-			// 새로운 파일명 생성 (고유한 식별자 + 확장자)
-			String savedFileName = UUID.randomUUID() + extension;
+		// 업로드된 파일의 원본 파일명과 확장자 추출
+		String originalFileName = multipartFile.getOriginalFilename();
+		String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
 
-			// 저장될 파일의 경로와 파일명을 나타내는 File 객체 생성
-			File targetFile = new File(fileRoot + savedFileName);
+		// 새로운 파일명 생성 (고유한 식별자 + 확장자)
+		String savedFileName = UUID.randomUUID() + extension;
 
-			try {
-				// 업로드된 파일의 InputStream 얻기
-				java.io.InputStream fileStream = multipartFile.getInputStream();
+		// 저장될 파일의 경로와 파일명을 나타내는 File 객체 생성
+		File targetFile = new File(fileRoot + savedFileName);
 
-				// 업로드된 파일을 지정된 경로에 저장
-				FileUtils.copyInputStreamToFile(fileStream, targetFile);
+		try {
+			// 업로드된 파일의 InputStream 얻기
+			java.io.InputStream fileStream = multipartFile.getInputStream();
 
-				// JSON 객체에 이미지 URL과 응답 코드 추가
-				jsonObject.addProperty("url", "/upload/image/fileupload/" + savedFileName);
-				jsonObject.addProperty("responseCode", "success");
-			} catch (IOException e) {
-				// 파일 저장 중 오류가 발생한 경우 해당 파일 삭제 및 에러 응답 코드 추가
-				FileUtils.deleteQuietly(targetFile);
-				jsonObject.addProperty("responseCode", "error");
-				e.printStackTrace();
-			}
+			// 업로드된 파일을 지정된 경로에 저장
+			FileUtils.copyInputStreamToFile(fileStream, targetFile);
 
-			// JSON 객체를 문자열로 변환하여 반환
-			return jsonObject.toString();
+			// JSON 객체에 이미지 URL과 응답 코드 추가
+			jsonObject.addProperty("url", "/upload/image/fileupload/" + savedFileName);
+			jsonObject.addProperty("responseCode", "success");
+		} catch (IOException e) {
+			// 파일 저장 중 오류가 발생한 경우 해당 파일 삭제 및 에러 응답 코드 추가
+			FileUtils.deleteQuietly(targetFile);
+			jsonObject.addProperty("responseCode", "error");
+			e.printStackTrace();
 		}
+
+		// JSON 객체를 문자열로 변환하여 반환
+		return jsonObject.toString();
+	}
 
 }

@@ -2,11 +2,13 @@ package com.boot.commu.mapper;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.boot.commu.model.Posts;
+import com.boot.commu.model.Notices;
 import com.boot.commu.model.Hashtags;
 import com.boot.commu.model.Page;
 import com.boot.commu.model.PostsDetailDTO;
@@ -15,6 +17,12 @@ import com.boot.commu.model.Region_province;
 
 @Mapper
 public interface PostsMapper {
+
+	Posts cont(int no);
+
+	List<Posts> search(Page pdto);
+
+	int scount(Map<String, String> map);
 
 	// category_id 에 해당하는 게시글 전체 리스트 조회.
 	List<Posts> list(Page pdto);
@@ -60,8 +68,9 @@ public interface PostsMapper {
 
 	// DB 좋아요 감소
 	void decrementLikeCount(@Param("postId") int postId);
-	
+
 	// 시/광역시 정보 출력
+
     List<Region_province> getProvinceList();  
     
 	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
@@ -87,6 +96,5 @@ public interface PostsMapper {
 
 	// post_hashtag 저장
 	void insertPostHashtag(HashMap<String, Integer> map);
-
 
 }
