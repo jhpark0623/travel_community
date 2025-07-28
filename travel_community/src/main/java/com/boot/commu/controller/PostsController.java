@@ -74,33 +74,40 @@ public class PostsController {
 	private int totalRecord = 0;
 
 	@GetMapping("/")
-	public String main() {
+	public String main(@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
+		// 전체 게시글 리스트 출력될 예정.
+		
 		return "main";
 	}
 
 	@GetMapping("/posts_list.go/{i}")
-	public String list(@PathVariable("i") int pCategory, @RequestParam(value = "page", defaultValue = "1") int page,
-			Model model) {
 
-		// DB 상의 전체 게시물 수
-		int totalRecord = this.pmapper.countByCategory(pCategory);
+	public String list(@PathVariable("i") int pCategory, @RequestParam(value = "page", defaultValue = "1") 
+			int page, Model model) {
+		
+	    // 카테고리에 해당하는 게시글의 수
+	    int countP = this.pmapper.countByCategory(pCategory);
+      // is_pop = 'Y' 인 공지사항 
+	    int countN = this.pmapper.countByNotice();
+	    
+	    totalRecord = countP + countN;
 
-		// 페이징 객체 생성
-		Page pdto = new Page(page, rowsize, totalRecord, pCategory);
+	    // 페이징 객체 생성
+	    Page pdto = new Page(page, rowsize, totalRecord, pCategory);
+  
+	    // 해당 카테고리에 해당하는 게시글 + 공지사항 리스트
+	    List<Posts> cList = this.pmapper.c_list(pdto);
+	    
+	    // ✅ displayDate 메서드
+	    for (Posts post : cList) {
+	        post.setDisplayDateFromCreatedAt();
+	    }
+	    
+	    model.addAttribute("tList", cList);
+	    model.addAttribute("Paging", pdto);
+	    model.addAttribute("CategoryId", pCategory);
 
-		// 해당 카테고리에 해당하는 게시글 + 공지사항 리스트
-		List<Posts> tList = this.pmapper.t_list(pdto);
-
-		// ✅ displayDate 메서드
-		for (Posts post : tList) {
-			post.setDisplayDateFromCreatedAt();
-		}
-
-		model.addAttribute("tList", tList);
-		model.addAttribute("Paging", pdto);
-		model.addAttribute("CategoryId", pCategory);
-
-		return "posts/posts_list";
+	    return "posts/posts_list";
 	}
 
 	@GetMapping("/notices_list.go")
