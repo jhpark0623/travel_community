@@ -5,12 +5,15 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +26,7 @@ import com.boot.commu.mapper.NoticesMapper;
 import com.boot.commu.mapper.PostsMapper;
 import com.boot.commu.model.Notices;
 import com.boot.commu.model.Page;
+import com.boot.commu.model.Post_hashtag;
 import com.boot.commu.model.Posts;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -466,15 +470,28 @@ public class PostsController {
 		return "posts/post_write";
 	}
 
+	// 시/광역시 코드를 받아서 해당 도시의 시/군/구 코드 출력
 	@PostMapping(value = "/getCityCode", produces = "application/json; charset=utf8")
 	@ResponseBody
-	public String getCityCode(@RequestParam("provinceCode") int provinceCode) {
+	public String getCityCode(@RequestParam("provinceCode") int provinceCode) throws JSONException {
 		JsonObject jsonObject = new JsonObject();
-		System.out.println(provinceCode);
 
-		List<Region_city> cityList = this.pmapper.getCityList(provinceCode);
+		// 시/군/구 리스트 출력
+		List<Region_city> getCityList = this.pmapper.getCityList(provinceCode);
 
-		System.out.println(cityList.get(0).getId());
+		//
+		List<JSONObject> cityList = new ArrayList<>();
+
+		// 각각 리스트 json으로 변환 후 리스트에 저장
+		for (Region_city city : getCityList) {
+			JSONObject cityJson = new JSONObject();
+
+			cityJson.put("id", city.getId());
+			cityJson.put("Province_id", city.getProvince_id());
+			cityJson.put("name", city.getName());
+
+			cityList.add(cityJson);
+		}
 
 		jsonObject.addProperty("cityList", cityList.toString());
 		jsonObject.addProperty("responseCode", "success");
@@ -482,14 +499,61 @@ public class PostsController {
 		return jsonObject.toString();
 	}
 
+	// 게시글 작성 정보 저장
 	@PostMapping("/post_write_ok.go")
-	public String postWriteOk(@RequestParam("contents") String contents, @RequestParam("title") String title,
-			@RequestParam("hashtags[]") String[] hashtags) {
+	public String postWriteOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags,
+			@RequestParam("province") int province_id, HttpSession session, HttpServletResponse response)
+			throws IOException {
 
-		System.out.println(contents);
-		System.out.println(title);
-		for (int i = 0; i < hashtags.length; i++)
-			System.out.println(hashtags[i]);
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
+
+		// 로그인 정보
+		Users user = (Users) session.getAttribute("loginUser");
+
+		posts.setUser_id(user.getId());
+
+		// 게시글 정보 저장
+		int result = this.pmapper.insertPost(posts);
+
+		if (result > 0) {
+
+			for (String hashtag : hashtags) {
+
+				Post_hashtag ph = new Post_hashtag();
+				Hashtags hash = new Hashtags();
+
+				hash.setHashtag(hashtag);
+
+				// 해시태그 검색
+				int hashtag_id = this.pmapper.findHashtag(hashtag);
+
+				// 해시태그가 없을 경우 새로 생성 후 해당 id값 저장
+				if (hashtag_id == 0) {
+					this.pmapper.insertHashtag(hash);
+					ph.setHashtag_id(hash.getId());
+					// 해시태그가 있으면 해당 id값 저장
+				} else {
+					ph.setHashtag_id(this.pmapper.selectHashtagId(hashtag));
+				}
+				// db에 저장할 정보 저장
+				HashMap<String, Integer> map = new HashMap<String, Integer>();
+
+				map.put("post_id", posts.getId());
+				map.put("hashtag_id", ph.getHashtag_id());
+
+				// insert post_hashtag
+				this.pmapper.insertPostHashtag(map);
+
+			}
+
+			out.println("<script>");
+			out.println("alert('게시글 작성 완료')");
+			out.println("location.href='/posts_list.go/" + posts.getId() + "'");
+			out.println("</script>");
+
+			return null;
+		}
 
 		return "main";
 	}

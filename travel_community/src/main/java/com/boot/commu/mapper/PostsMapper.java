@@ -1,5 +1,6 @@
 package com.boot.commu.mapper;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.boot.commu.model.Posts;
+import com.boot.commu.model.Hashtags;
 import com.boot.commu.model.Page;
 import com.boot.commu.model.PostsDetailDTO;
 import com.boot.commu.model.Region_city;
@@ -49,4 +51,16 @@ public interface PostsMapper {
     List<Region_province> getProvinceList();
     
     List<Region_city> getCityList(int provinceCode);
+    
+    
+    
+    int insertPost(Posts posts);
+    
+    int findHashtag(String hashtag);
+
+	void insertHashtag(Hashtags hash);
+
+	int selectHashtagId(String hashtag);
+
+	void insertPostHashtag(HashMap<String, Integer> map);
 }

@@ -44,7 +44,7 @@ span:hover {
 			</div>
 
 			<div class="mb-3 pb-3 border-bottom">
-				<textarea name="contents" id="summernote"></textarea>
+				<textarea name="content" id="summernote"></textarea>
 			</div>
 
 			<div class="mb-3 d-flex align-items-center">
@@ -57,17 +57,19 @@ span:hover {
 			</div>
 
 			<div>
-				<select id="provinceSelect" name="province">
-					<option>--시/광역시 선택--</option>
+				<select id="category" name="category_id">
+					<option >카테고리</option>
+					<option value=1>자유 게시판</option>
+					<option value=2>정보 게시판</option>
+					<option value=3>질문 게시판</option>
+				</select> <select id="provinceSelect" name="province">
+					<option value="">시/광역시</option>
 					<c:forEach items="${provinceList }" var="province">
 						<option value="${province.getId() }">${province.getName() }</option>
 					</c:forEach>
-					<%-- </select> <select name="city">
-					<option>--시/군/구 선택--</option>
-					<c:forEach items="${provinceList }" var="province">
-						<option value="${province.getId() }">${province.getName() }</option>
-					</c:forEach>
-				</select> --%>
+				</select> <select id="citySelect" name="city_id">
+					<option>시/군/구</option>
+				</select>
 			</div>
 
 			<input class="btn btn-outline-secondary mt-3 float-end" type="submit"
@@ -78,7 +80,6 @@ span:hover {
 	</div>
 
 	<script>
-	
 	
 /* 		// post 수정 시 게시글 가져와서 화면에 출력
 		window.onload = function () {
@@ -101,7 +102,19 @@ span:hover {
 					url: "/getCityCode",
 					data: {"provinceCode" : provinceCode},
 					success: function(res){
-						console.log(res.cityList);
+						const cityList = res.cityList;
+						const cityArray = cityList.substring(1, cityList.length - 1).split(", ")
+						
+						$('#citySelect').empty();
+						$('#citySelect').append(
+								"<option>시/군/구</option>"
+								);
+						
+						for(const cityItem of cityArray) {
+							const city = JSON.parse(cityItem);
+							const option = $("<option value="+city.id+">"+city.name+"</option>");
+							$('#citySelect').append(option);
+						}
 					}
 				})
 				
@@ -215,7 +228,7 @@ span:hover {
 	            enctype: 'multipart/form-data',
 	            processData: false,
 	            success: function (data) {
-	            	console.log(data);	            	
+	            	console.log(data);
 	                $(el).summernote(
 	                    'editor.insertImage',
 	                    data.url,
