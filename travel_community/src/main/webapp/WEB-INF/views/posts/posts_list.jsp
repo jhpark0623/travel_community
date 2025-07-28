@@ -90,7 +90,7 @@
 	
 	    <!-- ✅ 글쓰기 버튼 -->
 	    <div class="d-flex justify-content-end my-3">
-	        <a href="posts_write.go" class="btn btn-success">✍ 글쓰기</a>
+	        <a href="<%=request.getContextPath() %>/post_write.go" class="btn btn-success">✍ 글쓰기</a>
 	    </div>
 	
 	    <!-- ✅ 페이징 처리 -->

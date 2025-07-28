@@ -12,5 +12,8 @@
 		<typeAlias type="com.boot.commu.model.Users" alias="users"/>
 		<typeAlias type="com.boot.commu.model.Comments" alias="comments"/>
 		<typeAlias type="com.boot.commu.model.Page" alias="page"/>
+		<typeAlias type="com.boot.commu.model.Region_province" alias="province"/>
+		<typeAlias type="com.boot.commu.model.Region_city" alias="city"/>
+		<typeAlias type="com.boot.commu.model.Hashtags" alias="hashtag"/>
 	</typeAliases>
 </configuration>

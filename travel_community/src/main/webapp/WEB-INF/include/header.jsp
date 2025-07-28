@@ -18,15 +18,23 @@
 	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
 	integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
 	crossorigin="anonymous"></script>
-	
 
+<!-- include libraries(jQuery, bootstrap) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- include summernote css/js -->
+<link
+	href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css"
+	rel="stylesheet">
+<script
+	src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
 
 <style>
 body {
 	margin: 0;
 	background: #ffffff;
 	height: 100vh;
-	min-height:900px;
+	min-height: 900px;
 	width: 100%;
 	position: relative;
 }
@@ -72,11 +80,11 @@ button:hover, input[type="submit"]:hover {
 		<div class="header-left">
 			<a href="<%=request.getContextPath()%>/">Home</a>
 		</div>
-		
-		 <a href="<%=request.getContextPath() %>/posts_list.go/1">[자유 게시판]</a>
-	   <a href="<%=request.getContextPath() %>/posts_list.go/2">[정보 게시판]</a>
-	   <a href="<%=request.getContextPath() %>/posts_list.go/3">[질문 게시판]</a>
-	   <a href="<%=request.getContextPath() %>/notices_list.go">[공지사항]</a>
+
+		<a href="<%=request.getContextPath()%>/posts_list.go/1">[자유 게시판]</a>
+		<a href="<%=request.getContextPath()%>/posts_list.go/2">[정보 게시판]</a>
+		<a href="<%=request.getContextPath()%>/posts_list.go/3">[질문 게시판]</a>
+		<a href="<%=request.getContextPath()%>/notices_list.go">[공지사항]</a>
 
 		<div class="header-right">
 			<button class="btn btn-primary"
@@ -91,28 +99,29 @@ button:hover, input[type="submit"]:hover {
 						onclick="location.href='<%=request.getContextPath()%>/user_login.go'">로그인</button>
 				</c:when>
 				<c:otherwise>
-					<button class="btn btn-outline-secondary" onclick="if(confirm('정말로 로그아웃하시겠습니까?')) {
+					<button class="btn btn-outline-secondary"
+						onclick="if(confirm('정말로 로그아웃하시겠습니까?')) {
 						location.href='<%=request.getContextPath()%>/user_logout.go'
 					}">로그아웃</button>
 				</c:otherwise>
 			</c:choose>
-			
+
 			<c:if test="${!empty sessionScope.loginUser }">
-				<div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+				<div class="btn-group-vertical" role="group"
+					aria-label="Vertical button group">
 					<div class="btn-group" role="group">
-					  <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-					    마이페이지
-					  </button>
-					  <ul class="dropdown-menu">
-					    <li><a class="dropdown-item" href="myprofile.go">내 정보</a></li>
-					    <li><a class="dropdown-item" href="myposts.go">내 게시물</a></li>
-					    <li><a class="dropdown-item" href="mycomments.go">내 답글</a></li>
-					  </ul>
+						<button type="button" class="btn btn-primary dropdown-toggle"
+							data-bs-toggle="dropdown" aria-expanded="false">마이페이지</button>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="myprofile.go">내 정보</a></li>
+							<li><a class="dropdown-item" href="myposts.go">내 게시물</a></li>
+							<li><a class="dropdown-item" href="mycomments.go">내 답글</a></li>
+						</ul>
 					</div>
 				</div>
 			</c:if>
 		</div>
-	
+
 	</div>
 
 </body>
