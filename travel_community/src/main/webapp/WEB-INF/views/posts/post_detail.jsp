@@ -6,76 +6,8 @@
 <head>
 <meta charset="UTF-8">
 <title>${post.title} - 게시글 상세</title>
-<script>
-function toggleComments() {
-    const area = document.getElementById("commentArea");
-    if (area.style.display === "none") {
-        area.style.display = "block";
-    } else {
-        area.style.display = "none";
-    }
-}
-
-window.onload = function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('commentOpen') === 'true') {
-        const area = document.getElementById("commentArea");
-        if (area) {
-            area.style.display = "block";
-        }
-    }
-};
-
-function toggleLike(postId) {
-    fetch("/like_toggle.go", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "postId=" + postId
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "success") {
-            const btn = document.getElementById("likeBtn");
-            const count = document.getElementById("likeCount");
-            
-         	// 좋아요 수 갱신
-            count.innerText = data.likeCount;
-            // 하트 변경
-            if (data.liked) {
-                btn.innerHTML = `
-                <svg fill="red" width="24" height="24" viewBox="0 0 24 24">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
-                           2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
-                           C13.09 3.81 14.76 3 16.5 3
-                           19.58 3 22 5.42 22 8.5
-                           c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>`;
-            } else {
-                btn.innerHTML = `
-                <svg fill="gray" width="24" height="24" viewBox="0 0 24 24">
-                  <path d="M16.5 3c-1.74 0-3.41 0.81-4.5 2.09
-                           C10.91 3.81 9.24 3 7.5 3
-                           4.42 3 2 5.42 2 8.5
-                           c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32
-                           C18.6 15.36 22 12.28 22 8.5
-                           22 5.42 19.58 3 16.5 3z"/>
-                </svg>`;
-            }
-        } else if (data.status === "not_logged_in") {
-            alert("로그인 후 이용해주세요.");
-        }
-    })
-    .catch(err => {
-        alert("오류 발생: 좋아요 처리 실패");
-        console.error(err);
-    });
-}
-</script>
 </head>
 <body>
-
 <jsp:include page="../../include/header.jsp" />
 <!-- 전체 컨테이너 -->
 <div class="container mt-5 mb-5" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;">
@@ -280,53 +212,118 @@ function toggleLike(postId) {
             </div>
         </c:forEach>
     </div>
-    
 </div>
 
-
-<!-- 댓글 수정용 스크립트 -->
+<!-- 스크립트 -->
 <script>
+// 댓글 수정 버튼 클릭 시 - 기존 내용을 숨기고 수정 폼 표시
 function editComment(id) {
-    document.getElementById("content-" + id).style.display = "none";
-    document.getElementById("edit-area-" + id).style.display = "block";
+    document.getElementById("content-" + id).style.display = "none";     // 기존 댓글 숨김
+    document.getElementById("edit-area-" + id).style.display = "block";  // 수정 폼 표시
 }
 
+// 댓글 수정 취소 버튼 클릭 시 - 수정 폼 숨기고 기존 내용 다시 표시
 function cancelEdit(id) {
-    document.getElementById("edit-area-" + id).style.display = "none";
-    document.getElementById("content-" + id).style.display = "block";
+    document.getElementById("edit-area-" + id).style.display = "none";   // 수정 폼 숨김
+    document.getElementById("content-" + id).style.display = "block";    // 기존 댓글 다시 보이게
 }
 
+// 댓글 수정 저장 버튼 클릭 시 - 서버로 수정 요청 전송
 function submitEdit(id) {
-    const content = document.getElementById("edit-content-" + id).value;
+    const content = document.getElementById("edit-content-" + id).value; // 수정된 내용 가져오기
 
+    // fetch를 이용해 서버에 수정 요청 전송
     fetch("/comment_update.go", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "id=" + id + "&content=" + encodeURIComponent(content)
+        body: "id=" + id + "&content=" + encodeURIComponent(content)     // 데이터 전송
     })
-    .then(res => res.json())
+    .then(res => res.json()) // 서버 응답을 JSON으로 파싱
     .then(data => {
         if (data.status === "success") {
+            // 기존 댓글 내용 요소를 업데이트
             const container = document.getElementById("content-" + id);
             if (container) {
                 while (container.firstChild) {
-                    container.removeChild(container.firstChild);
+                    container.removeChild(container.firstChild); // 기존 내용 삭제
                 }
-                const newDiv = document.createElement("div");
-                newDiv.textContent = content;
-                container.appendChild(newDiv);
+                const newDiv = document.createElement("div");   // 새 div 생성
+                newDiv.textContent = content;                   // 수정된 텍스트 삽입
+                container.appendChild(newDiv);                  // 새로운 내용 삽입
             }
 
+            // 수정 폼 닫고, 수정된 댓글 보여줌
             document.getElementById("edit-area-" + id).style.display = "none";
             document.getElementById("content-" + id).style.display = "block";
-            alert("수정되었습니다.");
+
+            alert("수정되었습니다.");  // 성공 메시지
         } else {
-            alert("댓글 수정 실패");
+            alert("댓글 수정 실패");   // 실패 시 경고
         }
     })
     .catch(error => {
-        alert("요청 처리 중 오류 발생");
-        console.error("fetch 오류:", error);
+        alert("요청 처리 중 오류 발생");  // 통신 오류 시 알림
+        console.error("fetch 오류:", error); // 콘솔에 상세 오류 출력
+    });
+}
+//댓글 영역 토글 함수
+function toggleComments() {
+    const area = document.getElementById("commentArea");
+    if (area.style.display === "none") {
+        area.style.display = "block";  // 숨김 상태 → 보이게
+    } else {
+        area.style.display = "none";   // 보임 상태 → 숨김
+    }
+}
+
+// 페이지 로드시 URL 파라미터에 따라 댓글 영역 자동 열기
+window.onload = function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('commentOpen') === 'true') {
+        const area = document.getElementById("commentArea");
+        if (area) {
+            area.style.display = "block";
+        }
+    }
+};
+
+// 좋아요 버튼 클릭 시 호출되는 함수
+function toggleLike(postId) {
+    fetch("/like_toggle.go", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "postId=" + postId
+    })
+    .then(res => res.json()) // JSON 응답 파싱
+    .then(data => {
+        if (data.status === "success") {
+            const btn = document.getElementById("likeBtn");
+            const count = document.getElementById("likeCount");
+
+            // 좋아요 수 갱신
+            count.innerText = data.likeCount;
+
+            // 하트 아이콘 상태 변경 (좋아요 or 해제)
+            if (data.liked) {
+                btn.innerHTML = `
+                <svg fill="red" width="24" height="24" viewBox="0 0 24 24">
+                  <path d="..."/>
+                </svg>`;
+            } else {
+                btn.innerHTML = `
+                <svg fill="gray" width="24" height="24" viewBox="0 0 24 24">
+                  <path d="..."/>
+                </svg>`;
+            }
+        } else if (data.status === "not_logged_in") {
+            alert("로그인 후 이용해주세요.");
+        }
+    })
+    .catch(err => {
+        alert("오류 발생: 좋아요 처리 실패");
+        console.error(err);
     });
 }
 </script>

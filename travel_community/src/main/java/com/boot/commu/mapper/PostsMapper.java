@@ -40,8 +40,8 @@ public interface PostsMapper {
     void deleteLike(@Param("postId") int postId, @Param("userId") int userId);
 
     // 현재 게시글 ID 기준으로 이전글 ID 가져오기
-    Integer getPrevPostId(int currentId);
+    Integer getPrevPostId(@Param("id") int id, @Param("category_id") int categoryId);
 
     // 현재 게시글 ID 기준으로 다음글 ID 가져오기
-    Integer getNextPostId(int currentId);
+    Integer getNextPostId(@Param("id") int id, @Param("category_id") int categoryId);
 }

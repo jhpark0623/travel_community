@@ -278,8 +278,8 @@ public class PostsController {
         int likeCount = pmapper.getLikeCount(id);
         
         // 이전글 / 다음글 ID 조회
-        Integer prevId = pmapper.getPrevPostId(id);
-        Integer nextId = pmapper.getNextPostId(id);
+        Integer prevId = pmapper.getPrevPostId(id, post.getCategory_id());
+	    Integer nextId = pmapper.getNextPostId(id, post.getCategory_id());
         
         // 모델에 데이터 추가
         model.addAttribute("post", post);
