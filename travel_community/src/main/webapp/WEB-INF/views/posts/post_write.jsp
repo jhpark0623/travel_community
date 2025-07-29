@@ -37,10 +37,45 @@ span:hover {
 
 
 		<form method="post"
-			action="<%=request.getContextPath()%>/post_write_ok.go">
+			action="<%=request.getContextPath()%>/post_write_ok.go"
+			class="needs-validation">
+
+			<div class="container my-4 d-flex align-items-center">
+
+				<div class="d-flex flex-column" style="margin-right: 50px;">
+					<label for="selectCity" class="form-label fw-bold mb-1">카테고리</label>
+					<select id="category" class="form-select" style="width: 200px;"
+						name="category_id">
+						<option>카테고리</option>
+						<option value=1>자유 게시판</option>
+						<option value=2>정보 게시판</option>
+						<option value=3>질문 게시판</option>
+					</select>
+				</div>
+				<div class="d-flex flex-column" style="margin-right: 50px;">
+					<label for="selectCity" class="form-label fw-bold mb-1">시/광역시</label>
+					<select id="provinceSelect" class="form-select"
+						style="width: 200px;" name="province">
+						<option value="">시/광역시</option>
+						<c:forEach items="${provinceList }" var="province">
+							<option value="${province.getId() }">${province.getName() }</option>
+						</c:forEach>
+					</select>
+				</div>
+
+				<div class="d-flex flex-column" style="margin-right: 50px;">
+					<label for="selectDistrict" class="form-label fw-bold mb-1">시/군/구</label>
+					<select id="citySelect" class="form-select" style="width: 200px;"
+						name="city_id">
+						<option>시/군/구</option>
+					</select>
+				</div>
+			</div>
+
 			<div class="mb-3">
 				<input type="text" class="form-control" name="title"
-					placeholder="제목을 입력해 주세요">
+					placeholder="제목을 입력해 주세요" required>
+				<div class="invalid-feedback">Looks good!</div>
 			</div>
 
 			<div class="mb-3 pb-3 border-bottom">
@@ -54,22 +89,6 @@ span:hover {
 
 			<div id="hashtag" class="d-flex flex-wrap border-bottom">
 				<input type="hidden" id="hashtags" name="hashtags[]" value="">
-			</div>
-
-			<div>
-				<select id="category" name="category_id">
-					<option >카테고리</option>
-					<option value=1>자유 게시판</option>
-					<option value=2>정보 게시판</option>
-					<option value=3>질문 게시판</option>
-				</select> <select id="provinceSelect" name="province">
-					<option value="">시/광역시</option>
-					<c:forEach items="${provinceList }" var="province">
-						<option value="${province.getId() }">${province.getName() }</option>
-					</c:forEach>
-				</select> <select id="citySelect" name="city_id">
-					<option>시/군/구</option>
-				</select>
 			</div>
 
 			<input class="btn btn-outline-secondary mt-3 float-end" type="submit"
@@ -124,7 +143,7 @@ span:hover {
 			
 			$('#summernote').summernote({
 				placeholder:"내용을 입력해 주세요",
-				height: 400,
+				height: 420,
 				disableResizeEditor: true,
 				lang: "ko-KR",
 				background: "white",
