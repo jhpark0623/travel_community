@@ -33,6 +33,7 @@
 
 	<select id="myPosts" resultType="posts" parameterType="int">
 	select * from a_posts where user_id = #{id} and state ='Y'
+	order by id desc
 	</select>
 
 
@@ -55,6 +56,7 @@
 			from a_comments c
 			join a_posts p On c.post_id = p.id
 			where c.user_id = #{id} and c.state = 'Y' and p.state = 'Y'
+			order by c.post_id desc
 	</select>
 
 
@@ -62,13 +64,19 @@
 		select * from a_posts where 
 		user_id = #{id} and state = 'Y' and
 		(title  like '%' || #{search} || '%' or content like '%' || #{search} || '%')
+		order by id desc
 	
 	</select>
 	
 	<select id="myComments_search" parameterType="map" resultType="comments">
-		select * from a_comments
-		where user_id = #{id} and state = 'Y' 
-		and content like '%' || #{search} || '%'
+		select
+			c.*,
+			p.title as post_title, p.content as post_content
+			from a_comments c
+			join a_posts p On c.post_id = p.id
+			where c.user_id = #{id} and c.state = 'Y' 
+			and c.content like '%' || #{search} || '%'
+			 order by c.post_id desc
 	
 	</select>
 	
