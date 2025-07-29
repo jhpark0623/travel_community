@@ -8,7 +8,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Posts 리스트</title>
- 
+ <style>
+td a.text-dark:hover {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+}
+td a.d-block:hover {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+}
+</style>
 </head>
 <body>
 
@@ -21,9 +30,9 @@
 	   
 	     
 		<div class="container my-4 d-flex align-items-center">
-		  <div class="d-flex flex-column" style="margin-right: 50px;">
+		  <div class="d-flex flex-column" style="margin-right: 20px;">
 		    <label for="selectCity" class="form-label fw-bold mb-1">시/광역시</label>
-		    <select id="selectCity" class="form-select" style="width: 200px;">
+		    <select id="selectCity" class="form-select" style="width: 180px;">
 			  <option value="">선택하세요</option>
 			  <option value="서울특별시">서울특별시</option>
 			  <option value="부산광역시">부산광역시</option>
@@ -45,9 +54,9 @@
 
 		  </div>
 		
-		  <div class="d-flex flex-column" style="margin-right: 50px;">
+		  <div class="d-flex flex-column" style="margin-right: 60px;">
             <label for="selectDistrict" class="form-label fw-bold mb-1">시/군/구</label>
-            <select id="selectDistrict" class="form-select" style="width: 200px;">
+            <select id="selectDistrict" class="form-select" style="width: 150px;">
                 <option value="">선택하세요</option>
             </select>
         </div>
@@ -62,7 +71,7 @@
 		        <option value="nickname">작성자</option>
 		        <option value="hashtag">해시태그</option>
 		    </select>
-		    <input type="text" name="keyword" class="form-control" style="max-width: 190px" placeholder="검색어를 입력하세요">
+		    <input type="text" name="keyword" class="form-control" style="max-width: 280px" placeholder="검색어를 입력하세요">
 		    <button class="btn btn-outline-primary" type="submit">검색</button>
 		  </div>
 		</form>
@@ -97,7 +106,7 @@
 	                	<!-- 공지사항 목록 출력 -->
 	                    <c:if test="${empty dto.nickname }">	
 		                    <tr>
-		                        <td style="color: #ff0000;">공지사항</td>
+		                        <td style="color: #ff0000; font-weight: bold;">공지사항</td>
 		                        <td class="text-start position-relative p-0">
 		                            <a href="${pageContext.request.contextPath}/notices_content.go?no=${dto.id}&page=${Paging.page}"  
 		                               class="d-block stretched-link text-decoration-none px-2 py-2">
@@ -115,9 +124,9 @@
 	                	<c:if test="${!empty dto.nickname }">	
 		                    <tr>
 		                        <td>${dto.id }</td>
-		                        <td class="text-start position-relative p-0">
+		                        <td class="text-start position-relative p-0" style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
 		                            <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}" 
-		                               class="d-block stretched-link text-decoration-none px-2 py-2">
+		                               class="d-block stretched-link text-decoration-none px-2 py-2 text-dark fw-bold">
 		                                 ${dto.title}
 		                            </a>
 		                        </td>

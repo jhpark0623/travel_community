@@ -5,6 +5,17 @@
 <html>
 <head>
 <title>travel_community</title>
+<style>
+td a.text-dark:hover {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+}
+td a.d-block:hover {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+}
+</style>
+
 <meta charset="UTF-8">
 <style type="text/css">
 	
@@ -14,6 +25,7 @@
 <body>
 	<jsp:include page="../include/header.jsp" />
 	
+
 	<h2 class="text-center mb-4">📋 Posts 메인 페이지 - 인기글</h2>
 
 	<div class="container my-5" style="width: 700px;">
