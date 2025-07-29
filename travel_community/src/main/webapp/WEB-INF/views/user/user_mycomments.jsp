@@ -39,9 +39,19 @@
 			</tbody>	
 		</table>
 		
+		<div class="text-center my-4">
+		  <ul class="pagination justify-content-center">
+		    <c:forEach begin="${paging.startBlock}" end="${paging.endBlock}" var="i">
+		      <li class="page-item ${i == currentPage ? 'active' : ''}">
+		        <a class="page-link" href="mycomments.go?page=${i}">${i}</a>
+		      </li>
+		    </c:forEach>
+		  </ul>
+		</div>
+		
 	
 	</div>
-	<br><br>
+	
 	
 	<div align="center">
 		<form method="get" action="<%= request.getContextPath() %>/mycomment_search.go">
