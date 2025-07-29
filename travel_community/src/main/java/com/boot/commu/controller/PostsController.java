@@ -643,7 +643,7 @@ public class PostsController {
 
 			out.println("<script>");
 			out.println("alert('게시글 작성 완료')");
-			out.println("location.href='/posts_list.go/" + posts.getId() + "'");
+			out.println("location.href='/post_detail.go?id=" + posts.getId() + "'");
 			out.println("</script>");
 
 			return null;
