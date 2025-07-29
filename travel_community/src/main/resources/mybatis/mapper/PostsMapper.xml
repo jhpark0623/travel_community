@@ -139,11 +139,7 @@
 		#{content})
 	</insert>
 
-	<select id="findHashtag" resultType="int" parameterType="String">
-		SELECT
-		NVL(MAX(id), 0) FROM a_hashtags WHERE hashtag = #{hashtag}
-	</select>
-
+	<!-- 새로운 해시태그 저장 -->
 	<insert id="insertHashtag" parameterType="hashtag">
 		<selectKey keyProperty="id" resultType="int" order="BEFORE">
 			SELECT
@@ -153,13 +149,49 @@
 
 		INSERT INTO a_hashtags VALUES(#{id}, #{hashtag})
 	</insert>
-	
-	<select id="selectHashtagId" parameterType="String" resultType="int">
-		SELECT id FROM a_hashtags WHERE hashtag = #{hashtag}
+
+	<!-- 해시태그로 해시태그id출력 (해시태그가 없을경우 0 출력) -->
+	<select id="selectHashtagId" parameterType="String"
+		resultType="int">
+		SELECT NVL(max(id), 0) FROM a_hashtags WHERE hashtag =
+		#{hashtag}
 	</select>
-	
+
+	<!-- 게시글에 등록된 해시태그 저장 -->
 	<insert id="insertPostHashtag" parameterType="hashmap">
-		INSERT INTO a_post_hashtag values(#{post_id}, #{hashtag_id})
+		INSERT INTO
+		a_post_hashtag values(#{post_id}, #{hashtag_id})
 	</insert>
+
+	<!-- 게시글 수정 시 수정 폼에 보여줄 데이터 호출 -->
+	<select id="selectPostModifyDetail" parameterType="int"
+		resultType="postModify">
+		SELECT p.id, p.user_id, p.category_id, p.city_id, p.title,
+		p.content, rc.province_id FROM a_posts p LEFT JOIN a_region_city rc ON
+		p.city_id = rc.id WHERE p.id = #{id}
+	</select>
+
+	<!-- 게시글에 등록되있던 해시태그 호출 -->
+	<select id="getHashtag" parameterType="int" resultType="String">
+		SELECT
+		hashtag FROM a_hashtags h LEFT JOIN a_post_hashtag ph ON h.id =
+		ph.hashtag_id WHERE ph.post_id = #{id}
+	</select>
+
+	<!-- 게시글에서 삭제된 해시태그 제거 -->
+	<delete id="deletePostHashtag" parameterType="hashmap">
+		DELETE FROM
+		a_post_hashtag WHERE post_id = #{post_id} AND hashtag_id = (SELECT id
+		FROM a_hashtags WHERE hashtag = #{hashtag})
+	</delete>
+
+	<!-- 게시글 업데이트 -->
+	<update id="updatePost" parameterType="posts">
+		UPDATE a_posts SET
+		title =
+		#{title}, content = #{content}, category_id = #{category_id},
+		city_id =
+		#{city_id}, updated_at = sysdate WHERE id = #{id}
+	</update>
 	
 </mapper>

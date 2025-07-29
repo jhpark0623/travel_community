@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import com.boot.commu.mapper.NoticesMapper;
 import com.boot.commu.mapper.PostsMapper;
 import com.boot.commu.model.Notices;
 import com.boot.commu.model.Page;
+import com.boot.commu.model.PostModify;
 import com.boot.commu.model.Post_hashtag;
 import com.boot.commu.model.Posts;
 
@@ -614,63 +616,67 @@ public class PostsController {
 	}
 
 	// 게시글 작성 정보 저장
-	@PostMapping("/post_write_ok.go")
-	public String postWriteOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags,
-			@RequestParam("province") int province_id, HttpSession session, HttpServletResponse response)
-			throws IOException {
+		@PostMapping("/post_write_ok.go")
+		public void postWriteOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags, HttpSession session,
+				HttpServletResponse response) throws IOException {
 
-		response.setContentType("text/html; charset=UTF-8");
-		PrintWriter out = response.getWriter();
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
 
-		// 로그인 정보
-		Users user = (Users) session.getAttribute("loginUser");
+			// 로그인 정보
+			Users user = (Users) session.getAttribute("loginUser");
 
-		posts.setUser_id(user.getId());
+			posts.setUser_id(user.getId());
 
-		// 게시글 정보 저장
-		int result = this.pmapper.insertPost(posts);
+			// 게시글 정보 저장
+			int result = this.pmapper.insertPost(posts);
 
-		if (result > 0) {
+			if (result > 0) {
 
-			for (String hashtag : hashtags) {
+				for (String hashtag : hashtags) {
 
-				Post_hashtag ph = new Post_hashtag();
-				Hashtags hash = new Hashtags();
+					Post_hashtag ph = new Post_hashtag();
+					Hashtags hash = new Hashtags();
 
-				hash.setHashtag(hashtag);
+					hash.setHashtag(hashtag);
 
-				// 해시태그 검색
-				int hashtag_id = this.pmapper.findHashtag(hashtag);
+					// 해시태그 검색
+					int hashtag_id = this.pmapper.selectHashtagId(hashtag);
 
-				// 해시태그가 없을 경우 새로 생성 후 해당 id값 저장
-				if (hashtag_id == 0) {
-					this.pmapper.insertHashtag(hash);
-					ph.setHashtag_id(hash.getId());
-					// 해시태그가 있으면 해당 id값 저장
-				} else {
-					ph.setHashtag_id(this.pmapper.selectHashtagId(hashtag));
+					// 해시태그가 없을 경우 새로 생성 후 해당 id값 저장
+					if (hashtag_id == 0) {
+						this.pmapper.insertHashtag(hash);
+						ph.setHashtag_id(hash.getId());
+						// 해시태그가 있으면 해당 id값 저장
+					} else {
+						ph.setHashtag_id(this.pmapper.selectHashtagId(hashtag));
+					}
+					// db에 저장할 정보 저장
+					HashMap<String, Integer> map = new HashMap<String, Integer>();
+
+					map.put("post_id", posts.getId());
+					map.put("hashtag_id", ph.getHashtag_id());
+
+					// insert post_hashtag
+					this.pmapper.insertPostHashtag(map);
+
 				}
-				// db에 저장할 정보 저장
-				HashMap<String, Integer> map = new HashMap<String, Integer>();
 
-				map.put("post_id", posts.getId());
-				map.put("hashtag_id", ph.getHashtag_id());
+				out.println("<script>");
+				out.println("alert('게시글 작성 완료')");
+				out.println("location.replace('/post_detail.go?id=" + posts.getId() + "')");
+				out.println("</script>");
 
-				// insert post_hashtag
-				this.pmapper.insertPostHashtag(map);
+			} else {
+
+				out.println("<script>");
+				out.println("alert('게시글 작성 실패')");
+				out.println("history.back()");
+				out.println("</script>");
 
 			}
 
-			out.println("<script>");
-			out.println("alert('게시글 작성 완료')");
-			out.println("location.href='/post_detail.go?id=" + posts.getId() + "'");
-			out.println("</script>");
-
-			return null;
 		}
-
-		return "main";
-	}
 
 	// 서머노트 이미지 업로드
 	@PostMapping(value = "/uploadImageFile", produces = "application/json; charset=utf8")
@@ -731,5 +737,117 @@ public class PostsController {
 		
 		return "posts/post_hotPosts";
 	}
+	
+	// 게시글 수정
+		@GetMapping("post_modify.go")
+		public String postModify(Model model, @RequestParam("id") int id, HttpSession session, HttpServletResponse response)
+				throws IOException {
+
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+
+			// 수정폼 페이지에 가져갈 기본 데이터 호출
+			// 제목, 내용, 카테고리 코드, 시/광역시 코드, 시/군/구 코드, 해시태그
+			// id에 해당하는 게시글 정보 호출
+			PostModify postDetail = this.pmapper.selectPostModifyDetail(id);
+			Users user = (Users) session.getAttribute("loginUser");
+
+			// 게시글을 작성한 계정이 아닌 다른 계정으로 접근시 >> 잘못된 접근 알림
+			if (user == null || postDetail.getUser_id() != user.getId()) {
+				out.println("<script>alert('잘못된 접근입니다.'); location.href = history.back();</script>");
+				return null;
+			}
+
+			// 해당 게시글의 지역 코드에 맞는 지역 리스트 호출
+			List<Region_province> provinceList = this.pmapper.getProvinceList();
+			List<Region_city> cityList = this.pmapper.getCityList(postDetail.getProvince_id());
+
+			// 해당 게시글의 해시태그 호출
+			List<String> hashtags = this.pmapper.getHashtag(id);
+
+			System.out.println(hashtags);
+
+			model.addAttribute("post", postDetail).addAttribute("provinceList", provinceList)
+					.addAttribute("cityList", cityList).addAttribute("hashtags", hashtags);
+
+			return "posts/post_modify";
+
+		}
+
+		// 게시글 작성 정보 저장
+		@PostMapping("/post_modify_ok.go")
+		public void postModifyOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags, HttpServletResponse response)
+				throws IOException {
+
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+
+			// 게시글 정보 저장
+			int result = this.pmapper.updatePost(posts);
+
+			if (result > 0) {
+
+				// 해시태그 업데이트
+				List<String> oldTags = this.pmapper.getHashtag(posts.getId());
+				List<String> newTags = Arrays.asList(hashtags);
+
+				for (String newTag : newTags) {
+
+					if (!oldTags.contains(newTag)) {
+						// post_id, hashtag_id
+						Post_hashtag ph = new Post_hashtag();
+						// hashtag_id, hashtag_name
+						Hashtags hash = new Hashtags();
+						HashMap<String, Integer> map = new HashMap<String, Integer>();
+
+						hash.setHashtag(newTag);
+
+						// 해시태그의 아이디 검색 > 저장된 해시태그가 있을경우 해시태그ID, 없을경우 0
+						ph.setHashtag_id(this.pmapper.selectHashtagId(newTag));
+
+						// 해시태그가 없을경우 >> db에 저장 후 posthashtag 저장
+						if (ph.getHashtag_id() == 0) {
+							this.pmapper.insertHashtag(hash);
+							ph.setHashtag_id(hash.getId());
+						}
+
+						map.put("post_id", posts.getId());
+						map.put("hashtag_id", ph.getHashtag_id());
+
+						// 새로 생긴 해시태그일 경우 post_hashtag 테이블에 추가
+						this.pmapper.insertPostHashtag(map);
+
+					}
+
+					// 없던걸 만드는건 되는데 있던걸 지우는건?
+
+				}
+
+				for (String oldTag : oldTags) {
+					if (!newTags.contains(oldTag)) {
+
+						HashMap<String, Object> map = new HashMap<String, Object>();
+						map.put("post_id", posts.getId());
+						map.put("hashtag", oldTag);
+
+						this.pmapper.deletePostHashtag(map);
+
+					}
+				}
+
+				out.println("<script>");
+				out.println("alert('게시글 수정 완료')");
+				out.println("location.replace('/post_detail.go?id=" + posts.getId() + "')");
+				out.println("</script>");
+
+			} else {
+
+				out.println("<script>");
+				out.println("alert('게시글 수정 실패')");
+				out.println("history.back()");
+				out.println("</script>");
+			}
+
+		}
 
 }

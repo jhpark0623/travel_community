@@ -11,6 +11,7 @@ import com.boot.commu.model.Posts;
 import com.boot.commu.model.Notices;
 import com.boot.commu.model.Hashtags;
 import com.boot.commu.model.Page;
+import com.boot.commu.model.PostModify;
 import com.boot.commu.model.PostsDetailDTO;
 import com.boot.commu.model.Region_city;
 import com.boot.commu.model.Region_province;
@@ -32,7 +33,7 @@ public interface PostsMapper {
 
 	// notices 테이블의 is_pop = 'Y' 인 게시글의 수 조회
 	int countByNotice();
-		
+
 	// 게시글 전체 수 반환.
 	int countByAll();
 
@@ -73,7 +74,7 @@ public interface PostsMapper {
 	void decrementLikeCount(@Param("postId") int postId);
 
 	// 시/광역시 정보 출력
-    List<Region_province> getProvinceList();  
+	List<Region_province> getProvinceList();
 
 	// 시/군/구 정보 출력
 	List<Region_city> getCityList(int provinceCode);
@@ -84,7 +85,7 @@ public interface PostsMapper {
 	// 해시태그가 DB에 있는지 검색
 	int findHashtag(String hashtag);
 
-	// 해시태그 저	장
+	// 해시태그 저 장
 	void insertHashtag(Hashtags hash);
 
 	// 해시태그 id 검색
@@ -92,19 +93,26 @@ public interface PostsMapper {
 
 	// post_hashtag 저장
 	void insertPostHashtag(HashMap<String, Integer> map);
-	
-	// 인기글 반환(조회수, 좋아요, 출력될 게시글수)
-	List<Posts> hotPosts(@Param("viewPoint") int viewPoint,
-            @Param("likePoint") int likePoint,
-            @Param("hotPostsCount") int hotPostsCount,
-            @Param("hotPostsDuration") int hotPostsDuration);
-	
-	// 인기글 반환(조회수, 좋아요, 출력될 게시글수, 카테고리 필터링)
-	List<Posts> hotPostsByCategory(@Param("viewPoint") int viewPoint,
-            @Param("likePoint") int likePoint,
-            @Param("hotPostsCount") int hotPostsCount,
-            @Param("hotPostsDuration") int hotPostsDuration,
-            @Param("category_id") int category_id);
 
+	// 인기글 반환(조회수, 좋아요, 출력될 게시글수)
+	List<Posts> hotPosts(@Param("viewPoint") int viewPoint, @Param("likePoint") int likePoint,
+			@Param("hotPostsCount") int hotPostsCount, @Param("hotPostsDuration") int hotPostsDuration);
+
+	// 인기글 반환(조회수, 좋아요, 출력될 게시글수, 카테고리 필터링)
+	List<Posts> hotPostsByCategory(@Param("viewPoint") int viewPoint, @Param("likePoint") int likePoint,
+			@Param("hotPostsCount") int hotPostsCount, @Param("hotPostsDuration") int hotPostsDuration,
+			@Param("category_id") int category_id);
+
+	// 게시글 수정 시 수정 폼에 보여줄 데이터 호출
+	PostModify selectPostModifyDetail(int id);
+
+	// 게시글에 등록되있던 해시태그 호출
+	List<String> getHashtag(int id);
+
+	// 게시글에서 삭제된 해시태그 제거
+	void deletePostHashtag(HashMap<String, Object> map);
+
+	// 게시글 업데이트
+	int updatePost(Posts posts);
 
 }
