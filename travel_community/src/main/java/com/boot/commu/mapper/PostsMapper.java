@@ -92,5 +92,19 @@ public interface PostsMapper {
 
 	// post_hashtag 저장
 	void insertPostHashtag(HashMap<String, Integer> map);
+	
+	// 인기글 반환(조회수, 좋아요, 출력될 게시글수)
+	List<Posts> hotPosts(@Param("viewPoint") int viewPoint,
+            @Param("likePoint") int likePoint,
+            @Param("hotPostsCount") int hotPostsCount,
+            @Param("hotPostsDuration") int hotPostsDuration);
+	
+	// 인기글 반환(조회수, 좋아요, 출력될 게시글수, 카테고리 필터링)
+	List<Posts> hotPostsByCategory(@Param("viewPoint") int viewPoint,
+            @Param("likePoint") int likePoint,
+            @Param("hotPostsCount") int hotPostsCount,
+            @Param("hotPostsDuration") int hotPostsDuration,
+            @Param("category_id") int category_id);
+
 
 }
