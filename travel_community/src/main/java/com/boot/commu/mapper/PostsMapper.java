@@ -32,6 +32,9 @@ public interface PostsMapper {
 
 	// notices 테이블의 is_pop = 'Y' 인 게시글의 수 조회
 	int countByNotice();
+		
+	// 게시글 전체 수 반환.
+	int countByAll();
 
 	// category_id에 해당하는 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
 	List<Posts> c_list(Page pdto);
@@ -70,14 +73,7 @@ public interface PostsMapper {
 	void decrementLikeCount(@Param("postId") int postId);
 
 	// 시/광역시 정보 출력
-
     List<Region_province> getProvinceList();  
-    
-	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
-	List<Posts> a_list(Page pdto); 
-
-	// 게시글 전체 수 반환.
-	int countByAll();
 
 	// 시/군/구 정보 출력
 	List<Region_city> getCityList(int provinceCode);
