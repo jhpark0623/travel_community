@@ -48,8 +48,38 @@
 				</c:if>
 			</tbody>
 		</table>
+		
+		<div class="text-center my-4">
+		  
+		    <ul class="pagination justify-content-center">
+		
+		      <!-- 이전 페이지 블럭 -->
+		      <c:if test="${paging.startBlock > 1}">
+		        <li class="page-item">
+		          <a class="page-link" href="myposts.go?page=${paging.startBlock - 1}">&laquo;</a>
+		        </li>
+		      </c:if>
+		
+		      <!-- 페이지 숫자 반복 -->
+		      <c:forEach begin="${paging.startBlock}" end="${paging.endBlock}" var="i">
+		        <li class="page-item ${i == currentPage ? 'active' : ''}">
+		          <a class="page-link" href="myposts.go?page=${i}">${i}</a>
+		        </li>
+		      </c:forEach>
+		
+		      <!-- 다음 페이지 블럭 -->
+		      <c:if test="${paging.endBlock < paging.allPage}">
+		        <li class="page-item">
+		          <a class="page-link" href="myposts.go?page=${paging.endBlock + 1}">&raquo;</a>
+		        </li>
+		      </c:if>
+		
+		    </ul>
+		  
+		</div>
+
 	</div>
-	<br><br>
+	
 	<div align="center">
 		<form method="get" action="<%= request.getContextPath() %>/myposts_search.go">
 			<input name="myposts_search" placeholder="내용 or 제목">
