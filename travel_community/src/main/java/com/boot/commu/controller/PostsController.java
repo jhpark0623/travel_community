@@ -73,9 +73,31 @@ public class PostsController {
 
 	// DB 상의 전체 게시물의 수.
 	private int totalRecord = 0;
+	
+	// 조회수를 인기글 포인트로 환산
+	private int viewPoint = 1;
+	
+	// 조회수를 인기글 포인트로 환산
+	private int likePoint = 10;
+	
+	// 메인에서 출력할 인기글 리스트 갯수
+	private int hotPostsCount = 9;
+	
+	// 인기글에서 출력될 게시글 업로드 범위(일수)
+	private int hotPostsDuration = 30;
 
 	@GetMapping("/")
-	public String main() {
+	public String main(Model model) {
+		
+		List<Posts> hotPosts = this.pmapper.hotPosts(viewPoint, likePoint, hotPostsCount, hotPostsDuration);
+		
+		// ✅ displayDate 메서드
+	    for (Posts post : hotPosts) {
+	        post.setDisplayDateFromCreatedAt();
+	    }
+		
+		model.addAttribute("hotPosts", hotPosts);
+		
 		
 		return "main";
 	}
@@ -691,6 +713,23 @@ public class PostsController {
 
 		// JSON 객체를 문자열로 변환하여 반환
 		return jsonObject.toString();
+	}
+	
+	// get방식으로 category_id를 받고 해당하는 카테고리 인기게시글 목록을 반환하는 로직.
+	@GetMapping("hotposts_category.go")
+	public String hotPosts(@RequestParam("category_id") int category_id, Model model) {
+		
+		List<Posts> hotPostsByCategory = this.pmapper.hotPostsByCategory(viewPoint, likePoint, hotPostsCount, hotPostsDuration, category_id);
+		
+		// ✅ displayDate 메서드
+	    for (Posts post : hotPostsByCategory) {
+	        post.setDisplayDateFromCreatedAt();
+	    }
+	    
+		model.addAttribute("category_id", category_id);
+		model.addAttribute("hotPosts", hotPostsByCategory);
+		
+		return "posts/post_hotPosts";
 	}
 
 }
