@@ -6,8 +6,7 @@
     <meta charset="UTF-8">
     <title>공지사항 상세보기</title>
 
-    <!-- ✅ Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
 
     <style>
         body {
@@ -78,6 +77,7 @@
 </head>
 <body>
  
+ 	<jsp:include page="../../include/header.jsp" />
 	
 <div class="container" style="max-width: 750px; padding: 30px;"> <!-- ✅ 너비+패딩 증가 -->
     <c:set var="dto" value="${Content}" />
@@ -130,8 +130,6 @@
 	</div>
 </div>
 
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
