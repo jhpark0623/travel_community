@@ -36,17 +36,29 @@ public interface UserMapper {
 	String findPwd(Users dto);
 	
 
+	// 내 게시글 총 수
+	int MyPostCount(int id); 
+	
 	// 내 게시물 받아오는 메서드
-	List<Posts> myPosts(int id);
+	List<Posts> MyPosts(Map<String, Object> param); // 페이징된 게시글
+	
+	// 내 댓글 총 수
+	int myCommentCount(int id);
 	
 	// 내 댓글목록 받아오는 메서드
-	List<Comments> myComments(int id);
+	List<Comments> myComments(Map<String, Object> param);
+	
+	// 검색 게시물 총 수
+	int MyPostSearchCount(Map<String, Object> MyPostsSearch);
 	
 	// 내 게시물 검색
-	List<Posts> search(Map<String, Object> map);
+	List<Posts> MyPostsSearch(Map<String, Object> param);
+	
+	// 검색 댓글 총 수
+	int mycommentsearchcount(Map<String, Object> param);
 	
 	// 내 댓글 검색
-	List<Comments> myComments_search(Map<String, Object> map);
+	List<Comments> mycommentsearch(Map<String, Object> param);
 	
 	// 내 정보 받아오는 메서드
 	Users myProfile(int id);

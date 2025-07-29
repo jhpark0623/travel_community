@@ -30,13 +30,6 @@
 		#{name}, #{nickname}, default, default, sysdate, '')
 	</insert>
 	
-
-	<select id="myPosts" resultType="posts" parameterType="int">
-	select * from a_posts where user_id = #{id} and state ='Y'
-	order by id desc
-	</select>
-
-
 	<select id="findId" resultType="String" parameterType="users">
 		select email from a_users where name = #{name} and phone = #{phone}
 	</select>
@@ -49,35 +42,100 @@
 		select password from a_users where email = #{email} and name = #{name} and phone = #{phone}
 	</select>
 
-	<select id="myComments" resultType="comments" parameterType="int">
-		select
-			c.*,
-			p.title as post_title, p.content as post_content
-			from a_comments c
-			join a_posts p On c.post_id = p.id
-			where c.user_id = #{id} and c.state = 'Y' and p.state = 'Y'
-			order by c.post_id desc
+	<select id="MyPostCount" parameterType="int" resultType="int">
+	    select count(*) from a_posts
+	    where user_id = #{id} and state = 'Y'
+  	</select>
+
+	
+	
+	<select id="MyPosts" parameterType="map" resultType="posts">
+	  select * from (
+	    select inner.*, rownum as rn
+	    from (
+	      select * from a_posts
+	      where user_id = #{id}
+	        and state = 'Y'
+	      order by id desc
+	    ) inner
+	    where rownum &lt;= #{endno}
+	  )
+	  where rn &gt;= #{startno}
 	</select>
 
 
-	<select id="search" parameterType="map" resultType="posts">
-		select * from a_posts where 
-		user_id = #{id} and state = 'Y' and
-		(title  like '%' || #{search} || '%' or content like '%' || #{search} || '%')
-		order by id desc
 	
+	<select id="myCommentCount" parameterType="int" resultType="int">
+	  select count(*) 
+	  from a_comments
+	  where user_id = #{id} 
+	    and state = 'Y'
+	</select>
+
+	<select id="myComments" parameterType="map" resultType="comments">
+	  select * 
+	  from (
+	    select inner.*, rownum as rn
+	    from (
+	      select c.*, p.title as post_title, p.content as post_content
+	      from a_comments c
+	      join a_posts p on c.post_id = p.id
+	      where c.user_id = #{id} 
+	        and c.state = 'Y'
+	      order by c.post_id desc
+	    ) inner
+	    where rownum &lt;= #{endno}
+	  )
+	  where rn  &gt;= #{startno}
+	</select>
+
+
+	<select id="MyPostSearchCount" parameterType="map" resultType="int">
+	  SELECT COUNT(*) FROM a_posts
+	  WHERE user_id = #{id}
+	    AND state = 'Y'
+	    AND (title LIKE '%' || #{search} || '%' OR content LIKE '%' || #{search} || '%')
 	</select>
 	
-	<select id="myComments_search" parameterType="map" resultType="comments">
-		select
-			c.*,
-			p.title as post_title, p.content as post_content
-			from a_comments c
-			join a_posts p On c.post_id = p.id
-			where c.user_id = #{id} and c.state = 'Y' 
-			and c.content like '%' || #{search} || '%'
-			 order by c.post_id desc
+	<select id="MyPostsSearch" parameterType="map" resultType="posts">
+	  SELECT * FROM (
+	    SELECT inner.*, rownum AS rn
+	    FROM (
+	      SELECT * FROM a_posts
+	      WHERE user_id = #{id}
+	        AND state = 'Y'
+	        AND (title LIKE '%' || #{search} || '%' OR content LIKE '%' || #{search} || '%')
+	      ORDER BY id DESC
+	    ) inner
+	    WHERE rownum &lt;= #{endno}
+	  )
+	  WHERE rn &gt;= #{startno}
+	</select>
 	
+	<select id="mycommentsearchcount" parameterType="map" resultType="int">
+	  select count(*) 
+	  from a_comments
+	  where user_id = #{id}
+	    and state = 'Y'
+	    and content like '%' || #{search} || '%'
+	</select>
+	
+	<select id="mycommentsearch" parameterType="map" resultType="comments">
+	  select * 
+	  from (
+	    select inner.*, rownum as rn
+	    from (
+	      select c.*, p.title as post_title, p.content as post_content
+	      from a_comments c
+	      join a_posts p on c.post_id = p.id
+	      where c.user_id = #{id}
+	        and c.state = 'Y'
+	        and c.content like '%' || #{search} || '%'
+	      order by c.post_id desc
+	    ) inner
+	    where rownum &lt;= #{endno}
+	  )
+	  where rn &gt;= #{startno}
 	</select>
 	
 	<select id="myProfile" parameterType="int" resultType="users">
