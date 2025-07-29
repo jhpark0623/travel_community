@@ -17,116 +17,90 @@ td a.d-block:hover {
 </style>
 
 <meta charset="UTF-8">
-
+<style type="text/css">
+	
+</style>
 
 </head>
 <body>
 	<jsp:include page="../include/header.jsp" />
+	
 
+	<h2 class="text-center mb-4">📋 Posts 메인 페이지 - 인기글</h2>
 
-	<div class="container my-5" style="width: 950px; border-radius: 3px; box-shadow: 0 3px 9px rgba(0,0,0,0.2); padding: 20px">
-	
-	    <h2 class="text-center mb-4">📋 Posts 메인 페이지</h2>
-	    <h4 class="text-center mb-3">현재 전체 게시글 목록 <- 바뀔수있음</h4>
+	<div class="container my-5" style="width: 700px;">
 	    
-	    <!-- ✅ 전체 게시물 수 -->
-	    <div class="d-flex justify-content-end mb-2">
-	        <small class="text-muted">전체 게시물 수: ${Paging.totalRecord}개</small>
-	    </div>
+	    <!-- 전체적으로 이미지 출력시 깨지는 문제있음. -->
+	    <!-- 아래 반복문에서 post.content 값이 출력될때 조정 필요? -->
 	    
-	    <!-- aList 영역 -->
-	    <table class="table table-bordered table-striped align-middle text-center">
-	        <thead class="table-primary">
-	            <tr>
-	                <th style="width: 120px;">게시판</th>
-	                <th>제목</th>
-	                <th style="width: 120px;">작성자</th>
-	                <th style="width: 140px;">작성일</th>
-	                <th style="width: 65px;">조회수</th>
-	                <th style="width: 65px">좋아요</th>
-	            </tr>
-	        </thead>
-	        <tbody>
-	            <c:if test="${!empty aList}">
-	                <c:forEach items="${aList}" var="dto">
-	                
-	                	<!-- 공지사항 목록 출력 -->
-	                    <c:if test="${empty dto.nickname }">	
-		                    <tr>
-		                        <td style="color: red; font-weight: bold;">공지사항</td>
-		                        <td class="text-start position-relative p-0">
-		                            <a href="${pageContext.request.contextPath}/notices_content.go?no=${dto.id}&page=${Paging.page}"  
-		                               class="d-block stretched-link text-decoration-none px-2 py-2">
-		                                 ${dto.title}
-		                            </a>
-		                        </td>
-		                        <td>관리자</td>
-		                        <td>${dto.displayDate}</td>
-		                        <td>${dto.view_count}</td>
-		                        <td>${dto.like_count}</td>
-		                    </tr>
-	            		</c:if>
-	                	
-	                	<!-- 게시글 목록 출력 -->
-	                	<c:if test="${!empty dto.nickname }">	
-		                    <tr>
-		                    	<td>${categoryMap[dto.category_id]}</td> 
-								<td class="text-start" style="max-width: 0px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-								  <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}"
-								     class="text-dark text-decoration-none fw-bold"
-								     title="${dto.title}">
-								    ${dto.title}
-								  </a>
-								</td>
-		                        <td>${dto.nickname }</td>
-		                        <td>${dto.displayDate}</td>
-		                        <td>${dto.view_count}</td>
-		                        <td>${dto.like_count}</td>
-		                    </tr>
-	                    </c:if>   
-	            	</c:forEach>
-	            </c:if>
-	            
-	            
-	            <c:if test="${empty aList}">
-	                <tr>
-	                    <td colspan="6" class="text-center">
-	                        <div class="py-4 fw-bold">전체 게시물 목록이 없습니다.</div>
-	                    </td>
-	                </tr>
-	            </c:if>
-	        </tbody>
-	    </table>
-	    
-	    <!-- ✅ 페이징 처리 -->
-	    <nav>
-	        <ul class="pagination justify-content-center">
-	            <c:if test="${Paging.page > Paging.block}">
-	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/?page=1">처음</a>
-	                </li>
-	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/?page=${Paging.startBlock - 1}">이전</a>
-	                </li>
-	            </c:if>
-	
-	            <c:forEach begin="${Paging.startBlock}" end="${Paging.endBlock}" var="i">
-	                <li class="page-item ${i == Paging.page ? 'active' : ''}">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/?page=${i}">${i}</a>
-	                </li>
-	            </c:forEach>
-	
-	            <c:if test="${Paging.endBlock < Paging.allPage}">
-	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/?page=${Paging.endBlock + 1}">다음</a>
-	                </li>
-	                <li class="page-item">
-	                    <a class="page-link" href="${pageContext.request.contextPath}/?page=${Paging.allPage}">마지막</a>
-	                </li>
-	            </c:if>
-	        </ul>
-	    </nav>
-	    
+	    <!-- carousel slide 형식 -->
+	    <div id="hotPostsCarousel" class="carousel carousel-dark" data-bs-ride="false"
+     		data-bs-interval="false">
+	      
+		  <div class="carousel-inner">
+		    <c:forEach var="post" items="${hotPosts}" varStatus="loop">
+		      <div class="carousel-item ${loop.index == 0 ? 'active' : ''}">
+		        <div class="card text-center mx-auto shadow" style="width: 24rem;">
+		          <div class="card-body position-relative">
+		            <h5 class="card-title">
+		              <a href="/post_detail.go?id=${post.id}" class="stretched-link text-decoration-none text-dark">
+		                ${post.title}
+		              </a>
+		            </h5>
+		            <h6 class="card-subtitle mb-2 text-muted">by ${post.nickname} · ${post.displayDate}</h6>
+		            <p class="card-text">${post.content}</p>
+		            <div class="mt-3">
+		              <span class="badge bg-info">조회수: ${post.view_count}</span>
+		              <span class="badge bg-success">좋아요: ${post.like_count}</span>
+		            </div>
+		          </div>
+		        </div>
+		      </div>
+		    </c:forEach>
+		  </div>
+		
+		  <!-- ◀ Prev 버튼 -->
+		  <button class="carousel-control-prev" type="button" data-bs-target="#hotPostsCarousel" data-bs-slide="prev">
+		    <span class="carousel-control-prev-icon"></span>
+		  </button>
+		
+		  <!-- ▶ Next 버튼 -->
+		  <button class="carousel-control-next" type="button" data-bs-target="#hotPostsCarousel" data-bs-slide="next">
+		  	<span class="carousel-control-next-icon"></span>
+		  </button>
+		  
+		</div>
+		
+		<div class="mt-5 mb-5"></div>
+		
+		<!-- card 형식 -->
+	    <div class="row row-cols-1 row-cols-md-3 g-4">
+		  <c:forEach var="post" items="${hotPosts}">
+		    <div class="col">
+		      <div class="card h-100">
+		        <div class="card-body">
+		          <h5 class="card-title"><a href="/post_detail.go?id=${post.id }" class="stretched-link text-decoration-none text-dark">
+		          	${post.title}
+		          </a></h5>
+		          <h6 class="card-subtitle mb-2 text-muted">by ${post.nickname}</h6>
+		          <p class="card-text">${post.content}</p>
+		          <h6 class="card-subtitle mb-2 text-muted">${post.displayDate}</h6>
+		        </div>
+		        <div class="card-footer">
+		          <small class="text-muted">조회수: ${post.view_count} · 좋아요: ${post.like_count}</small>
+		        </div>
+		      </div>
+		    </div>
+		  </c:forEach>
+		</div>
+		
+		<div class="mt-5 mb-5">		<!-- 제대로 사용된다면 반복문 처리 가능. -->
+			<a href="hotposts_category.go?category_id=1">카테고리1</a>
+			<a href="hotposts_category.go?category_id=2">카테고리2</a>
+			<a href="hotposts_category.go?category_id=3">카테고리3</a>
+		</div>
 	</div>
+	
+	
 </body>
 </html>

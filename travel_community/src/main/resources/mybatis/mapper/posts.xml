@@ -12,7 +12,7 @@
 	</select>
 	
 
-	<select id="list" parameterType="page" resultType="Posts">
+	<select id="list" parameterType="page" resultType="posts">
 		SELECT p.*, u.nickname
 		FROM 
 		(SELECT ROW_NUMBER() OVER (ORDER BY id DESC) AS rnum, 
@@ -22,7 +22,7 @@
 	</select>
 
 	
-	<select id="cont" parameterType="int" resultType="Posts">
+	<select id="cont" parameterType="int" resultType="posts">
 	   select * from a_posts where id = #{id}
 	</select>
 	
@@ -74,7 +74,7 @@
 		select count(*) from a_notices where is_pop = 'Y'
 	</select>
 	
-	<select id="c_list" parameterType="page" resultType="Posts">
+	<select id="c_list" parameterType="page" resultType="posts">
 	  <![CDATA[
 	  SELECT *
 	  FROM (
@@ -124,4 +124,46 @@
 		select count(*) from a_posts where state = 'Y'
 	</select>
 	
+	<select id="hotPosts" parameterType="int" resultType="posts">
+		<![CDATA[
+	    SELECT *
+	    FROM (
+	        SELECT 
+	            p.*,
+	            (p.view_count * #{viewPoint} + p.like_count * #{likePoint}) AS total_score,
+	            u.nickname
+	        FROM 
+	            a_posts p
+	            JOIN a_users u ON p.user_id = u.id
+	        WHERE 
+	            p.state = 'Y'
+	            AND p.created_at >= SYSDATE - #{hotPostsDuration}
+	        ORDER BY 
+	            total_score DESC
+	    )
+	    WHERE ROWNUM <= #{hotPostsCount}
+	  ]]>
+	</select>
+	
+	<select id="hotPostsByCategory" parameterType="int" resultType="posts">
+		<![CDATA[
+	    SELECT *
+	    FROM (
+	        SELECT 
+	            p.*,
+	            (p.view_count * #{viewPoint} + p.like_count * #{likePoint}) AS total_score,
+	            u.nickname
+	        FROM 
+	            a_posts p
+	            JOIN a_users u ON p.user_id = u.id
+	        WHERE 
+	            p.state = 'Y'
+	            AND p.created_at >= SYSDATE - #{hotPostsDuration}
+	            AND p.category_id = #{category_id}
+	        ORDER BY 
+	            total_score DESC
+	    )
+	    WHERE ROWNUM <= #{hotPostsCount}
+	  ]]>
+	</select>
 </mapper>
