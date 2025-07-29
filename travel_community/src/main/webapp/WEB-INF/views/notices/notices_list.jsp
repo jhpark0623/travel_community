@@ -8,7 +8,16 @@
 <head>
 <meta charset="UTF-8">
 <title>공지사항 전체 리스트</title>
-
+<style type="text/css">
+td a.text-dark:hover {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+}
+td a.d-block:hover {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+}
+</style>
 </head>
 <body>
 

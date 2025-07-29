@@ -5,6 +5,17 @@
 <html>
 <head>
 <title>travel_community</title>
+<style>
+td a.text-dark:hover {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+}
+td a.d-block:hover {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+}
+</style>
+
 <meta charset="UTF-8">
 
 
@@ -42,7 +53,7 @@
 	                	<!-- 공지사항 목록 출력 -->
 	                    <c:if test="${empty dto.nickname }">	
 		                    <tr>
-		                        <td style="color: red;">공지사항</td>
+		                        <td style="color: red; font-weight: bold;">공지사항</td>
 		                        <td class="text-start position-relative p-0">
 		                            <a href="${pageContext.request.contextPath}/notices_content.go?no=${dto.id}&page=${Paging.page}"  
 		                               class="d-block stretched-link text-decoration-none px-2 py-2">
@@ -60,12 +71,13 @@
 	                	<c:if test="${!empty dto.nickname }">	
 		                    <tr>
 		                    	<td>${categoryMap[dto.category_id]}</td> 
-		                        <td class="text-start position-relative p-0">
-		                            <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}" 
-		                               class="d-block stretched-link text-decoration-none px-2 py-2">
-		                                 ${dto.title}
-		                            </a>
-		                        </td>
+								<td class="text-start" style="max-width: 0px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+								  <a href="<%=request.getContextPath() %>/post_detail.go?id=${dto.id}&page=${Paging.page}"
+								     class="text-dark text-decoration-none fw-bold"
+								     title="${dto.title}">
+								    ${dto.title}
+								  </a>
+								</td>
 		                        <td>${dto.nickname }</td>
 		                        <td>${dto.displayDate}</td>
 		                        <td>${dto.view_count}</td>
