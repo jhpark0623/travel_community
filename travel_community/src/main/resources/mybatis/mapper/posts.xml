@@ -132,6 +132,7 @@
 	           combined.type,
 	           combined.view_count,
 	           combined.like_count,
+	           combined.category_id,
 	           ROW_NUMBER() OVER (ORDER BY combined.order_type ASC, combined.id DESC) AS rnum
 	    FROM (
 	      SELECT n.id,
@@ -142,6 +143,7 @@
 	             'notice' AS type,
 	             NULL AS view_count,
 	             NULL AS like_count,
+	             NULL AS category_id,
 	             0 AS order_type
 	      FROM a_notices n
 	      WHERE n.is_pop = 'Y'
@@ -156,6 +158,7 @@
 	             'post' AS type,
 	             p.view_count,
 	             p.like_count,
+	             p.category_id,
 	             1 AS order_type
 	      FROM a_posts p
 	      JOIN a_users u ON p.user_id = u.id
@@ -164,6 +167,10 @@
 	  )
 	  WHERE rnum BETWEEN #{startNo} AND #{endNo}
 	  ]]>
+	</select>
+	
+	<select id="countByAll">
+		select count(*) from a_posts where state = 'Y'
 	</select>
 	
 </mapper>

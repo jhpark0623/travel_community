@@ -106,7 +106,8 @@
 	
 	    <!-- ✅ 게시글 리스트 테이블 -->
 	    
-	    <!-- tList 영역 -->
+
+	    <!-- cList 영역 -->
 	    <table class="table table-bordered table-striped align-middle text-center">
 	        <thead class="table-primary">
 	            <tr>
@@ -120,8 +121,8 @@
 	        </thead>
 	        <tbody>
 
-	            <c:if test="${!empty tList}">
-	                <c:forEach items="${tList}" var="dto">
+	            <c:if test="${!empty cList}">
+	                <c:forEach items="${cList}" var="dto">
 	                
 	                	<!-- 공지사항 목록 출력 -->
 	                    <c:if test="${empty dto.nickname }">	
@@ -160,7 +161,7 @@
 	            </c:if>
 	            
 	            
-	            <c:if test="${empty tList}">
+	            <c:if test="${empty cList}">
 	                <tr>
 	                    <td colspan="6" class="text-center">
 	                        <div class="py-4 fw-bold">전체 게시물 목록이 없습니다.</div>
