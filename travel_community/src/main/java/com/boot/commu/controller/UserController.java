@@ -190,6 +190,8 @@ public class UserController {
 
 			model.addAttribute("res", dto);
 		}
+		
+		model.addAttribute("name", dto.getName());
 
 		return "user/user_findId_res";
 	}
@@ -206,6 +208,8 @@ public class UserController {
 
 			model.addAttribute("res", dto);
 		}
+		
+		model.addAttribute("name", dto.getName());
 
 		return "user/user_findPwd_res";
 	}

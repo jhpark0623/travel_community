@@ -66,8 +66,9 @@
 		          <h5 class="card-title"><a href="/post_detail.go?id=${post.id }" class="stretched-link text-decoration-none text-dark">
 		          	${post.title}
 		          </a></h5>
-		          <h6 class="card-subtitle mb-2 text-muted">by ${post.nickname} · ${post.displayDate}</h6>
+		          <h6 class="card-subtitle mb-2 text-muted">by ${post.nickname}</h6>
 		          <p class="card-text">${post.content}</p>
+		          <h6 class="card-subtitle mb-2 text-muted">${post.displayDate}</h6>
 		        </div>
 		        <div class="card-footer">
 		          <small class="text-muted">조회수: ${post.view_count} · 좋아요: ${post.like_count}</small>
