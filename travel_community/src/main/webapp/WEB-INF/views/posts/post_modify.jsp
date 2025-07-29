@@ -37,8 +37,10 @@ span:hover {
 
 
 		<form method="post"
-			action="<%=request.getContextPath()%>/post_write_ok.go"
+			action="<%=request.getContextPath()%>/post_modify_ok.go"
 			class="needs-validation">
+
+			<input type="hidden" name="id" value="${post.getId() }">
 
 			<div class="container my-4 d-flex align-items-center">
 
@@ -47,9 +49,15 @@ span:hover {
 					<select id="category" class="form-select" style="width: 200px;"
 						name="category_id">
 						<option>카테고리</option>
-						<option value=1>자유 게시판</option>
-						<option value=2>정보 게시판</option>
-						<option value=3>질문 게시판</option>
+						<option value=1
+							<c:if test="${post.getCategory_id() == 1 }">selected</c:if>>자유
+							게시판</option>
+						<option value=2
+							<c:if test="${post.getCategory_id() == 2 }">selected</c:if>>정보
+							게시판</option>
+						<option value=3
+							<c:if test="${post.getCategory_id() == 3 }">selected</c:if>>질문
+							게시판</option>
 					</select>
 				</div>
 				<div class="d-flex flex-column" style="margin-right: 50px;">
@@ -58,7 +66,8 @@ span:hover {
 						style="width: 200px;" name="province">
 						<option value="">시/광역시</option>
 						<c:forEach items="${provinceList }" var="province">
-							<option value="${province.getId() }">${province.getName() }</option>
+							<option value="${province.getId() }"
+								<c:if test="${post.getProvince_id() == province.getId() }">selected</c:if>>${province.getName() }</option>
 						</c:forEach>
 					</select>
 				</div>
@@ -68,18 +77,23 @@ span:hover {
 					<select id="citySelect" class="form-select" style="width: 200px;"
 						name="city_id">
 						<option>시/군/구</option>
+						<c:forEach items="${cityList }" var="city">
+							<option value="${city.getId() }"
+								<c:if test="${post.getCity_id() == city.getId() }">selected</c:if>>${city.getName() }</option>
+						</c:forEach>
 					</select>
 				</div>
 			</div>
 
 			<div class="mb-3">
 				<input type="text" class="form-control" name="title"
-					placeholder="제목을 입력해 주세요" required>
+					placeholder="제목을 입력해 주세요" required value="${post.getTitle() }">
 				<div class="invalid-feedback">Looks good!</div>
 			</div>
 
 			<div class="mb-3 pb-3 border-bottom">
 				<textarea name="content" id="summernote"></textarea>
+				<input type="hidden" id="value" value='${post.getContent() }'>
 			</div>
 
 			<div class="mb-3 d-flex align-items-center">
@@ -88,7 +102,8 @@ span:hover {
 			</div>
 
 			<div id="hashtag" class="d-flex flex-wrap border-bottom">
-				<input type="hidden" id="hashtags" name="hashtags[]" value="">
+				<input type="hidden" id="hashtags" name="hashtags[]"
+					value="${hashtags }">
 			</div>
 
 			<input class="btn btn-outline-secondary mt-3 float-end" type="submit"
@@ -100,11 +115,27 @@ span:hover {
 
 	<script>
 	
-		let hashtags;
+		// post 수정 시 게시글 가져와서 화면에 출력
+		window.onload = function () {
+			$('#summernote').summernote('code', $('#value').val())
+		}
+
+		var hashtags;
 		
+
 		$(document).ready(function() {
 			
-			hashtags=[];
+			hashtags = []
+			
+			const hashtagList = $('#hashtags').val();
+			
+			for(const hashtag of hashtagList.substring(1, hashtagList.length - 1).split(", ")){
+				hashtags.push(hashtag)
+				const hashtagElement = $('<span id="' + hashtag + '" class="m-1 px-2 py-1 border rounded-pill d-flex align-items-center">#'+hashtag+' <button type="button" id="deleteBtn" class="btn-close border-0 rounded-circle deleteButton" aria-label="Close"></button></span>'); 
+				$('#hashtag').append(hashtagElement);
+			}
+			
+			$('#hashtags').val(hashtags)
 			
 			$('#provinceSelect').change(function(){
 				
@@ -184,6 +215,8 @@ span:hover {
 			if (event.keyCode === 13) event.preventDefault();
 		});
 		
+		
+		
 		// hashtag input 설정
 		$(document).on('keyup', '#hashtagInput', function(e){
 			// enter 입력시 입력값 가져오기
@@ -198,6 +231,11 @@ span:hover {
 					alert("중복된 태그입니다.")
 					return
 				};
+				
+				if($('#hashtag').children('span').length == 10){
+					alert("해시태그는 10개까지 작성 가능합니다.")
+					return
+				}
 					
 				hashtags.push(hashtag);
 				
@@ -211,6 +249,7 @@ span:hover {
 			}
 		})
 		
+		// 해시태그 삭제 버튼 클릭 시
 		$(document).on('click', '#deleteBtn', function(){
 			const inputValue = $("#hashtags").val().split(",");
 			const delID = $(this).parent().attr("id");
