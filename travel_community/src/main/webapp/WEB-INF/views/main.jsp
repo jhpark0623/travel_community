@@ -13,7 +13,7 @@
 	<jsp:include page="../include/header.jsp" />
 
 
-	<div class="container my-5" style="width: 900px">
+	<div class="container my-5" style="width: 950px; border-radius: 3px; box-shadow: 0 3px 9px rgba(0,0,0,0.2); padding: 20px">
 	
 	    <h2 class="text-center mb-4">📋 Posts 메인 페이지</h2>
 	    <h4 class="text-center mb-3">현재 전체 게시글 목록 <- 바뀔수있음</h4>
@@ -42,7 +42,7 @@
 	                	<!-- 공지사항 목록 출력 -->
 	                    <c:if test="${empty dto.nickname }">	
 		                    <tr>
-		                        <td>공지사항</td>
+		                        <td style="color: red;">공지사항</td>
 		                        <td class="text-start position-relative p-0">
 		                            <a href="${pageContext.request.contextPath}/notices_content.go?no=${dto.id}&page=${Paging.page}"  
 		                               class="d-block stretched-link text-decoration-none px-2 py-2">

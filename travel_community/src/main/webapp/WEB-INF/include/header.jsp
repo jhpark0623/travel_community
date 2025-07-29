@@ -32,11 +32,12 @@
 <style>
 body {
 	margin: 0;
-	background: #ffffff;
+	background: #fcfcfc;
 	height: 100vh;
 	min-height: 900px;
 	width: 100%;
 	position: relative;
+	padding-bottom: 20px; 
 }
 
 .header-container {
@@ -69,6 +70,10 @@ button:hover, input[type="submit"]:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
+
+a {
+  text-decoration: none;
+}
 </style>
 
 </head>
@@ -87,12 +92,6 @@ button:hover, input[type="submit"]:hover {
 		<a href="<%=request.getContextPath()%>/notices_list.go">[공지사항]</a>
 
 		<div class="header-right">
-			<button class="btn btn-primary"
-				onclick="location.href='<%=request.getContextPath()%>/'">버튼1</button>
-
-			<button class="btn btn-primary"
-				onclick="location.href='<%=request.getContextPath()%>/'">버튼2</button>
-
 			<c:choose>
 				<c:when test="${empty sessionScope.loginUser}">
 					<button class="btn btn-outline-secondary"
