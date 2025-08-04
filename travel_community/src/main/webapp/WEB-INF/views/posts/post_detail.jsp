@@ -209,7 +209,7 @@ ul li a.text-dark:hover {
     <!-- 수정/삭제 버튼 -->
     <c:if test="${not empty loginUser && (loginUser.id == post.user_id || loginUser.role eq 'ADMIN')}">
         <div class="mb-3">
-            <button class="btn btn-outline-primary btn-sm" onclick="location.href='/post_edit.go?id=${post.id}'">✏ 수정</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="location.href='/post_write.go?id=${post.id}'">✏ 수정</button>
             <form action="/post_delete.go" method="post" class="d-inline">
                 <input type="hidden" name="id" value="${post.id}" />
                 <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
