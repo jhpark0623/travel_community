@@ -149,17 +149,22 @@ public class PostsController {
 	}
 
 	@GetMapping("/posts_search_content.go")
-	public String searchCont(@RequestParam("no") int no, @RequestParam(value = "page", defaultValue = "1") int nowPage,
-			Model model) {
-		Posts cont = pmapper.cont(no);
-		if (cont == null) {
-			return "redirect:/posts_list.go?page=" + nowPage;
-		}
-		model.addAttribute("Cont", cont);
-		model.addAttribute("Page", nowPage);
+	public String searchCont(@RequestParam("no") int no,
+	                         @RequestParam(value = "page", defaultValue = "1") int nowPage,
+	                         @RequestParam("categoryId") int categoryId,
+	                         Model model) {
+	    Posts cont = pmapper.cont(no);
+	    if (cont == null) {
+	        return "redirect:/posts_list.go/" + categoryId + "?page=" + nowPage;
+	    }
 
-		return "posts/posts_search_content";
+	    model.addAttribute("Cont", cont);
+	    model.addAttribute("Page", nowPage);
+	    model.addAttribute("CategoryId", categoryId);  // ✅ 모델에 추가
+
+	    return "posts/posts_search_content";
 	}
+
 
 	@GetMapping("/notices_list.go")
 	public String noticeList(@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
@@ -315,11 +320,14 @@ public class PostsController {
 		// 검색한 게시물을 List로 가져오는 메서드 호출.
 		List<Notices> searchList = this.noticesMapper.search(pdto);
 
-		model.addAttribute("searchPageList", searchList).addAttribute("Paging", pdto);
+		model.addAttribute("searchPageList", searchList)
+		     .addAttribute("Paging", pdto);
 
 		return "notices/notices_search_list";
 
 	}
+	
+ 
 
 	@GetMapping("/notices_search_content.go")
 	public String searchContent(@RequestParam("no") int no,

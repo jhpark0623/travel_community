@@ -43,7 +43,7 @@
 	               <tr>
 	                  <td>${dto.id}</td>
 	                  <td class="text-start position-relative p-0">
-	                     <a href="${pageContext.request.contextPath}/posts_search_content.go?no=${dto.id}&page=${paging.page}"
+	                     <a href="${pageContext.request.contextPath}/posts_search_content.go?no=${dto.id}&page=${paging.page}&categoryId=${dto.category_id}"
 	                        class="d-block stretched-link text-decoration-none px-2 py-2">
 	                        ${dto.title}
 	                     </a>
