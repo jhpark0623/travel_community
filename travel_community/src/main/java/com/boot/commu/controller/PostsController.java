@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import com.boot.commu.mapper.NoticesMapper;
 import com.boot.commu.mapper.PostsMapper;
 import com.boot.commu.model.Notices;
 import com.boot.commu.model.Page;
+import com.boot.commu.model.PostModify;
 import com.boot.commu.model.Post_hashtag;
 import com.boot.commu.model.Posts;
 
@@ -73,43 +75,113 @@ public class PostsController {
 
 	// DB 상의 전체 게시물의 수.
 	private int totalRecord = 0;
+	
+	// 조회수를 인기글 포인트로 환산
+	private int viewPoint = 1;
+	
+	// 조회수를 인기글 포인트로 환산
+	private int likePoint = 10;
+	
+	// 메인에서 출력할 인기글 리스트 갯수
+	private int hotPostsCount = 9;
+	
+	// 인기글에서 출력될 게시글 업로드 범위(일수)
+	private int hotPostsDuration = 30;
 
 	@GetMapping("/")
-	public String main(@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
-		// 전체 게시글 리스트 출력될 예정.
-
+	public String main(Model model) {
+		
+		List<Posts> hotPosts = this.pmapper.hotPosts(viewPoint, likePoint, hotPostsCount, hotPostsDuration);
+		
+		// ✅ displayDate 메서드
+	    for (Posts post : hotPosts) {
+	        post.setDisplayDateFromCreatedAt();
+	    }
+		
+		model.addAttribute("hotPosts", hotPosts);
+		
+		
 		return "main";
 	}
 
 	@GetMapping("/posts_list.go/{i}")
+	public String list(
+	        @PathVariable("i") int pCategory,
+	        @RequestParam(value = "page", defaultValue = "1") int page,
+	        @RequestParam(value = "cityId", required = false) Integer cityId,
+	        @RequestParam(value = "keyword", required = false) String keyword,
+	        @RequestParam(value = "field", required = false) String field,
+	        Model model) {
 
-	public String list(@PathVariable("i") int pCategory, @RequestParam(value = "page", defaultValue = "1") int page,
-			Model model) {
+	    int countP;
+	    List<Posts> cList;
 
-		// 카테고리에 해당하는 게시글의 수
-		int countP = this.pmapper.countByCategory(pCategory);
-		// is_pop = 'Y' 인 공지사항
-		int countN = this.pmapper.countByNotice();
+	    List<Region_province> provinceList = this.pmapper.getProvinceList();
 
-		totalRecord = countP + countN;
+	    // 검색어와 도시 여부에 따른 게시글 개수 계산
+	    if (keyword != null && !keyword.trim().isEmpty()) {
+	        if (cityId != null) {
+	            Map<String, Object> map = Map.of(
+	                "categoryId", pCategory,
+	                "cityId", cityId,
+	                "keyword", keyword
+	            );
+	            countP = this.pmapper.countByCategoryCityAndKeyword(map);
+	        } else {
+	            Map<String, Object> map = Map.of(
+	                "categoryId", pCategory,
+	                "keyword", keyword
+	            );
+	            countP = this.pmapper.countByCategoryCityAndKeyword(map);
+	        }
+	    } else {
+	        if (cityId != null) {
+	            countP = this.pmapper.countByCategoryAndCity(pCategory, cityId);
+	        } else {
+	            countP = this.pmapper.countByCategory(pCategory);
+	        }
+	    }
 
-		// 페이징 객체 생성
-		Page pdto = new Page(page, rowsize, totalRecord, pCategory);
+	    int countN = this.pmapper.countByNotice();
+	    totalRecord = countP + countN;
 
-		// 해당 카테고리에 해당하는 게시글 + 공지사항 리스트
-		List<Posts> cList = this.pmapper.c_list(pdto);
+	    Page pdto = new Page(page, rowsize, totalRecord, pCategory);
 
-		// ✅ displayDate 메서드
-		for (Posts post : cList) {
-			post.setDisplayDateFromCreatedAt();
-		}
+	    // 검색어와 도시 여부에 따른 게시글 목록 조회
+	    if (keyword != null && !keyword.trim().isEmpty()) {
+	        Map<String, Object> map = new HashMap<>();
+	        map.put("pdto", pdto);
+	        map.put("keyword", keyword);
+	        if (cityId != null) {
+	            map.put("cityId", cityId);
+	            cList = this.pmapper.c_list_by_city_and_keyword(map);
+	        } else {
+	            cList = this.pmapper.c_list_by_keyword(map);
+	        }
+	    } else {
+	        if (cityId != null) {
+	            cList = this.pmapper.c_list_by_city(pdto, cityId);
+	        } else {
+	            cList = this.pmapper.c_list(pdto);
+	        }
+	    }
 
-		model.addAttribute("tList", cList);
-		model.addAttribute("Paging", pdto);
-		model.addAttribute("CategoryId", pCategory);
+	    for (Posts post : cList) {
+	        post.setDisplayDateFromCreatedAt();
+	    }
 
-		return "posts/posts_list";
+	    model.addAttribute("cList", cList);
+	    model.addAttribute("Paging", pdto);
+	    model.addAttribute("CategoryId", pCategory);
+	    model.addAttribute("cityId", cityId);
+	    model.addAttribute("keyword", keyword);
+	    model.addAttribute("field", field);
+	    model.addAttribute("provinceList", provinceList);
+
+	    return "posts/posts_list";
 	}
+
+
 
 	@GetMapping("posts_notices_content.go")
 	public String content(@RequestParam("no") int no, @RequestParam("page") int nowPage, Model model) {
@@ -575,90 +647,85 @@ public class PostsController {
 	// 시/광역시 코드를 받아서 해당 도시의 시/군/구 코드 출력
 	@PostMapping(value = "/getCityCode", produces = "application/json; charset=utf8")
 	@ResponseBody
-	public String getCityCode(@RequestParam("provinceCode") int provinceCode) throws JSONException {
-		JsonObject jsonObject = new JsonObject();
+	public List<Map<String, Object>> getCityCode(@RequestParam("provinceCode") int provinceCode) {
+	    List<Region_city> getCityList = this.pmapper.getCityList(provinceCode);
+	    List<Map<String, Object>> cityList = new ArrayList<>();
+	    
+	    System.out.println(getCityList);
 
-		// 시/군/구 리스트 출력
-		List<Region_city> getCityList = this.pmapper.getCityList(provinceCode);
+	    for (Region_city city : getCityList) {
+	        Map<String, Object> cityMap = new HashMap<>();
+	        cityMap.put("id", city.getId());
+	        cityMap.put("Province_id", city.getProvince_id());
+	        cityMap.put("name", city.getName());
+	        cityList.add(cityMap);
+	    }
 
-		//
-		List<JSONObject> cityList = new ArrayList<>();
-
-		// 각각 리스트 json으로 변환 후 리스트에 저장
-		for (Region_city city : getCityList) {
-			JSONObject cityJson = new JSONObject();
-
-			cityJson.put("id", city.getId());
-			cityJson.put("Province_id", city.getProvince_id());
-			cityJson.put("name", city.getName());
-
-			cityList.add(cityJson);
-		}
-
-		jsonObject.addProperty("cityList", cityList.toString());
-		jsonObject.addProperty("responseCode", "success");
-
-		return jsonObject.toString();
+	    return cityList;
 	}
 
 	// 게시글 작성 정보 저장
-	@PostMapping("/post_write_ok.go")
-	public String postWriteOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags,
-			@RequestParam("province") int province_id, HttpSession session, HttpServletResponse response)
-			throws IOException {
+		@PostMapping("/post_write_ok.go")
+		public void postWriteOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags, HttpSession session,
+				HttpServletResponse response) throws IOException {
 
-		response.setContentType("text/html; charset=UTF-8");
-		PrintWriter out = response.getWriter();
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
 
-		// 로그인 정보
-		Users user = (Users) session.getAttribute("loginUser");
+			// 로그인 정보
+			Users user = (Users) session.getAttribute("loginUser");
 
-		posts.setUser_id(user.getId());
+			posts.setUser_id(user.getId());
 
-		// 게시글 정보 저장
-		int result = this.pmapper.insertPost(posts);
+			// 게시글 정보 저장
+			int result = this.pmapper.insertPost(posts);
 
-		if (result > 0) {
+			if (result > 0) {
 
-			for (String hashtag : hashtags) {
+				for (String hashtag : hashtags) {
 
-				Post_hashtag ph = new Post_hashtag();
-				Hashtags hash = new Hashtags();
+					Post_hashtag ph = new Post_hashtag();
+					Hashtags hash = new Hashtags();
 
-				hash.setHashtag(hashtag);
+					hash.setHashtag(hashtag);
 
-				// 해시태그 검색
-				int hashtag_id = this.pmapper.findHashtag(hashtag);
+					// 해시태그 검색
+					int hashtag_id = this.pmapper.selectHashtagId(hashtag);
 
-				// 해시태그가 없을 경우 새로 생성 후 해당 id값 저장
-				if (hashtag_id == 0) {
-					this.pmapper.insertHashtag(hash);
-					ph.setHashtag_id(hash.getId());
-					// 해시태그가 있으면 해당 id값 저장
-				} else {
-					ph.setHashtag_id(this.pmapper.selectHashtagId(hashtag));
+					// 해시태그가 없을 경우 새로 생성 후 해당 id값 저장
+					if (hashtag_id == 0) {
+						this.pmapper.insertHashtag(hash);
+						ph.setHashtag_id(hash.getId());
+						// 해시태그가 있으면 해당 id값 저장
+					} else {
+						ph.setHashtag_id(this.pmapper.selectHashtagId(hashtag));
+					}
+					// db에 저장할 정보 저장
+					HashMap<String, Integer> map = new HashMap<String, Integer>();
+
+					map.put("post_id", posts.getId());
+					map.put("hashtag_id", ph.getHashtag_id());
+
+					// insert post_hashtag
+					this.pmapper.insertPostHashtag(map);
+
 				}
-				// db에 저장할 정보 저장
-				HashMap<String, Integer> map = new HashMap<String, Integer>();
 
-				map.put("post_id", posts.getId());
-				map.put("hashtag_id", ph.getHashtag_id());
+				out.println("<script>");
+				out.println("alert('게시글 작성 완료')");
+				out.println("location.replace('/post_detail.go?id=" + posts.getId() + "')");
+				out.println("</script>");
 
-				// insert post_hashtag
-				this.pmapper.insertPostHashtag(map);
+			} else {
+
+				out.println("<script>");
+				out.println("alert('게시글 작성 실패')");
+				out.println("history.back()");
+				out.println("</script>");
 
 			}
 
-			out.println("<script>");
-			out.println("alert('게시글 작성 완료')");
-			out.println("location.href='/posts_list.go/" + posts.getId() + "'");
-			out.println("</script>");
-
-			return null;
 		}
-
-		return "main";
-	}
 
 	// 서머노트 이미지 업로드
 	@PostMapping(value = "/uploadImageFile", produces = "application/json; charset=utf8")
@@ -702,5 +769,134 @@ public class PostsController {
 		// JSON 객체를 문자열로 변환하여 반환
 		return jsonObject.toString();
 	}
+	
+	// get방식으로 category_id를 받고 해당하는 카테고리 인기게시글 목록을 반환하는 로직.
+	@GetMapping("hotposts_category.go")
+	public String hotPosts(@RequestParam("category_id") int category_id, Model model) {
+		
+		List<Posts> hotPostsByCategory = this.pmapper.hotPostsByCategory(viewPoint, likePoint, hotPostsCount, hotPostsDuration, category_id);
+		
+		// ✅ displayDate 메서드
+	    for (Posts post : hotPostsByCategory) {
+	        post.setDisplayDateFromCreatedAt();
+	    }
+	    
+		model.addAttribute("category_id", category_id);
+		model.addAttribute("hotPosts", hotPostsByCategory);
+		
+		return "posts/post_hotPosts";
+	}
+	
+	// 게시글 수정
+		@GetMapping("post_modify.go")
+		public String postModify(Model model, @RequestParam("id") int id, HttpSession session, HttpServletResponse response)
+				throws IOException {
+
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+
+			// 수정폼 페이지에 가져갈 기본 데이터 호출
+			// 제목, 내용, 카테고리 코드, 시/광역시 코드, 시/군/구 코드, 해시태그
+			// id에 해당하는 게시글 정보 호출
+			PostModify postDetail = this.pmapper.selectPostModifyDetail(id);
+			Users user = (Users) session.getAttribute("loginUser");
+
+			// 게시글을 작성한 계정이 아닌 다른 계정으로 접근시 >> 잘못된 접근 알림
+			if (user == null || postDetail.getUser_id() != user.getId()) {
+				out.println("<script>alert('잘못된 접근입니다.'); location.href = history.back();</script>");
+				return null;
+			}
+
+			// 해당 게시글의 지역 코드에 맞는 지역 리스트 호출
+			List<Region_province> provinceList = this.pmapper.getProvinceList();
+			List<Region_city> cityList = this.pmapper.getCityList(postDetail.getProvince_id());
+
+			// 해당 게시글의 해시태그 호출
+			List<String> hashtags = this.pmapper.getHashtag(id);
+
+			System.out.println(hashtags);
+
+			model.addAttribute("post", postDetail).addAttribute("provinceList", provinceList)
+					.addAttribute("cityList", cityList).addAttribute("hashtags", hashtags);
+
+			return "posts/post_modify";
+
+		}
+
+		// 게시글 작성 정보 저장
+		@PostMapping("/post_modify_ok.go")
+		public void postModifyOk(Posts posts, @RequestParam("hashtags[]") String[] hashtags, HttpServletResponse response)
+				throws IOException {
+
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+
+			// 게시글 정보 저장
+			int result = this.pmapper.updatePost(posts);
+
+			if (result > 0) {
+
+				// 해시태그 업데이트
+				List<String> oldTags = this.pmapper.getHashtag(posts.getId());
+				List<String> newTags = Arrays.asList(hashtags);
+
+				for (String newTag : newTags) {
+
+					if (!oldTags.contains(newTag)) {
+						// post_id, hashtag_id
+						Post_hashtag ph = new Post_hashtag();
+						// hashtag_id, hashtag_name
+						Hashtags hash = new Hashtags();
+						HashMap<String, Integer> map = new HashMap<String, Integer>();
+
+						hash.setHashtag(newTag);
+
+						// 해시태그의 아이디 검색 > 저장된 해시태그가 있을경우 해시태그ID, 없을경우 0
+						ph.setHashtag_id(this.pmapper.selectHashtagId(newTag));
+
+						// 해시태그가 없을경우 >> db에 저장 후 posthashtag 저장
+						if (ph.getHashtag_id() == 0) {
+							this.pmapper.insertHashtag(hash);
+							ph.setHashtag_id(hash.getId());
+						}
+
+						map.put("post_id", posts.getId());
+						map.put("hashtag_id", ph.getHashtag_id());
+
+						// 새로 생긴 해시태그일 경우 post_hashtag 테이블에 추가
+						this.pmapper.insertPostHashtag(map);
+
+					}
+
+					// 없던걸 만드는건 되는데 있던걸 지우는건?
+
+				}
+
+				for (String oldTag : oldTags) {
+					if (!newTags.contains(oldTag)) {
+
+						HashMap<String, Object> map = new HashMap<String, Object>();
+						map.put("post_id", posts.getId());
+						map.put("hashtag", oldTag);
+
+						this.pmapper.deletePostHashtag(map);
+
+					}
+				}
+
+				out.println("<script>");
+				out.println("alert('게시글 수정 완료')");
+				out.println("location.replace('/post_detail.go?id=" + posts.getId() + "')");
+				out.println("</script>");
+
+			} else {
+
+				out.println("<script>");
+				out.println("alert('게시글 수정 실패')");
+				out.println("history.back()");
+				out.println("</script>");
+			}
+
+		}
 
 }

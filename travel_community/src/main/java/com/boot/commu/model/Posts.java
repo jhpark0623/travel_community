@@ -20,9 +20,11 @@ public class Posts {
 	private int view_count;
 	private int like_count;
 	private String state;
+	
 	private String nickname;
 	private String categoryName;
 	private String displayDate;
+	private int total_score;
 
 	public void setDisplayDateFromCreatedAt() {
 

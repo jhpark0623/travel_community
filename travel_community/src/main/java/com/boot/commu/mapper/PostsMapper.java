@@ -11,6 +11,7 @@ import com.boot.commu.model.Posts;
 import com.boot.commu.model.Notices;
 import com.boot.commu.model.Hashtags;
 import com.boot.commu.model.Page;
+import com.boot.commu.model.PostModify;
 import com.boot.commu.model.PostsDetailDTO;
 import com.boot.commu.model.Region_city;
 import com.boot.commu.model.Region_province;
@@ -32,6 +33,9 @@ public interface PostsMapper {
 
 	// notices 테이블의 is_pop = 'Y' 인 게시글의 수 조회
 	int countByNotice();
+
+	// 게시글 전체 수 반환.
+	int countByAll();
 
 	// category_id에 해당하는 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
 	List<Posts> c_list(Page pdto);
@@ -70,15 +74,8 @@ public interface PostsMapper {
 	void decrementLikeCount(@Param("postId") int postId);
 
 	// 시/광역시 정보 출력
+	List<Region_province> getProvinceList();
 
-    List<Region_province> getProvinceList();  
-    
-	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y') 리스트 조회.
-	List<Posts> a_list(Page pdto); 
-	    
-	// 게시글 전체 리스트 + notices 공지사항 (is pop = 'Y')의 수 반환.
-	
-	  
 	// 시/군/구 정보 출력
 	List<Region_city> getCityList(int provinceCode);
 
@@ -88,7 +85,7 @@ public interface PostsMapper {
 	// 해시태그가 DB에 있는지 검색
 	int findHashtag(String hashtag);
 
-	// 해시태그 저	장
+	// 해시태그 저 장
 	void insertHashtag(Hashtags hash);
 
 	// 해시태그 id 검색
@@ -96,5 +93,42 @@ public interface PostsMapper {
 
 	// post_hashtag 저장
 	void insertPostHashtag(HashMap<String, Integer> map);
+
+	// 인기글 반환(조회수, 좋아요, 출력될 게시글수)
+	List<Posts> hotPosts(@Param("viewPoint") int viewPoint, @Param("likePoint") int likePoint,
+			@Param("hotPostsCount") int hotPostsCount, @Param("hotPostsDuration") int hotPostsDuration);
+
+	// 인기글 반환(조회수, 좋아요, 출력될 게시글수, 카테고리 필터링)
+	List<Posts> hotPostsByCategory(@Param("viewPoint") int viewPoint, @Param("likePoint") int likePoint,
+			@Param("hotPostsCount") int hotPostsCount, @Param("hotPostsDuration") int hotPostsDuration,
+			@Param("category_id") int category_id);
+
+	// 게시글 수정 시 수정 폼에 보여줄 데이터 호출
+	PostModify selectPostModifyDetail(int id);
+
+	// 게시글에 등록되있던 해시태그 호출
+	List<String> getHashtag(int id);
+
+	// 게시글에서 삭제된 해시태그 제거
+	void deletePostHashtag(HashMap<String, Object> map);
+
+	// 게시글 업데이트
+	int updatePost(Posts posts);
+	
+	// 카테고리 + 시(city_id) 게시글 수 조회
+	int countByCategoryAndCity(@Param("categoryId") int categoryId, @Param("cityId") int cityId);
+
+	// 카테고리 + 시(city_id) 게시글 리스트 조회 (공지사항 포함 방식 유지 시 추가 가공 필요)
+	List<Posts> c_list_by_city(@Param("pdto") Page pdto, @Param("cityId") int cityId);
+
+	List<Posts> getPostsByCity(int city_id);
+ 
+ 
+	int countByCategoryCityAndKeyword(Map<String, Object> map);
+
+	List<Posts> c_list_by_city_and_keyword(Map<String, Object> map);
+
+	List<Posts> c_list_by_keyword(Map<String, Object> map);
+
 
 }

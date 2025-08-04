@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.boot.commu.mapper.UserMapper;
 import com.boot.commu.model.Comments;
+import com.boot.commu.model.Page;
 import com.boot.commu.model.Posts;
 import com.boot.commu.model.Users;
 
@@ -189,6 +190,8 @@ public class UserController {
 
 			model.addAttribute("res", dto);
 		}
+		
+		model.addAttribute("name", dto.getName());
 
 		return "user/user_findId_res";
 	}
@@ -205,46 +208,152 @@ public class UserController {
 
 			model.addAttribute("res", dto);
 		}
+		
+		model.addAttribute("name", dto.getName());
 
 		return "user/user_findPwd_res";
 	}
-
+	
+	
 	// 내 게시물 출력
-		@GetMapping("myposts.go")
-		public String myposts(HttpSession session, Model model, HttpServletResponse response) throws IOException {
-			
-			if(!loginalert(response, session)) {
-				return null;
-			}
-			
-			int users = ((Users) session.getAttribute("loginUser")).getId();
+	@GetMapping("myposts.go")
+	public String myposts(@RequestParam(name = "page", defaultValue = "1") int page,
+	                      HttpSession session,
+	                      Model model,
+	                      HttpServletResponse response) throws IOException {
 
-			List<Posts> myPosts = this.mapper.myPosts(users);
+	    if (!loginalert(response, session)) {
+	        return null;
+	    }
 
-			model.addAttribute("myPosts", myPosts);
+	    int users = ((Users) session.getAttribute("loginUser")).getId();
+	    int rowsize = 10;  
 
-			return "user/user_myposts";
+	    int totalRecord = this.mapper.MyPostCount(users); 
+	    Page paging = new Page(page, rowsize, totalRecord); 
+	    
 
-		}
+	    Map<String, Object> param = new HashMap<>();
+	    param.put("id", users);
+	    param.put("startno", paging.getStartNo());
+	    param.put("endno", paging.getEndNo());
 
-		// 내 댓글 출력
-		@GetMapping("mycomments.go")
-		public String mycomments(HttpSession session, Model model, HttpServletResponse response) throws IOException {
-			
-			if(!loginalert(response, session)) {
-				return null;
-			}
-			
-			int users = ((Users) session.getAttribute("loginUser")).getId();
+	    List<Posts> myPosts = this.mapper.MyPosts(param); 
+	    
+	    model.addAttribute("myPosts", myPosts);
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", paging.getAllPage());
 
-			List<Comments> myComments = this.mapper.myComments(users);
+	    return "user/user_myposts";
+	}
+	
+	// 내 게시물 내의 검색
+	@GetMapping("myposts_search.go")
+	public String myposts_search(@RequestParam("myposts_search") String search,
+									    @RequestParam(name = "page", defaultValue = "1") int page,
+									    Model model,
+									    HttpSession session) {
+	    int users = ((Users) session.getAttribute("loginUser")).getId();
 
-			System.out.println(myComments);
+	    int rowsize = 10;
 
-			model.addAttribute("myComments", myComments);
+	    // 🔸 총 검색 결과 수 조회
+	    Map<String, Object> countParam = new HashMap<>();
+	    countParam.put("id", users);
+	    countParam.put("search", search);
 
-			return "user/user_mycomments";
-		}
+	    int totalRecord = this.mapper.MyPostSearchCount(countParam);  // 이 쿼리 추가 필요
+
+	    Page paging = new Page(page, rowsize, totalRecord);
+	    paging.setKeyword(search);  // JSP에서 검색어 유지용
+
+	    // 🔸 실제 페이징된 게시글 검색
+	    Map<String, Object> param = new HashMap<>();
+	    param.put("id", users);
+	    param.put("search", search);
+	    param.put("startno", paging.getStartNo());
+	    param.put("endno", paging.getEndNo());
+
+	    List<Posts> myPosts = this.mapper.MyPostsSearch(param);  // 이 쿼리 추가 필요
+
+	    model.addAttribute("myPosts", myPosts);
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", paging.getAllPage());
+
+	    return "user/user_myposts";
+	}
+
+
+
+	// 내 댓글 출력
+	@GetMapping("mycomments.go")
+	public String mycomments(@RequestParam(name = "page", defaultValue = "1") int page,
+	                         HttpSession session,
+	                         Model model,
+	                         HttpServletResponse response) throws IOException {
+
+	    if (!loginalert(response, session)) {
+	        return null;
+	    }
+
+	    int users = ((Users) session.getAttribute("loginUser")).getId();
+	    int rowsize = 10;
+
+	    int totalRecord = this.mapper.myCommentCount(users);
+	    Page paging = new Page(page, rowsize, totalRecord);
+
+	    Map<String, Object> param = new HashMap<>();
+	    param.put("id", users);
+	    param.put("startno", paging.getStartNo());
+	    param.put("endno", paging.getEndNo());
+
+	    List<Comments> myComments = this.mapper.myComments(param); 
+
+	    model.addAttribute("myComments", myComments);
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("currentPage", page);
+
+	    return "user/user_mycomments";
+	}
+
+	
+	
+	// 내 댓글 내의 검색
+	@GetMapping("mycomment_search.go")
+	public String mycomment_search(@RequestParam("mycomment_search") String search,
+	                               @RequestParam(name = "page", defaultValue = "1") int page,
+	                               Model model,
+	                               HttpSession session) {
+
+	    int user = ((Users) session.getAttribute("loginUser")).getId();
+	    int rowsize = 10;
+
+	    Map<String, Object> countParam = new HashMap<>();
+	    countParam.put("id", user);
+	    countParam.put("search", search);
+
+	    int totalRecord = this.mapper.mycommentsearchcount(countParam); 
+
+	    Page paging = new Page(page, rowsize, totalRecord);
+	    paging.setKeyword(search);
+
+	    Map<String, Object> param = new HashMap<>();
+	    param.put("id", user);
+	    param.put("search", search);
+	    param.put("startno", paging.getStartNo());
+	    param.put("endno", paging.getEndNo());
+
+	    List<Comments> myCommentSearch = this.mapper.mycommentsearch(param);  
+
+	    model.addAttribute("myComments", myCommentSearch);
+	    model.addAttribute("paging", paging);
+	    model.addAttribute("currentPage", page);
+
+	    return "user/user_mycomments";
+	}
+
 
 		// 내 정보 출력
 		@GetMapping("myprofile.go")
@@ -264,42 +373,9 @@ public class UserController {
 
 		}
 
-		// 내 게시물 내의 검색
-		@GetMapping("myposts_search.go")
-		public String myposts_search(@RequestParam("myposts_search") String search, Model model, HttpSession session) {
-
-			int users = ((Users) session.getAttribute("loginUser")).getId();
-
-			Map<String, Object> map = new HashMap<>();
-
-			map.put("search", search);
-			map.put("id", users);
-
-			List<Posts> myPosts = this.mapper.search(map);
-
-			model.addAttribute("myPosts", myPosts);
-
-			return "user/user_myposts";
-
-		}
 		
-		// 내 댓글 내의 검색
-		@GetMapping("mycomment_search.go")
-		public String mycomment_search(@RequestParam("mycomment_search") String search, Model model, HttpSession session) {
-			
-			int user = ((Users)session.getAttribute("loginUser")).getId();
-			
-			Map<String, Object> map = new HashMap<>();
-			
-			map.put("search", search);
-			map.put("id", user);
-			
-			List<Comments> myComment_search = this.mapper.myComments_search(map);
-			
-			model.addAttribute("myComments", myComment_search);
-			
-			return "user/user_mycomments";
-		}
+		
+		
 		
 		// 내 정보 수정
 		@PostMapping("myprofileModify.go")

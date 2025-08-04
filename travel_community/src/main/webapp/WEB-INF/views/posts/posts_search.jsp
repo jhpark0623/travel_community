@@ -1,20 +1,21 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8"%>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>공지사항 전체 리스트</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 <body>
 
-<jsp:include page="../../include/header.jsp" />
+	<jsp:include page="../../include/header.jsp" />
 
 	<div class="container my-5">
+	
 	   <h2 class="text-center mb-4">📢 Posts 검색 리스트</h2>
 	
 	   <!-- ✅ paging 변수 설정 -->
@@ -72,7 +73,7 @@
 	
 	   <!-- 페이징 처리 -->
 	   <nav>
-		   <ul class="pagination justify-content-center">
+	      <ul class="pagination justify-content-center">
 		      <c:if test="${paging.page > paging.block}">
 		         <li class="page-item">
 		            <a class="page-link" href="${pageContext.request.contextPath}/posts_list.go/${i}?page=1">처음</a>
@@ -97,22 +98,7 @@
 		         </li>
 		      </c:if>
 		   </ul>
-		</nav>
-
-	
-	   <!-- ✅ 검색 영역 -->
-	   <form method="post" action="${pageContext.request.contextPath}/posts_search.go" class="d-flex justify-content-center mt-4">
-	      <div class="input-group w-50">
-	         <select class="form-select" name="field">
-	            <option value="title">제목</option>
-	            <option value="cont">내용</option> 
-	            <option value="nickname">작성자</option>
-	            <option value="hashtage">해시태그</option>
-	         </select>
-	         <input type="text" name="keyword" class="form-control" placeholder="검색어를 입력하세요">
-	         <button class="btn btn-outline-primary" type="submit">검색</button>
-	      </div>
-	   </form>
-	</div> 
+	  </nav>
+	</div>
 </body>
 </html>
