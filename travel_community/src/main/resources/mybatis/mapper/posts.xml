@@ -4,14 +4,12 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-
 <mapper namespace="com.boot.commu.mapper.PostsMapper">
 
 	<select id="countByCategory" parameterType="int" resultType="int">
  	   select count(*) from a_posts where category_id = #{i} and state = 'Y'
 	</select>
 	
-
 	<select id="list" parameterType="page" resultType="posts">
 		SELECT p.*, u.nickname
 		FROM 
@@ -21,7 +19,6 @@
 		WHERE p.rnum BETWEEN #{startNo} AND #{endNo} 
 	</select>
 
-	
 	<select id="cont" parameterType="int" resultType="posts">
 	   select * from a_posts where id = #{id}
 	</select>
@@ -69,7 +66,6 @@
 	  ORDER BY p.id DESC
 	</select>
 
-	
 	<select id="countByNotice" parameterType="int">
 		select count(*) from a_notices where is_pop = 'Y'
 	</select>
@@ -99,9 +95,9 @@
 	             0 AS order_type
 	      FROM a_notices n
 	      WHERE n.is_pop = 'Y'
-	
+
 	      UNION ALL
-	
+
 	      SELECT p.id,
 	             u.nickname,
 	             p.title,
@@ -166,4 +162,115 @@
 	    WHERE ROWNUM <= #{hotPostsCount}
 	  ]]>
 	</select>
+	
+	<select id="getPostsByCity" resultType="posts">
+	    SELECT p.*, u.nickname
+	    FROM a_posts p
+	    JOIN a_users u ON p.user_id = u.id
+	    WHERE p.city_id = #{city_id, jdbcType=INTEGER}
+	    ORDER BY p.id DESC
+	</select>
+	
+	<select id="countByCategoryAndCity" resultType="int">
+	    SELECT COUNT(*) FROM a_posts
+	    WHERE category_id = #{categoryId}
+	    AND city_id = #{cityId, jdbcType=INTEGER}
+	</select>
+		
+	<select id="c_list_by_city" parameterType="map" resultType="posts">
+	  <![CDATA[
+	  SELECT *
+	  FROM (
+	    SELECT combined.id,
+	           combined.nickname,
+	           combined.title,
+	           combined.content,
+	           combined.created_at,
+	           combined.type,
+	           combined.view_count,
+	           combined.like_count,
+	           ROW_NUMBER() OVER (ORDER BY combined.order_type ASC, combined.id DESC) AS rnum
+	    FROM (
+	      SELECT n.id,
+	             NULL AS nickname,
+	             n.title,
+	             n.content,
+	             n.created_at,
+	             'notice' AS type,
+	             NULL AS view_count,
+	             NULL AS like_count,
+	             0 AS order_type
+	      FROM a_notices n
+	      WHERE n.is_pop = 'Y'
+
+	      UNION ALL
+
+	      SELECT p.id,
+	             u.nickname,
+	             p.title,
+	             p.content,
+	             p.created_at,
+	             'post' AS type,
+	             p.view_count,
+	             p.like_count,
+	             1 AS order_type
+	      FROM a_posts p
+	      JOIN a_users u ON p.user_id = u.id
+	      WHERE p.category_id = #{pdto.categoryId}
+	        AND p.city_id = #{cityId, jdbcType=INTEGER}
+	        AND p.state = 'Y'
+	    ) combined
+	  )
+	  WHERE rnum BETWEEN #{pdto.startNo} AND #{pdto.endNo}
+	  ]]>
+	</select>
+
+	<!-- 카테고리 + 시 + 키워드 게시글 수 -->
+	<select id="countByCategoryCityAndKeyword" resultType="int" parameterType="map">
+	  SELECT COUNT(*) FROM a_posts
+	  WHERE category_id = #{categoryId}
+	    AND city_id = #{cityId, jdbcType=INTEGER}
+	    AND (title LIKE '%' || #{keyword} || '%' OR content LIKE '%' || #{keyword} || '%')
+	</select>
+
+	<!-- 카테고리 + 키워드 게시글 수 -->
+	<select id="countByCategoryAndKeyword" resultType="int" parameterType="map">
+	  SELECT COUNT(*) FROM a_posts
+	  WHERE category_id = #{categoryId}
+	    AND (title LIKE '%' || #{keyword} || '%' OR content LIKE '%' || #{keyword} || '%')
+	</select>
+	
+	<!-- 카테고리 + 시 + 키워드 게시글 리스트 -->
+	<select id="c_list_by_city_and_keyword" resultType="posts" parameterType="map">
+	  <![CDATA[
+	  SELECT * FROM (
+	    SELECT p.*, u.nickname,
+	           ROW_NUMBER() OVER (ORDER BY p.id DESC) AS rnum
+	    FROM a_posts p
+	    JOIN a_users u ON p.user_id = u.id
+	    WHERE p.category_id = #{pdto.categoryId}
+	      AND p.city_id = #{cityId, jdbcType=INTEGER}
+	      AND (p.title LIKE '%' || #{keyword} || '%' OR p.content LIKE '%' || #{keyword} || '%')
+	      AND p.state = 'Y'
+	  )
+	  WHERE rnum BETWEEN #{pdto.startNo} AND #{pdto.endNo}
+	  ]]>
+	</select>
+	
+	<!-- 카테고리 + 키워드 게시글 리스트 -->
+	<select id="c_list_by_keyword" resultType="posts" parameterType="map">
+	  <![CDATA[
+	  SELECT * FROM (
+	    SELECT p.*, u.nickname,
+	           ROW_NUMBER() OVER (ORDER BY p.id DESC) AS rnum
+	    FROM a_posts p
+	    JOIN a_users u ON p.user_id = u.id
+	    WHERE p.category_id = #{pdto.categoryId}
+	      AND (p.title LIKE '%' || #{keyword} || '%' OR p.content LIKE '%' || #{keyword} || '%')
+	      AND p.state = 'Y'
+	  )
+	  WHERE rnum BETWEEN #{pdto.startNo} AND #{pdto.endNo}
+	  ]]>
+	</select>
+
 </mapper>

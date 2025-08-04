@@ -105,33 +105,83 @@ public class PostsController {
 	}
 
 	@GetMapping("/posts_list.go/{i}")
-	public String list(@PathVariable("i") int pCategory, @RequestParam(value = "page", defaultValue = "1") 
-			int page, Model model) {
-		
-	    // 카테고리에 해당하는 게시글의 수
-	    int countP = this.pmapper.countByCategory(pCategory);
-	    // is_pop = 'Y' 인 공지사항의 수
+	public String list(
+	        @PathVariable("i") int pCategory,
+	        @RequestParam(value = "page", defaultValue = "1") int page,
+	        @RequestParam(value = "cityId", required = false) Integer cityId,
+	        @RequestParam(value = "keyword", required = false) String keyword,
+	        @RequestParam(value = "field", required = false) String field,
+	        Model model) {
+
+	    int countP;
+	    List<Posts> cList;
+
+	    List<Region_province> provinceList = this.pmapper.getProvinceList();
+
+	    // 검색어와 도시 여부에 따른 게시글 개수 계산
+	    if (keyword != null && !keyword.trim().isEmpty()) {
+	        if (cityId != null) {
+	            Map<String, Object> map = Map.of(
+	                "categoryId", pCategory,
+	                "cityId", cityId,
+	                "keyword", keyword
+	            );
+	            countP = this.pmapper.countByCategoryCityAndKeyword(map);
+	        } else {
+	            Map<String, Object> map = Map.of(
+	                "categoryId", pCategory,
+	                "keyword", keyword
+	            );
+	            countP = this.pmapper.countByCategoryCityAndKeyword(map);
+	        }
+	    } else {
+	        if (cityId != null) {
+	            countP = this.pmapper.countByCategoryAndCity(pCategory, cityId);
+	        } else {
+	            countP = this.pmapper.countByCategory(pCategory);
+	        }
+	    }
+
 	    int countN = this.pmapper.countByNotice();
-	    
 	    totalRecord = countP + countN;
 
-	    // 페이징 객체 생성
 	    Page pdto = new Page(page, rowsize, totalRecord, pCategory);
-  
-	    // 해당 카테고리에 해당하는 게시글 + 공지사항 리스트
-	    List<Posts> cList = this.pmapper.c_list(pdto);
-	    
-	    // ✅ displayDate 메서드
+
+	    // 검색어와 도시 여부에 따른 게시글 목록 조회
+	    if (keyword != null && !keyword.trim().isEmpty()) {
+	        Map<String, Object> map = new HashMap<>();
+	        map.put("pdto", pdto);
+	        map.put("keyword", keyword);
+	        if (cityId != null) {
+	            map.put("cityId", cityId);
+	            cList = this.pmapper.c_list_by_city_and_keyword(map);
+	        } else {
+	            cList = this.pmapper.c_list_by_keyword(map);
+	        }
+	    } else {
+	        if (cityId != null) {
+	            cList = this.pmapper.c_list_by_city(pdto, cityId);
+	        } else {
+	            cList = this.pmapper.c_list(pdto);
+	        }
+	    }
+
 	    for (Posts post : cList) {
 	        post.setDisplayDateFromCreatedAt();
 	    }
-	    
+
 	    model.addAttribute("cList", cList);
 	    model.addAttribute("Paging", pdto);
 	    model.addAttribute("CategoryId", pCategory);
+	    model.addAttribute("cityId", cityId);
+	    model.addAttribute("keyword", keyword);
+	    model.addAttribute("field", field);
+	    model.addAttribute("provinceList", provinceList);
 
 	    return "posts/posts_list";
-  }
+	}
+
+
 
 	@GetMapping("posts_notices_content.go")
 	public String content(@RequestParam("no") int no, @RequestParam("page") int nowPage, Model model) {
@@ -171,17 +221,22 @@ public class PostsController {
 	}
 
 	@GetMapping("/posts_search_content.go")
-	public String searchCont(@RequestParam("no") int no, @RequestParam(value = "page", defaultValue = "1") int nowPage,
-			Model model) {
-		Posts cont = pmapper.cont(no);
-		if (cont == null) {
-			return "redirect:/posts_list.go?page=" + nowPage;
-		}
-		model.addAttribute("Cont", cont);
-		model.addAttribute("Page", nowPage);
+	public String searchCont(@RequestParam("no") int no,
+	                         @RequestParam(value = "page", defaultValue = "1") int nowPage,
+	                         @RequestParam("categoryId") int categoryId,
+	                         Model model) {
+	    Posts cont = pmapper.cont(no);
+	    if (cont == null) {
+	        return "redirect:/posts_list.go/" + categoryId + "?page=" + nowPage;
+	    }
 
-		return "posts/posts_search_content";
+	    model.addAttribute("Cont", cont);
+	    model.addAttribute("Page", nowPage);
+	    model.addAttribute("CategoryId", categoryId);  // ✅ 모델에 추가
+
+	    return "posts/posts_search_content";
 	}
+
 
 	@GetMapping("/notices_list.go")
 	public String noticeList(@RequestParam(value = "page", defaultValue = "1") int page, Model model) {
@@ -337,11 +392,14 @@ public class PostsController {
 		// 검색한 게시물을 List로 가져오는 메서드 호출.
 		List<Notices> searchList = this.noticesMapper.search(pdto);
 
-		model.addAttribute("searchPageList", searchList).addAttribute("Paging", pdto);
+		model.addAttribute("searchPageList", searchList)
+		     .addAttribute("Paging", pdto);
 
 		return "notices/notices_search_list";
 
 	}
+	
+ 
 
 	@GetMapping("/notices_search_content.go")
 	public String searchContent(@RequestParam("no") int no,
@@ -589,30 +647,21 @@ public class PostsController {
 	// 시/광역시 코드를 받아서 해당 도시의 시/군/구 코드 출력
 	@PostMapping(value = "/getCityCode", produces = "application/json; charset=utf8")
 	@ResponseBody
-	public String getCityCode(@RequestParam("provinceCode") int provinceCode) throws JSONException {
-		JsonObject jsonObject = new JsonObject();
+	public List<Map<String, Object>> getCityCode(@RequestParam("provinceCode") int provinceCode) {
+	    List<Region_city> getCityList = this.pmapper.getCityList(provinceCode);
+	    List<Map<String, Object>> cityList = new ArrayList<>();
+	    
+	    System.out.println(getCityList);
 
-		// 시/군/구 리스트 출력
-		List<Region_city> getCityList = this.pmapper.getCityList(provinceCode);
+	    for (Region_city city : getCityList) {
+	        Map<String, Object> cityMap = new HashMap<>();
+	        cityMap.put("id", city.getId());
+	        cityMap.put("Province_id", city.getProvince_id());
+	        cityMap.put("name", city.getName());
+	        cityList.add(cityMap);
+	    }
 
-		//
-		List<JSONObject> cityList = new ArrayList<>();
-
-		// 각각 리스트 json으로 변환 후 리스트에 저장
-		for (Region_city city : getCityList) {
-			JSONObject cityJson = new JSONObject();
-
-			cityJson.put("id", city.getId());
-			cityJson.put("Province_id", city.getProvince_id());
-			cityJson.put("name", city.getName());
-
-			cityList.add(cityJson);
-		}
-
-		jsonObject.addProperty("cityList", cityList.toString());
-		jsonObject.addProperty("responseCode", "success");
-
-		return jsonObject.toString();
+	    return cityList;
 	}
 
 	// 게시글 작성 정보 저장
