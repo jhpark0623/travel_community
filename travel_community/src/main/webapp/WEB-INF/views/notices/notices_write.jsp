@@ -91,18 +91,12 @@ input.form-control:focus, textarea.form-control:focus {
 	<!-- header include -->
 	<jsp:include page="../../include/header.jsp" />
 
-	<div class="container" style="max-width: 700px;">
+	<div class="container" style="width: 800px; margin: 50px auto;">
 		<h3 class="page-title">📢 공지사항 작성</h3>
 		<hr class="divider">
 
 		<form method="post"
 			action="<%=request.getContextPath()%>/notices_write_ok.go">
-			<div class="mb-4">
-				<label for="nickname" class="form-label">작성자</label> <input
-					type="text" class="form-control" id="nickname" name="nickname"
-					placeholder="작성자 이름" required>
-			</div>
-
 			<div class="mb-4">
 				<label for="title" class="form-label">제목</label> <input type="text"
 					class="form-control" id="title" name="title" placeholder="공지 제목"
@@ -110,9 +104,9 @@ input.form-control:focus, textarea.form-control:focus {
 			</div>
 
 			<div class="mb-4">
-				<label for="content" class="form-label">내용</label>
-				<textarea class="form-control" id="content" name="content" rows="6"
-					placeholder="공지 내용을 입력하세요" required></textarea>
+				<label for="summernote" class="form-label">내용</label>
+				<textarea class="form-control" id="summernote" name="content"
+					rows="6" placeholder="공지 내용을 입력하세요" required></textarea>
 			</div>
 
 			<div class="btn-group-custom">
@@ -122,6 +116,53 @@ input.form-control:focus, textarea.form-control:focus {
 		</form>
 	</div>
 
+	<script type="text/javascript">
+
+//summernote 기본 설정
+$('#summernote').summernote({
+	placeholder:"내용을 입력해 주세요",
+	height: 420,
+	disableResizeEditor: true,
+	lang: "ko-KR",
+	background: "white",
+	
+	
+	toolbar: [
+    	// [groupName, [list of button]]
+    	['Font Style', ['fontname']],
+    	['style', ['bold', 'italic', 'underline']],
+    	['font', ['strikethrough']],
+    	['fontsize', ['fontsize']],
+    	['color', ['color']],
+    	['para', ['paragraph']],
+    	['height', ['height']],
+    	['Insert', ['picture']],
+    	['Insert', ['link']],
+    	['Misc', ['fullscreen']]
+    ],
+
+    fontSizes: [
+        '8', '9', '10', '11', '12', '14', '16', '18',
+        '20', '22', '24', '28', '30', '36', '50', '72',
+    ], // 글꼴 크기 옵션
+    
+    // 파일 업로드를 위한 콜백함수
+    callbacks: {
+        onImageUpload: function (files, editor, welEditable) {
+            // 파일 업로드 (다중 업로드를 위해 반복문 사용)
+            for (let file of files) {
+            	
+                // 이미지 alt 속성 삽일을 위한 설정
+                const alt = file.name
+                if (alt == '') alt = '이미지'
+                
+                uploadImageFile(file, this, alt)
+            }
+        },
+    },
+});
+
+</script>
 
 </body>
 </html>

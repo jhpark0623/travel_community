@@ -215,9 +215,12 @@ span:hover {
 			const inputValue = $("#hashtags").val().split(",");
 			const delID = $(this).parent().attr("id");
 			
+			// 해시태그 목록에서 해당 해시태그를 찾아서 삭제
 			for(let i = 0; i < inputValue.length; i++){
-				if(inputValue[i] == delID)
+				if(inputValue[i] == delID){					
 					hashtags.splice(i, 1);
+					break;
+				}
 			}
 			
 			$('#hashtags').val(hashtags)
