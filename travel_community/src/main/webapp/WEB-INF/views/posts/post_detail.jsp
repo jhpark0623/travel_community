@@ -206,16 +206,26 @@ ul li a.text-dark:hover {
 	</c:choose>
 	</div>
 
-    <!-- 수정/삭제 버튼 -->
-    <c:if test="${not empty loginUser && (loginUser.id == post.user_id || loginUser.role eq 'ADMIN')}">
-        <div class="mb-3">
-            <button class="btn btn-outline-primary btn-sm" onclick="location.href='/post_modify.go?id=${post.id}'">✏ 수정</button>
-            <form action="/post_delete.go" method="post" class="d-inline">
-                <input type="hidden" name="id" value="${post.id}" />
-                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
-            </form>
-        </div>
-    </c:if>
+    <!-- 본인은 수정,삭제 -->
+	<c:if test="${not empty loginUser && loginUser.id == post.user_id}">
+	    <div class="mb-3">
+	        <button class="btn btn-outline-primary btn-sm" onclick="location.href='/post_modify.go?id=${post.id}'">✏ 수정</button>
+	        <form action="/post_delete.go" method="post" class="d-inline">
+	            <input type="hidden" name="id" value="${post.id}" />
+	            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
+	        </form>
+	    </div>
+	</c:if>
+	
+	<!-- 관리자는 삭제만 -->
+	<c:if test="${not empty loginUser && loginUser.role eq 'ADMIN' && loginUser.id != post.user_id}">
+	    <div class="mb-3">
+	        <form action="/post_delete.go" method="post" class="d-inline">
+	            <input type="hidden" name="id" value="${post.id}" />
+	            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?');">🗑 삭제</button>
+	        </form>
+	    </div>
+	</c:if>
 
     <hr>
 
