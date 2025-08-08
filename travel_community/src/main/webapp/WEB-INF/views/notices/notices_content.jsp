@@ -62,12 +62,12 @@
             background-color: #f8fafc;
         }
 
-        .btn-group {
+        .bg {
             margin-top: 30px;
             text-align: center;
         }
 
-        .btn-group .btn {
+        .bg .btn {
             min-width: 100px;
             margin: 0 5px;
             font-size: 15px;
@@ -87,34 +87,44 @@
         <i class="bi bi-megaphone-fill"></i> 공지사항 상세보기
     </div>
 
-    <!-- 상세 테이블 -->
-    <table class="table table-bordered notice-table">
-        <tr>
-            <th>작성자</th>
-            <td>관리자</td>
-        </tr>
-        <tr>
-            <th>제목</th>
-            <td>${dto.title}</td>
-        </tr>
-        <tr>
-            <th>내용</th>
-            <td style="white-space: pre-wrap;">${dto.content}</td>
-        </tr>
-        <tr>
-            <th>작성일자</th>
-            <td>${dto.created_at}</td>
-        </tr>
-        <c:if test="${not empty dto.updated_at}">
-            <tr>
-                <th>수정일자</th>
-                <td>${dto.updated_at}</td>
-            </tr>
-        </c:if>
-    </table>
+	<table class="table table-bordered shadow-sm rounded bg-white">
+	    <tbody>
+	        <!-- 제목 -->
+	        <tr class="table-primary">
+	            <th class="text-center align-middle" style="width: 15%;">제목</th>
+	            <td colspan="3" class="fw-bold fs-5 text-dark">${dto.title}</td>
+	        </tr>
+	
+	        <!-- 작성자 / 작성일 or 수정일 -->
+	        <tr>
+	            <th class="text-center align-middle">작성자</th>
+	            <td class="text-secondary" style="width: 25%;">관리자</td>
+	
+	            <c:if test="${not empty dto.updated_at}">
+	                <th class="text-center align-middle">수정일자</th>
+	                <td class="text-secondary">${dto.updated_at}</td>
+	            </c:if>
+	
+	            <c:if test="${empty dto.updated_at}">
+	                <th class="text-center align-middle">작성일자</th>
+	                <td class="text-secondary">${dto.created_at}</td>
+	            </c:if>
+	        </tr>
+	
+	        <!-- 내용 -->
+	        <tr>
+	            <th class="text-center align-middle">내용</th>
+	            <td colspan="3" style="padding: 0;">
+	                <div class="p-4 bg-light text-dark" style="min-height: 200px; border-radius: 0 0 6px 6px;">
+	                    ${dto.content}
+	                </div>
+	            </td>
+	        </tr>
+	    </tbody>
+	</table>
 
     <!-- 버튼 -->
-    <div class="btn-group">
+    <div class="btn-group bg">
 	    <c:if test="${loginUser.role eq 'ADMIN'}">
 	        <button class="btn btn-outline-primary"
 	                onclick="location.href='notices_modify.go?no=${dto.id}&page=${Page}'">글수정</button>
