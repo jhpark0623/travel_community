@@ -114,5 +114,21 @@ public interface PostsMapper {
 
 	// 게시글 업데이트
 	int updatePost(Posts posts);
+	
+	// 카테고리 + 시(city_id) 게시글 수 조회
+	int countByCategoryAndCity(@Param("categoryId") int categoryId, @Param("cityId") int cityId);
+
+	// 카테고리 + 시(city_id) 게시글 리스트 조회 (공지사항 포함 방식 유지 시 추가 가공 필요)
+	List<Posts> c_list_by_city(@Param("pdto") Page pdto, @Param("cityId") int cityId);
+
+	List<Posts> getPostsByCity(int city_id);
+ 
+ 
+	int countByCategoryCityAndKeyword(Map<String, Object> map);
+
+	List<Posts> c_list_by_city_and_keyword(Map<String, Object> map);
+
+	List<Posts> c_list_by_keyword(Map<String, Object> map);
+
 
 }

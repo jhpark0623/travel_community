@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+ 
 <meta charset="UTF-8">
 <title>검색사항 상세보기</title>
 
@@ -74,47 +75,51 @@ body {
 	padding: 10px 18px;
 }
 </style>
+
 </head>
-<body>
-	<jsp:include page="../../include/header.jsp" />
+
+<body class="bg-light">
+<jsp:include page="../../include/header.jsp" />
+ 
 
 	<div class="container" style="max-width: 750px; padding: 30px;">
 		<!-- ✅ 너비+패딩 증가 -->
 		<c:set var="dto" value="${Cont}" />
 
-		<!-- 제목 -->
-		<div class="main-title">
-			<i class="bi bi-megaphone-fill"></i> 게시글 검색내용
-		</div>
-
-		<!-- 상세 테이블 -->
-		<table class="table table-bordered notice-table">
-			<tr>
-				<th>작성자</th>
-				<td>관리자</td>
-			</tr>
-			<tr>
-				<th>제목</th>
-				<td>${dto.title}</td>
-			</tr>
-			<tr>
-				<th>내용</th>
-				<td style="white-space: pre-wrap;">${dto.content}</td>
-			</tr>
-			<tr>
-				<th>작성일자</th>
-				<td>${dto.created_at}</td>
-			</tr>
-			<c:if test="${not empty dto.updated_at}">
-				<tr>
-					<th>수정일자</th>
-					<td>${dto.updated_at}</td>
-				</tr>
-			</c:if>
-		</table>
 
 
-	</div>
+    <!-- ✅ 제목 -->
+    <h2 class="text-center mb-4 fw-bold text-primary">
+        <i class="bi bi-megaphone-fill me-2 text-danger"></i> 게시글 검색내용
+    </h2>
 
+    <!-- ✅ 부트스트랩 테이블 -->
+    <table class="table table-bordered bg-white shadow-sm">
+        <tbody>
+            <tr>
+                <th scope="row" class="bg-light text-center text-secondary">작성자</th>
+                <td>관리자</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light text-center text-secondary">제목</th>
+                <td>${dto.title}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light text-center text-secondary">내용</th>
+                <td style="white-space: pre-wrap;">${dto.content}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="bg-light text-center text-secondary">작성일자</th>
+                <td>${dto.created_at}</td>
+            </tr>
+            <c:if test="${not empty dto.updated_at}">
+                <tr>
+                    <th scope="row" class="bg-light text-center text-secondary">수정일자</th>
+                    <td>${dto.updated_at}</td>
+                </tr>
+            </c:if>
+        </tbody>
+   	</table>
+</div>
 </body>
 </html>

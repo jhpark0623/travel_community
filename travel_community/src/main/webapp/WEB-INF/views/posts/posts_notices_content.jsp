@@ -83,6 +83,7 @@ body {
 		<!-- ✅ 너비+패딩 증가 -->
 		<c:set var="dto" value="${Cont}" />
 
+
 		<!-- 제목 -->
 		<div class="main-title">
 			<i class="bi bi-megaphone-fill"></i> 공지사항 상세보기
@@ -108,5 +109,7 @@ body {
 			</tr>
 
 		</table>
+	</div>	
+
 </body>
 </html>

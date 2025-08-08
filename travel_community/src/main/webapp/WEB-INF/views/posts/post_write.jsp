@@ -115,16 +115,18 @@ span:hover {
 					url: "/getCityCode",
 					data: {"provinceCode" : provinceCode},
 					success: function(res){
-						const cityList = res.cityList;
-						const cityArray = cityList.substring(1, cityList.length - 1).split(", ")
+						console.log(res)
+
+						const cityArray =res;
 						
 						$('#citySelect').empty();
 						$('#citySelect').append(
 								"<option>시/군/구</option>"
 								);
 						
+						
 						for(const cityItem of cityArray) {
-							const city = JSON.parse(cityItem);
+							const city = cityItem;
 							const option = $("<option value="+city.id+">"+city.name+"</option>");
 							$('#citySelect').append(option);
 						}
@@ -132,7 +134,7 @@ span:hover {
 				})
 				
 			});
-			
+			 
 			// summernote 기본 설정
 			$('#summernote').summernote({
 				placeholder:"내용을 입력해 주세요",
